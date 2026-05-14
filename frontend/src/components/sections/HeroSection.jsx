@@ -2,7 +2,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { ArrowUpRight, Play } from "lucide-react";
 import MagneticButton from "@/components/site/MagneticButton";
-import GlowOrb from "@/components/site/GlowOrb";
+import FluidGradient from "@/components/site/FluidGradient";
 import RevealText from "@/components/site/RevealText";
 import { whatsappLink } from "@/lib/brand";
 import { useI18n } from "@/lib/i18n";
@@ -20,9 +20,8 @@ export default function HeroSection() {
       className="relative min-h-screen overflow-hidden pt-32 md:pt-40 pb-20 px-4 md:px-8"
       data-testid="hero-section"
     >
-      <div className="absolute inset-0 grid-lines opacity-50 pointer-events-none" />
-      <GlowOrb color="#743089" size={760} intensity={0.55} className="-top-40 -left-40 animate-orbit-slow" />
-      <GlowOrb color="#FFA500" size={520} intensity={0.35} className="top-1/3 -right-32 animate-orbit-slow" delay={0.4} />
+      <div className="absolute inset-0 grid-lines opacity-30 pointer-events-none z-10" />
+      <FluidGradient intensity={1} />
 
       <motion.div style={{ y, opacity }} className="relative max-w-7xl mx-auto">
         <motion.div
