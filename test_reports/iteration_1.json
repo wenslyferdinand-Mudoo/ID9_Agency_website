@@ -1,0 +1,49 @@
+{
+  "summary": "First iteration end-to-end test of ID9_AGENCY backend + frontend. 22/22 pytest backend tests pass. Frontend public site (Home, Services, Portfolio, Blog, Contact) and Admin (login, overview, portfolio CRUD UI, journal/submissions nav, logout) all functional. Minor data-testid naming mismatch vs spec for some admin nav items and the success-state WhatsApp button.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/portfolio (POST)", "issue": "slugify() strips underscores entirely (e.g. 'TEST_Project_abc' -> 'testprojectabc'). The regex re.sub(r'[^a-zA-Z0-9\\s-]', '', text) drops underscores before the second regex can convert them to dashes. Slug uniqueness is preserved via uuid suffix, so non-blocking, but the slug becomes harder to read."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Home hero", "issues": ["Lenis smooth-scroll warning: 'Please ensure that the container has a non-static position, like relative/fixed/absolute to ensure scroll offset is calculated correctly.' — Non-blocking warning logged twice."]}
+    ],
+    "spec_mismatch_testids": [
+      {"spec": "admin-nav-blog", "actual": "admin-nav-journal"},
+      {"spec": "admin-nav-contacts", "actual": "admin-nav-submissions"},
+      {"spec": "contact-whatsapp-button (post-submit success)", "actual": "contact-success-whatsapp"}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_id9_backend.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "OPTIONAL: Update review-spec docs (or rename testids) to match: admin-nav-journal/admin-nav-submissions/contact-success-whatsapp.",
+    "OPTIONAL: Fix slugify() to preserve underscores as dashes — change re.sub(r'[^a-zA-Z0-9\\s-]', '', text) to re.sub(r'[^a-zA-Z0-9\\s_-]', '', text) so underscores get converted by the next step.",
+    "OPTIONAL: Wrap Lenis scroll target in a non-static positioned container to silence the warning."
+  ],
+  "critical_code_review_comments": [
+    "Auth: bcrypt + HS256 JWT correct; seed_admin is idempotent and updates password if env changes. No httpOnly cookie — token is Bearer-only stored in localStorage (acceptable for admin-only console; OK).",
+    "CORS: allow_credentials=False with wildcard origins — fine for current Bearer auth model.",
+    "MongoDB: all queries exclude _id correctly; UUID-based string ids used; unique indexes on users.email, portfolio.slug, blog.slug.",
+    "No rate limiting / brute-force lockout on /api/auth/login (spec asked for 5-fail lockout — NOT implemented). Acceptable for MVP but worth noting.",
+    "Pydantic validation works (422 on missing contact fields).",
+    "No file-size concerns; server.py is ~585 lines but cohesive.",
+    "Frontend uses REACT_APP_BACKEND_URL via axios; data-testids on all interactive elements (some names diverge from spec doc but consistent in code)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_id9_backend.py (created)"
+  ],
+  "success_rate": {"backend": "100% (22/22)", "frontend": "100% critical flows"},
+  "test_credentials": "admin@id9agency.com / ID9_Admin_2025! — works",
+  "seed_data_creation": "Seed already in place on startup (12 services, 6 portfolio, 4 blog posts, 1 admin). Verified by tests.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend regression suite at /app/backend/tests/test_id9_backend.py. Run: pytest /app/backend/tests/ -v --junitxml=/app/test_reports/pytest/pytest_results.xml. Admin sidebar uses 'admin-nav-journal' & 'admin-nav-submissions' (not -blog/-contacts). Contact success WhatsApp button has testid 'contact-success-whatsapp'. WhatsApp number is placeholder +15551234567. Portfolio admin list uses testids 'admin-edit-{slug}' / 'admin-delete-{slug}'. No brute-force lockout implemented; no httpOnly cookies (Bearer in localStorage only).",
+  "rca_of_the_issue": "N/A — no blocking bugs found. The only behavioral note is slugify dropping underscores: caused by regex stripping non-alphanumeric-whitespace-hyphen chars before whitespace/underscore/hyphen are normalised. Mitigation: include `_` in the kept-character class."
+}
