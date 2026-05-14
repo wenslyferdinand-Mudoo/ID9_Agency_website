@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 
 import { AuthProvider } from "@/lib/auth";
+import { I18nProvider } from "@/lib/i18n";
 import LenisProvider from "@/components/site/LenisProvider";
 import ScrollToTop from "@/components/site/ScrollToTop";
 import Navigation from "@/components/site/Navigation";
@@ -28,39 +29,41 @@ import AdminContacts from "@/pages/admin/AdminContacts";
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <LenisProvider>
-          <ScrollToTop />
-          <Navigation />
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/services" element={<ServicesPage />} />
-            <Route path="/portfolio" element={<PortfolioPage />} />
-            <Route path="/portfolio/:slug" element={<PortfolioDetailPage />} />
-            <Route path="/blog" element={<BlogPage />} />
-            <Route path="/blog/:slug" element={<BlogDetailPage />} />
-            <Route path="/contact" element={<ContactPage />} />
+      <I18nProvider>
+        <AuthProvider>
+          <LenisProvider>
+            <ScrollToTop />
+            <Navigation />
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/services" element={<ServicesPage />} />
+              <Route path="/portfolio" element={<PortfolioPage />} />
+              <Route path="/portfolio/:slug" element={<PortfolioDetailPage />} />
+              <Route path="/blog" element={<BlogPage />} />
+              <Route path="/blog/:slug" element={<BlogDetailPage />} />
+              <Route path="/contact" element={<ContactPage />} />
 
-            <Route path="/admin/login" element={<AdminLoginPage />} />
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute>
-                  <AdminLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<AdminOverview />} />
-              <Route path="portfolio" element={<AdminPortfolio />} />
-              <Route path="blog" element={<AdminBlog />} />
-              <Route path="contacts" element={<AdminContacts />} />
-            </Route>
-          </Routes>
-          <Footer />
-          <Toaster theme="dark" position="bottom-right" />
-        </LenisProvider>
-      </AuthProvider>
+              <Route path="/admin/login" element={<AdminLoginPage />} />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute>
+                    <AdminLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<AdminOverview />} />
+                <Route path="portfolio" element={<AdminPortfolio />} />
+                <Route path="blog" element={<AdminBlog />} />
+                <Route path="contacts" element={<AdminContacts />} />
+              </Route>
+            </Routes>
+            <Footer />
+            <Toaster theme="dark" position="bottom-right" />
+          </LenisProvider>
+        </AuthProvider>
+      </I18nProvider>
     </BrowserRouter>
   );
 }

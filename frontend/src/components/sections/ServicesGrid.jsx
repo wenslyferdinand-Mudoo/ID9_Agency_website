@@ -4,8 +4,9 @@ import * as Icons from "lucide-react";
 import { Link } from "react-router-dom";
 import api from "@/lib/api";
 import RevealText from "@/components/site/RevealText";
+import { useI18n } from "@/lib/i18n";
 
-function ServiceCard({ s, idx }) {
+function ServiceCard({ s, idx, exploreLabel }) {
   const Icon = Icons[s.icon] || Icons.Sparkles;
   return (
     <motion.div
@@ -37,7 +38,7 @@ function ServiceCard({ s, idx }) {
         to="/services"
         className="text-xs font-ui uppercase tracking-[0.2em] text-white/50 group-hover:text-orange_impact transition-colors inline-flex items-center gap-1"
       >
-        Explore <Icons.ArrowUpRight className="w-3 h-3" />
+        {exploreLabel} <Icons.ArrowUpRight className="w-3 h-3" />
       </Link>
     </motion.div>
   );
@@ -45,6 +46,7 @@ function ServiceCard({ s, idx }) {
 
 export default function ServicesGrid() {
   const [services, setServices] = useState([]);
+  const { t } = useI18n();
 
   useEffect(() => {
     api.get("/services").then((r) => setServices(r.data)).catch(() => {});
@@ -56,29 +58,28 @@ export default function ServicesGrid() {
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16">
           <div>
             <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.3em] mb-6">
-              (02) — Services
+              {t("svc.tag")}
             </p>
             <RevealText
               as="h2"
-              text="Twelve disciplines."
+              text={t("svc.h1")}
               className="font-display text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-[1.02]"
             />
             <RevealText
               as="h2"
-              text="One studio."
+              text={t("svc.h2")}
               className="font-display text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-[1.02] text-gradient-gold"
               delay={0.1}
             />
           </div>
           <p className="text-white/60 font-inter text-base max-w-md">
-            We operate as a single integrated studio — strategy, design, build, motion and
-            growth — so your brand moves in lockstep instead of fighting handoffs.
+            {t("svc.sub")}
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {services.map((s, i) => (
-            <ServiceCard key={s.slug} s={s} idx={i} />
+            <ServiceCard key={s.slug} s={s} idx={i} exploreLabel={t("svc.explore")} />
           ))}
         </div>
       </div>

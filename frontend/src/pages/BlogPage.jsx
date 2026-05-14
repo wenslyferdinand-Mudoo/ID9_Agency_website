@@ -5,9 +5,11 @@ import { ArrowUpRight } from "lucide-react";
 import api from "@/lib/api";
 import RevealText from "@/components/site/RevealText";
 import FinalCTA from "@/components/sections/FinalCTA";
+import { useI18n } from "@/lib/i18n";
 
 export default function BlogPage() {
   const [posts, setPosts] = useState([]);
+  const { t } = useI18n();
   useEffect(() => {
     api.get("/blog").then((r) => setPosts(r.data)).catch(() => {});
   }, []);
@@ -19,15 +21,15 @@ export default function BlogPage() {
     <main data-testid="blog-page" className="pt-32 md:pt-40">
       <section className="px-4 md:px-8 pb-12">
         <div className="max-w-7xl mx-auto">
-          <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.3em] mb-6">Journal</p>
+          <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.3em] mb-6">{t("bp.tag")}</p>
           <RevealText
             as="h1"
-            text="Field notes on craft,"
+            text={t("bp.h1")}
             className="font-display text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.98]"
           />
           <RevealText
             as="h1"
-            text="strategy and growth."
+            text={t("bp.h2")}
             className="font-display text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.98] italic"
             delay={0.1}
           />
@@ -51,7 +53,7 @@ export default function BlogPage() {
               </div>
               <div className="md:col-span-5">
                 <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.25em] mb-4">
-                  Featured · {featured.category}
+                  {t("bp.featured")} · {featured.category}
                 </p>
                 <h2 className="font-display text-3xl md:text-5xl font-black tracking-tighter leading-[1.05] group-hover:text-gradient-gold transition-colors text-balance">
                   {featured.title}

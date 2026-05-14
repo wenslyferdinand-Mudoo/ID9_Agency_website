@@ -1,51 +1,61 @@
 import { motion } from "framer-motion";
 import { Quote, Star } from "lucide-react";
 import RevealText from "@/components/site/RevealText";
+import { useI18n } from "@/lib/i18n";
 
 const TESTIMONIALS = [
   {
-    q: "ID9 didn't just redesign our brand — they reframed our entire business. Inbound leads tripled in 90 days.",
+    qEn: "ID9 didn't just redesign our brand — they reframed our entire business. Inbound leads tripled in 90 days.",
+    qFr: "ID9 n'a pas seulement redessiné notre marque — ils ont repositionné toute notre activité. Les leads entrants ont triplé en 90 jours.",
     a: "Élise R.",
-    r: "Founder, Lumen Studio",
+    rEn: "Founder, Lumen Studio",
+    rFr: "Fondatrice, Lumen Studio",
     img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80",
   },
   {
-    q: "An experience our investors describe as 'in a different league'. The platform pays for itself every month.",
+    qEn: "An experience our investors describe as 'in a different league'. The platform pays for itself every month.",
+    qFr: "Une expérience que nos investisseurs qualifient de « d'un autre niveau ». La plateforme se rembourse chaque mois.",
     a: "Marc D.",
-    r: "Managing Partner, Atlas Capital",
+    rEn: "Managing Partner, Atlas Capital",
+    rFr: "Associé Gérant, Atlas Capital",
     img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
   },
   {
-    q: "Booking became part of the experience. Direct bookings up 186% in the first quarter post-launch.",
+    qEn: "Booking became part of the experience. Direct bookings up 186% in the first quarter post-launch.",
+    qFr: "La réservation est devenue partie de l'expérience. Les réservations directes ont bondi de 186% au premier trimestre après le lancement.",
     a: "Naïka P.",
-    r: "Director, Noir Hotel Group",
+    rEn: "Director, Noir Hotel Group",
+    rFr: "Directrice, Noir Hotel Group",
     img: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=200&q=80",
   },
   {
-    q: "ID9 ships like a senior product team. We onboarded 2,400 teams in 90 days.",
+    qEn: "ID9 ships like a senior product team. We onboarded 2,400 teams in 90 days.",
+    qFr: "ID9 livre comme une équipe produit senior. Nous avons onboardé 2 400 équipes en 90 jours.",
     a: "Sam K.",
-    r: "Co-founder, Vortex Labs",
+    rEn: "Co-founder, Vortex Labs",
+    rFr: "Co-fondateur, Vortex Labs",
     img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80",
   },
 ];
 
 export default function Testimonials() {
+  const { t, lang } = useI18n();
   return (
     <section className="relative py-28 md:py-40 px-4 md:px-8 overflow-hidden" data-testid="testimonials-section">
       <div className="max-w-7xl mx-auto">
         <div className="mb-16">
           <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.3em] mb-6">
-            (06) — Testimonials
+            {t("ts.tag")}
           </p>
           <RevealText
             as="h2"
-            text="Founders we've helped."
+            text={t("ts.h1")}
             className="font-display text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-[1.02]"
           />
         </div>
 
         <div className="grid md:grid-cols-2 gap-5">
-          {TESTIMONIALS.map((t, i) => (
+          {TESTIMONIALS.map((it, i) => (
             <motion.figure
               key={i}
               initial={{ opacity: 0, y: 30 }}
@@ -62,17 +72,17 @@ export default function Testimonials() {
                 ))}
               </div>
               <blockquote className="font-display text-2xl md:text-[28px] font-bold leading-tight tracking-tight text-balance">
-                "{t.q}"
+                "{lang === "fr" ? it.qFr : it.qEn}"
               </blockquote>
               <figcaption className="mt-8 flex items-center gap-4">
                 <img
-                  src={t.img}
-                  alt={t.a}
+                  src={it.img}
+                  alt={it.a}
                   className="w-12 h-12 rounded-full object-cover border border-white/10"
                 />
                 <div>
-                  <p className="font-ui font-semibold">{t.a}</p>
-                  <p className="text-white/50 text-sm font-inter">{t.r}</p>
+                  <p className="font-ui font-semibold">{it.a}</p>
+                  <p className="text-white/50 text-sm font-inter">{lang === "fr" ? it.rFr : it.rEn}</p>
                 </div>
               </figcaption>
             </motion.figure>

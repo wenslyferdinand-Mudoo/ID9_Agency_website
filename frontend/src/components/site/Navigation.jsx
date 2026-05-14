@@ -1,16 +1,25 @@
 import { useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ArrowUpRight } from "lucide-react";
-import { NAV_LINKS } from "@/lib/brand";
+import { Menu, X, ArrowUpRight, Languages } from "lucide-react";
 import Logo from "@/components/site/Logo";
+import { useI18n } from "@/lib/i18n";
 
 export default function Navigation() {
   const [open, setOpen] = useState(false);
   const loc = useLocation();
+  const { t, lang, toggle } = useI18n();
 
-  // hide on admin routes
   if (loc.pathname.startsWith("/admin")) return null;
+
+  const links = [
+    { to: "/", label: t("nav.home") },
+    { to: "/about", label: t("nav.about") },
+    { to: "/services", label: t("nav.services") },
+    { to: "/portfolio", label: t("nav.portfolio") },
+    { to: "/blog", label: t("nav.blog") },
+    { to: "/contact", label: t("nav.contact") },
+  ];
 
   return (
     <>
@@ -22,14 +31,14 @@ export default function Navigation() {
           className="glass-strong rounded-full max-w-6xl mx-auto flex items-center justify-between pl-3 pr-3 py-2"
         >
           <Link to="/" className="flex items-center gap-2 pl-2" data-testid="nav-logo-link">
-            <Logo className="w-8 h-8" />
+            <Logo className="w-9 h-9" />
             <span className="font-display font-black tracking-tight text-base hidden sm:inline">
               ID9<span className="text-orange_impact">_</span>
             </span>
           </Link>
 
           <ul className="hidden md:flex items-center gap-1 font-ui text-sm">
-            {NAV_LINKS.map((l) => (
+            {links.map((l) => (
               <li key={l.to}>
                 <NavLink
                   to={l.to}
@@ -39,7 +48,7 @@ export default function Navigation() {
                       isActive ? "text-white" : "text-white/60 hover:text-white"
                     }`
                   }
-                  data-testid={`nav-link-${l.label.toLowerCase()}`}
+                  data-testid={`nav-link-${l.to === "/" ? "home" : l.to.replace("/", "")}`}
                 >
                   {({ isActive }) => (
                     <>
@@ -59,12 +68,21 @@ export default function Navigation() {
           </ul>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={toggle}
+              className="hidden md:inline-flex items-center gap-1.5 text-white/70 hover:text-white text-xs font-ui font-semibold uppercase tracking-[0.15em] px-3 py-2 rounded-full hover:bg-white/5 transition-colors"
+              data-testid="nav-lang-toggle"
+              title={lang === "en" ? "Passer en français" : "Switch to English"}
+            >
+              <Languages className="w-3.5 h-3.5" />
+              {lang === "en" ? "FR" : "EN"}
+            </button>
             <Link
               to="/contact"
               className="hidden md:inline-flex items-center gap-1.5 bg-orange_impact text-ink-900 font-ui font-semibold text-sm px-5 py-2.5 rounded-full hover:bg-gold_light transition-colors"
               data-testid="nav-cta-contact"
             >
-              Start a project
+              {t("nav.cta")}
               <ArrowUpRight className="w-4 h-4" />
             </Link>
             <button
@@ -89,7 +107,7 @@ export default function Navigation() {
             data-testid="nav-mobile-panel"
           >
             <ul className="flex flex-col gap-1 font-display text-4xl font-black tracking-tighter">
-              {NAV_LINKS.map((l, i) => (
+              {links.map((l, i) => (
                 <motion.li
                   key={l.to}
                   initial={{ opacity: 0, y: 20 }}
@@ -106,12 +124,23 @@ export default function Navigation() {
                 </motion.li>
               ))}
             </ul>
+            <div className="mt-6 flex items-center gap-3">
+              <button
+                onClick={() => {
+                  toggle();
+                }}
+                className="inline-flex items-center gap-2 text-white/70 text-sm font-ui glass rounded-full px-4 py-2"
+                data-testid="nav-mobile-lang"
+              >
+                <Languages className="w-4 h-4" /> {lang === "en" ? "Français" : "English"}
+              </button>
+            </div>
             <Link
               to="/contact"
               onClick={() => setOpen(false)}
-              className="mt-8 inline-flex items-center gap-2 bg-orange_impact text-ink-900 font-ui font-semibold px-6 py-3 rounded-full"
+              className="mt-6 inline-flex items-center gap-2 bg-orange_impact text-ink-900 font-ui font-semibold px-6 py-3 rounded-full"
             >
-              Start a project <ArrowUpRight className="w-4 h-4" />
+              {t("nav.cta")} <ArrowUpRight className="w-4 h-4" />
             </Link>
           </motion.div>
         )}

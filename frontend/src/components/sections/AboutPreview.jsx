@@ -2,18 +2,20 @@ import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import RevealText from "@/components/site/RevealText";
+import { useI18n } from "@/lib/i18n";
 
 export default function AboutPreview() {
+  const { t } = useI18n();
   return (
     <section className="relative py-28 md:py-40 px-4 md:px-8 overflow-hidden" data-testid="about-preview">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16 items-start">
         <div className="md:col-span-5 md:sticky md:top-28">
           <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.3em] mb-6">
-            (01) — About
+            {t("about.tag")}
           </p>
           <RevealText
             as="h2"
-            text="A studio for ambitious founders, premium brands and serious operators."
+            text={t("about.h2")}
             className="font-display text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter leading-[1.05] text-balance"
           />
         </div>
@@ -35,17 +37,14 @@ export default function AboutPreview() {
           </motion.div>
 
           <p className="font-inter text-lg text-white/70 leading-relaxed font-light">
-            Since 2018, <span className="text-white">ID9_AGENCY</span> has been quietly building
-            the digital ecosystems behind some of the most distinctive brands across the
-            Caribbean, North America and Europe. We obsess over craft, strategy and outcomes —
-            not deliverables.
+            {t("about.body")}
           </p>
 
           <div className="grid grid-cols-3 gap-6 pt-4">
             {[
-              { k: "Vision", v: "A world where every ambitious brand has an undeniable digital presence." },
-              { k: "Mission", v: "Engineer premium digital ecosystems that compound credibility and growth." },
-              { k: "Values", v: "Craft. Clarity. Speed. Integrity. Long-term thinking." },
+              { k: t("about.vision.k"), v: t("about.vision.v") },
+              { k: t("about.mission.k"), v: t("about.mission.v") },
+              { k: t("about.values.k"), v: t("about.values.v") },
             ].map((b) => (
               <div key={b.k}>
                 <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.2em] mb-2">
@@ -62,7 +61,7 @@ export default function AboutPreview() {
             data-testid="about-preview-cta"
           >
             <span className="border-b border-white/30 group-hover:border-orange_impact transition-colors pb-0.5">
-              The full ID9 story
+              {t("about.cta")}
             </span>
             <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </Link>

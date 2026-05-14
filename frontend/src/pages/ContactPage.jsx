@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, MessageCircle, MapPin, Instagram, Check, ArrowUpRight } from "lucide-react";
+import { Mail, MessageCircle, MapPin, Instagram, Facebook, Music2, Check, ArrowUpRight } from "lucide-react";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import api, { formatApiError } from "@/lib/api";
 import { BRAND, whatsappLink } from "@/lib/brand";
 import GlowOrb from "@/components/site/GlowOrb";
 import RevealText from "@/components/site/RevealText";
+import { useI18n } from "@/lib/i18n";
 
 const BUDGETS = ["< $5k", "$5k – $15k", "$15k – $50k", "$50k – $150k", "$150k+"];
 const SERVICES = [
@@ -24,6 +25,7 @@ const SERVICES = [
 ];
 
 export default function ContactPage() {
+  const { t } = useI18n();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -42,16 +44,16 @@ export default function ContactPage() {
   const submit = async (e) => {
     e?.preventDefault?.();
     if (!form.name || !form.email || !form.message) {
-      toast.error("Name, email and message are required.");
+      toast.error(t("co.requiredErr"));
       return;
     }
     setSubmitting(true);
     try {
       await api.post("/contact", form);
       setSent(true);
-      toast.success("Brief received. We'll be in touch within 24h.");
+      toast.success(t("co.received"));
     } catch (e) {
-      toast.error(formatApiError(e.response?.data?.detail) || "Could not send. Try WhatsApp.");
+      toast.error(formatApiError(e.response?.data?.detail) || t("co.couldNotSend"));
     } finally {
       setSubmitting(false);
     }
@@ -68,15 +70,15 @@ export default function ContactPage() {
 
       <section className="relative px-4 md:px-8">
         <div className="max-w-7xl mx-auto">
-          <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.3em] mb-6">Contact</p>
+          <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.3em] mb-6">{t("co.tag")}</p>
           <RevealText
             as="h1"
-            text="Let's build something"
+            text={t("co.h1")}
             className="font-display text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.98]"
           />
           <RevealText
             as="h1"
-            text="undeniable."
+            text={t("co.h2")}
             className="font-display text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.98] text-gradient-gold"
             delay={0.1}
           />
@@ -85,7 +87,7 @@ export default function ContactPage() {
             <aside className="md:col-span-4 space-y-8">
               <div>
                 <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.25em] mb-2">Email</p>
-                <a href={`mailto:${BRAND.email}`} className="font-display text-2xl hover:text-orange_impact">
+                <a href={`mailto:${BRAND.email}`} className="font-display text-xl md:text-2xl hover:text-orange_impact break-all">
                   {BRAND.email}
                 </a>
               </div>
@@ -102,19 +104,37 @@ export default function ContactPage() {
                 </a>
               </div>
               <div>
-                <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.25em] mb-2">Instagram</p>
-                <a
-                  href={BRAND.instagramUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-display text-2xl hover:text-orange_impact inline-flex items-center gap-2"
-                >
-                  <Instagram className="w-5 h-5" /> {BRAND.instagram}
-                </a>
+                <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.25em] mb-2">Social</p>
+                <div className="flex flex-col gap-2 font-ui">
+                  <a
+                    href={BRAND.instagramUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-white/85 hover:text-orange_impact"
+                  >
+                    <Instagram className="w-4 h-4" /> Instagram · {BRAND.instagramHandle}
+                  </a>
+                  <a
+                    href={BRAND.tiktokUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-white/85 hover:text-orange_impact"
+                  >
+                    <Music2 className="w-4 h-4" /> TikTok · {BRAND.tiktokHandle}
+                  </a>
+                  <a
+                    href={BRAND.facebookUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-white/85 hover:text-orange_impact"
+                  >
+                    <Facebook className="w-4 h-4" /> Facebook · {BRAND.facebookHandle}
+                  </a>
+                </div>
               </div>
               <div>
-                <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.25em] mb-2">Studio</p>
-                <p className="font-display text-2xl inline-flex items-center gap-2">
+                <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.25em] mb-2">{t("co.studio")}</p>
+                <p className="font-display text-xl md:text-2xl inline-flex items-center gap-2">
                   <MapPin className="w-5 h-5" /> {BRAND.city}
                 </p>
               </div>
@@ -141,12 +161,9 @@ export default function ContactPage() {
                     <Check className="w-7 h-7 text-orange_impact" />
                   </div>
                   <h2 className="font-display text-3xl md:text-4xl font-black tracking-tighter mb-3">
-                    Brief received.
+                    {t("co.success.h2")}
                   </h2>
-                  <p className="text-white/70 font-inter max-w-md mx-auto">
-                    We'll be in touch within 24 hours. Want to fast-track? Continue the
-                    conversation on WhatsApp now.
-                  </p>
+                  <p className="text-white/70 font-inter max-w-md mx-auto">{t("co.success.body")}</p>
                   <a
                     href={whatsappLink(waText)}
                     target="_blank"
@@ -154,43 +171,43 @@ export default function ContactPage() {
                     className="mt-6 inline-flex items-center gap-2 bg-orange_impact text-ink-900 font-ui font-semibold px-6 py-3 rounded-full"
                     data-testid="contact-success-whatsapp"
                   >
-                    Continue on WhatsApp <ArrowUpRight className="w-4 h-4" />
+                    {t("co.success.wa")} <ArrowUpRight className="w-4 h-4" />
                   </a>
                 </motion.div>
               ) : (
                 <form onSubmit={submit} className="space-y-6" data-testid="contact-form">
                   <div className="grid md:grid-cols-2 gap-6">
-                    <Field label="Name *" value={form.name} onChange={onChange("name")} testid="contact-input-name" />
+                    <Field label={t("co.field.name")} value={form.name} onChange={onChange("name")} testid="contact-input-name" />
                     <Field
-                      label="Email *"
+                      label={t("co.field.email")}
                       type="email"
                       value={form.email}
                       onChange={onChange("email")}
                       testid="contact-input-email"
                     />
                     <Field
-                      label="WhatsApp"
+                      label={t("co.field.whatsapp")}
                       value={form.whatsapp}
                       onChange={onChange("whatsapp")}
                       testid="contact-input-whatsapp"
                     />
                     <Field
-                      label="Deadline"
+                      label={t("co.field.deadline")}
                       value={form.deadline}
                       onChange={onChange("deadline")}
-                      placeholder="e.g. 6 weeks"
+                      placeholder={t("co.field.deadlinePh")}
                       testid="contact-input-deadline"
                     />
                     <div>
                       <label className="block text-white/40 font-ui text-xs uppercase tracking-[0.2em] mb-2">
-                        Budget
+                        {t("co.field.budget")}
                       </label>
                       <Select value={form.budget} onValueChange={onChange("budget")}>
                         <SelectTrigger
                           className="bg-transparent border-0 border-b border-white/15 rounded-none px-0 h-11 focus:ring-0 focus:border-orange_impact font-inter"
                           data-testid="contact-select-budget"
                         >
-                          <SelectValue placeholder="Choose budget range" />
+                          <SelectValue placeholder={t("co.field.budgetPh")} />
                         </SelectTrigger>
                         <SelectContent className="bg-ink-700 border-white/10">
                           {BUDGETS.map((b) => (
@@ -203,14 +220,14 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <label className="block text-white/40 font-ui text-xs uppercase tracking-[0.2em] mb-2">
-                        Service
+                        {t("co.field.service")}
                       </label>
                       <Select value={form.service} onValueChange={onChange("service")}>
                         <SelectTrigger
                           className="bg-transparent border-0 border-b border-white/15 rounded-none px-0 h-11 focus:ring-0 focus:border-orange_impact font-inter"
                           data-testid="contact-select-service"
                         >
-                          <SelectValue placeholder="Choose service" />
+                          <SelectValue placeholder={t("co.field.servicePh")} />
                         </SelectTrigger>
                         <SelectContent className="bg-ink-700 border-white/10">
                           {SERVICES.map((s) => (
@@ -224,13 +241,13 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <label className="block text-white/40 font-ui text-xs uppercase tracking-[0.2em] mb-2">
-                      Tell us about your project *
+                      {t("co.field.message")}
                     </label>
                     <textarea
                       rows={5}
                       value={form.message}
                       onChange={onChange("message")}
-                      placeholder="The brand, the ambition, where you're stuck — anything helps."
+                      placeholder={t("co.field.messagePh")}
                       className="w-full bg-transparent border-b border-white/15 focus:border-orange_impact py-3 outline-none font-inter resize-none text-white placeholder-white/30"
                       data-testid="contact-input-message"
                     />
@@ -243,7 +260,7 @@ export default function ContactPage() {
                       data-testid="contact-submit"
                     >
                       <Mail className="w-4 h-4" />
-                      {submitting ? "Sending…" : "Send brief"}
+                      {submitting ? t("co.submitting") : t("co.submit")}
                     </button>
                     <a
                       href={whatsappLink(waText)}
@@ -252,7 +269,7 @@ export default function ContactPage() {
                       className="inline-flex items-center gap-2 glass text-white px-7 py-3.5 rounded-full font-ui font-semibold hover:bg-white/10 transition-colors"
                       data-testid="contact-whatsapp-button"
                     >
-                      <MessageCircle className="w-4 h-4" /> Send on WhatsApp
+                      <MessageCircle className="w-4 h-4" /> {t("co.wa")}
                     </a>
                   </div>
                 </form>

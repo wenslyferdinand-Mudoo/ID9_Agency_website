@@ -4,11 +4,13 @@ import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import api from "@/lib/api";
 import RevealText from "@/components/site/RevealText";
+import { useI18n } from "@/lib/i18n";
 
 const SPANS = ["md:col-span-8", "md:col-span-4", "md:col-span-4", "md:col-span-8", "md:col-span-6", "md:col-span-6"];
 
 export default function PortfolioPreview() {
   const [items, setItems] = useState([]);
+  const { t } = useI18n();
 
   useEffect(() => {
     api.get("/portfolio").then((r) => setItems(r.data.slice(0, 6))).catch(() => {});
@@ -20,16 +22,16 @@ export default function PortfolioPreview() {
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16">
           <div>
             <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.3em] mb-6">
-              (03) — Selected Work
+              {t("wk.tag")}
             </p>
             <RevealText
               as="h2"
-              text="Brands we made"
+              text={t("wk.h1")}
               className="font-display text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-[1.02]"
             />
             <RevealText
               as="h2"
-              text="undeniable."
+              text={t("wk.h2")}
               className="font-display text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-[1.02] italic"
               delay={0.1}
             />
@@ -39,7 +41,7 @@ export default function PortfolioPreview() {
             className="inline-flex items-center gap-2 text-white/80 hover:text-orange_impact font-ui group"
           >
             <span className="border-b border-white/20 group-hover:border-orange_impact pb-0.5">
-              View all work
+              {t("wk.viewAll")}
             </span>
             <ArrowUpRight className="w-4 h-4" />
           </Link>

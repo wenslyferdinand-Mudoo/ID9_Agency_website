@@ -1,34 +1,36 @@
 import { motion } from "framer-motion";
 import Counter from "@/components/site/Counter";
 import RevealText from "@/components/site/RevealText";
-
-const STATS = [
-  { to: 120, suffix: "+", label: "Projects shipped" },
-  { to: 42, suffix: "", label: "Active retainer clients" },
-  { to: 18, suffix: "", label: "Industries served" },
-  { to: 7, suffix: " yrs", label: "Building powerful brands" },
-];
-
-const REASONS = [
-  { k: "International standards", v: "Editorial craft and engineering rigor matched to global agencies." },
-  { k: "Result-oriented", v: "Every engagement starts with a number we are accountable to." },
-  { k: "Fast delivery", v: "Senior team, no junior buffer, ships in weeks not quarters." },
-  { k: "Transparent communication", v: "One Slack/WhatsApp channel. Weekly updates. No silos." },
-  { k: "Scalable solutions", v: "Built so your next 10x stage doesn't require rebuilding everything." },
-  { k: "Premium creativity", v: "We design the brand you wish existed in your category." },
-];
+import { useI18n } from "@/lib/i18n";
 
 export default function WhyUs() {
+  const { t } = useI18n();
+
+  const STATS = [
+    { to: 120, suffix: "+", label: t("why.stat1") },
+    { to: 42, suffix: "", label: t("why.stat2") },
+    { to: 18, suffix: "", label: t("why.stat3") },
+    { to: 7, suffix: " yrs", label: t("why.stat4") },
+  ];
+  const REASONS = [
+    { k: t("why.r1.k"), v: t("why.r1.v") },
+    { k: t("why.r2.k"), v: t("why.r2.v") },
+    { k: t("why.r3.k"), v: t("why.r3.v") },
+    { k: t("why.r4.k"), v: t("why.r4.v") },
+    { k: t("why.r5.k"), v: t("why.r5.v") },
+    { k: t("why.r6.k"), v: t("why.r6.v") },
+  ];
+
   return (
     <section className="relative py-28 md:py-40 px-4 md:px-8 bg-ink-800/60" data-testid="why-us-section">
       <div className="max-w-7xl mx-auto">
         <div className="mb-16">
           <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.3em] mb-6">
-            (05) — Why ID9
+            {t("why.tag")}
           </p>
           <RevealText
             as="h2"
-            text="Built for founders who refuse forgettable."
+            text={t("why.h1")}
             className="font-display text-4xl md:text-6xl font-black tracking-tighter leading-[1.05] text-balance max-w-4xl"
           />
         </div>

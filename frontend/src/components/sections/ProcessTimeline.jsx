@@ -1,20 +1,22 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import RevealText from "@/components/site/RevealText";
-
-const STEPS = [
-  { n: "01", k: "Discover", v: "Deep audits, strategy sprints and positioning workshops with founders." },
-  { n: "02", k: "Strategy", v: "Brand narrative, customer journey, technical and growth blueprint." },
-  { n: "03", k: "Design", v: "Editorial visual systems, identity, UX and motion language." },
-  { n: "04", k: "Develop", v: "Premium engineering — performant, accessible, scalable." },
-  { n: "05", k: "Launch", v: "Cinematic launch, paid media activation and content rollout." },
-  { n: "06", k: "Scale", v: "Iterate, optimise, compound. Long-term partnership mode." },
-];
+import { useI18n } from "@/lib/i18n";
 
 export default function ProcessTimeline() {
   const ref = useRef(null);
+  const { t } = useI18n();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const lineH = useTransform(scrollYProgress, [0.1, 0.9], ["0%", "100%"]);
+
+  const STEPS = [
+    { n: "01", k: t("pr.discover"), v: t("pr.discoverV") },
+    { n: "02", k: t("pr.strategy"), v: t("pr.strategyV") },
+    { n: "03", k: t("pr.design"), v: t("pr.designV") },
+    { n: "04", k: t("pr.develop"), v: t("pr.developV") },
+    { n: "05", k: t("pr.launch"), v: t("pr.launchV") },
+    { n: "06", k: t("pr.scale"), v: t("pr.scaleV") },
+  ];
 
   return (
     <section
@@ -25,27 +27,23 @@ export default function ProcessTimeline() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-10">
         <div className="md:col-span-4 md:sticky md:top-28 self-start">
           <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.3em] mb-6">
-            (04) — Process
+            {t("pr.tag")}
           </p>
           <RevealText
             as="h2"
-            text="Six moves."
+            text={t("pr.h1")}
             className="font-display text-5xl md:text-6xl font-black tracking-tighter leading-[1.02]"
           />
           <RevealText
             as="h2"
-            text="One arc."
+            text={t("pr.h2")}
             className="font-display text-5xl md:text-6xl font-black tracking-tighter leading-[1.02] text-gradient-gold"
             delay={0.1}
           />
-          <p className="text-white/60 mt-6 font-inter leading-relaxed max-w-sm">
-            A clear, repeatable arc that takes you from ambiguous ambition to compounding
-            outcome — without the agency drama.
-          </p>
+          <p className="text-white/60 mt-6 font-inter leading-relaxed max-w-sm">{t("pr.sub")}</p>
         </div>
 
         <div className="md:col-span-8 relative pl-8 md:pl-16">
-          {/* vertical track */}
           <div className="absolute left-2 md:left-6 top-2 bottom-2 w-px bg-white/8" />
           <motion.div
             style={{ height: lineH }}

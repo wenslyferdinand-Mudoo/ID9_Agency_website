@@ -5,9 +5,11 @@ import api from "@/lib/api";
 import RevealText from "@/components/site/RevealText";
 import FinalCTA from "@/components/sections/FinalCTA";
 import LeadMagnet from "@/components/sections/LeadMagnet";
+import { useI18n } from "@/lib/i18n";
 
 export default function ServicesPage() {
   const [services, setServices] = useState([]);
+  const { t } = useI18n();
   useEffect(() => {
     api.get("/services").then((r) => setServices(r.data)).catch(() => {});
   }, []);
@@ -17,23 +19,20 @@ export default function ServicesPage() {
       <section className="relative px-4 md:px-8 pb-24">
         <div className="max-w-7xl mx-auto">
           <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.3em] mb-6">
-            Services
+            {t("nav.services")}
           </p>
           <RevealText
             as="h1"
-            text="Twelve disciplines."
+            text={t("sp.h1")}
             className="font-display text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.98]"
           />
           <RevealText
             as="h1"
-            text="One integrated studio."
+            text={t("sp.h2")}
             className="font-display text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.98] text-gradient-gold"
             delay={0.1}
           />
-          <p className="mt-10 max-w-2xl font-inter text-lg text-white/70 leading-relaxed">
-            We don't do hand-offs. Every engagement at ID9 is led by senior practitioners across
-            strategy, design, engineering and growth — together, from day one.
-          </p>
+          <p className="mt-10 max-w-2xl font-inter text-lg text-white/70 leading-relaxed">{t("sp.sub")}</p>
         </div>
       </section>
 

@@ -5,19 +5,21 @@ import { ArrowUpRight } from "lucide-react";
 import api from "@/lib/api";
 import RevealText from "@/components/site/RevealText";
 import FinalCTA from "@/components/sections/FinalCTA";
-
-const FILTERS = [
-  { k: "all", l: "All" },
-  { k: "branding", l: "Branding" },
-  { k: "web", l: "Web" },
-  { k: "app", l: "App" },
-  { k: "marketing", l: "Marketing" },
-  { k: "motion", l: "Motion" },
-];
+import { useI18n } from "@/lib/i18n";
 
 export default function PortfolioPage() {
   const [items, setItems] = useState([]);
   const [filter, setFilter] = useState("all");
+  const { t } = useI18n();
+
+  const FILTERS = [
+    { k: "all", l: t("wk.filters.all") },
+    { k: "branding", l: t("wk.filters.branding") },
+    { k: "web", l: t("wk.filters.web") },
+    { k: "app", l: t("wk.filters.app") },
+    { k: "marketing", l: t("wk.filters.marketing") },
+    { k: "motion", l: t("wk.filters.motion") },
+  ];
 
   useEffect(() => {
     api.get("/portfolio").then((r) => setItems(r.data)).catch(() => {});
@@ -32,16 +34,12 @@ export default function PortfolioPage() {
     <main data-testid="portfolio-page" className="pt-32 md:pt-40">
       <section className="px-4 md:px-8 pb-12">
         <div className="max-w-7xl mx-auto">
-          <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.3em] mb-6">Work</p>
+          <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.3em] mb-6">{t("nav.portfolio")}</p>
           <RevealText
             as="h1"
-            text="Selected projects."
+            text={t("wk.h1") + " " + t("wk.h2")}
             className="font-display text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.98]"
           />
-          <p className="mt-8 max-w-2xl font-inter text-white/65 text-lg">
-            A small, curated selection of the brands, platforms and campaigns we've helped come
-            alive. Use the filters below to explore by discipline.
-          </p>
         </div>
       </section>
 
@@ -107,9 +105,7 @@ export default function PortfolioPage() {
             </div>
           </AnimatePresence>
           {filtered.length === 0 && (
-            <p className="text-white/50 text-center py-20 font-ui">
-              No projects in this category yet — more coming soon.
-            </p>
+            <p className="text-white/50 text-center py-20 font-ui">{t("wk.empty")}</p>
           )}
         </div>
       </section>

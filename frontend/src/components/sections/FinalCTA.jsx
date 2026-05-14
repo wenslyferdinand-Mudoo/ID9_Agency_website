@@ -3,8 +3,10 @@ import { ArrowUpRight } from "lucide-react";
 import MagneticButton from "@/components/site/MagneticButton";
 import GlowOrb from "@/components/site/GlowOrb";
 import { whatsappLink } from "@/lib/brand";
+import { useI18n } from "@/lib/i18n";
 
 export default function FinalCTA() {
+  const { t } = useI18n();
   return (
     <section className="relative py-32 md:py-48 px-4 md:px-8 overflow-hidden" data-testid="final-cta-section">
       <GlowOrb color="#743089" size={900} intensity={0.5} className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
@@ -17,7 +19,8 @@ export default function FinalCTA() {
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
           className="font-display font-black tracking-tighter leading-[0.92] text-[clamp(2.8rem,10vw,9rem)] text-balance"
         >
-          Ready to build <br />a brand that <span className="text-gradient-gold italic">truly impacts?</span>
+          {t("fc.h1.a")} <br />
+          {t("fc.h1.b")} <span className="text-gradient-gold italic">{t("fc.h1.c")}</span>
         </motion.h2>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -26,7 +29,7 @@ export default function FinalCTA() {
           transition={{ delay: 0.2, duration: 0.8 }}
           className="mt-10 max-w-xl mx-auto font-inter text-white/65 text-lg"
         >
-          One call. One studio. One arc — from ambiguous ambition to compounding outcome.
+          {t("fc.sub")}
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -36,7 +39,7 @@ export default function FinalCTA() {
           className="mt-12 flex flex-wrap items-center justify-center gap-3"
         >
           <MagneticButton to="/contact" variant="primary" testid="final-cta-project">
-            Launch my project
+            {t("fc.launch")}
             <ArrowUpRight className="w-4 h-4" />
           </MagneticButton>
           <MagneticButton
@@ -46,7 +49,7 @@ export default function FinalCTA() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            WhatsApp ID9
+            {t("fc.wa")}
           </MagneticButton>
         </motion.div>
       </div>
