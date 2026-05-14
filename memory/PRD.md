@@ -85,3 +85,19 @@ Premium creative & strategic digital agency website. Tagline: "Be Impactful. Bui
 - P2 — Localisation of services list (currently EN only)
 - P2 — SEO meta per page (react-helmet-async) — currently only the global meta
 - P3 — Stripe payments + client portal (per problem statement future scalability)
+
+## Iteration 3 (2025-12) — Awwwards-level upgrade
+
+### New cinematic systems
+- ✅ **Preloader** — logo morph + 0→100 counter + ambient mesh glow, session-gated, skipped on /admin
+- ✅ **CustomCursor** — dot + ring, mix-blend-difference, magnetic states on links/buttons, hidden on touch
+- ✅ **FluidGradient** — animated mesh background (conic + 3 radial blobs + noise grain + vignette) used on Hero & Footer signature
+- ✅ **ScrollProgress** — top brand-gradient progress bar bound to scrollYProgress
+- ✅ **MarqueeDivider** — large display text marquee between Home sections with parallax
+- ✅ **Footer signature** — clamp(3.5,14vw,15rem) "Let's build something undeniable." with gradient gold italic word
+
+### Verified (Testing Agent iteration 3)
+- 22/22 backend pytest pass (no regression)
+- All Awwwards features render correctly
+- All previous flows (lang toggle, contact form, admin CRUD) still pass
+
