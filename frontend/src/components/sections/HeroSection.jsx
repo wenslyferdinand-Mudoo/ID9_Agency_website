@@ -37,7 +37,18 @@ export default function HeroSection() {
         </motion.div>
 
         <h1 className="font-display font-black tracking-[-0.04em] leading-[1] text-[clamp(2.4rem,7.5vw,7rem)] text-balance">
-          <RevealText as="span" text={t("hero.h1.line1")} className="block" />
+          <span className="block">
+            <RevealText as="span" text={t("hero.h1.line1a")} className="inline" />
+            <span>&nbsp;</span>
+            <motion.span
+              initial={{ opacity: 0, y: 28 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className="inline-block text-gradient-gold italic pr-2"
+            >
+              {t("hero.h1.line1b")}
+            </motion.span>
+          </span>
           <RevealText as="span" text={t("hero.h1.line2")} className="block" delay={0.2} />
           <motion.span
             initial={{ opacity: 0, y: 28 }}

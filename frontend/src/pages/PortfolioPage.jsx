@@ -35,11 +35,26 @@ export default function PortfolioPage() {
       <section className="px-4 md:px-8 pb-12">
         <div className="max-w-7xl mx-auto">
           <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.3em] mb-6">{t("nav.portfolio")}</p>
-          <RevealText
-            as="h1"
-            text={t("wk.h1") + " " + t("wk.h2")}
-            className="font-display text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.98]"
-          />
+          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.98]">
+            {t("wk.h1.pre") && (
+              <RevealText as="span" text={t("wk.h1.pre")} className="inline" />
+            )}
+            {t("wk.h1.pre") && <span>&nbsp;</span>}
+            <motion.span
+              initial={{ opacity: 0, y: 28 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className="inline-block text-gradient-gold italic pr-2"
+            >
+              {t("wk.h1.hl")}
+            </motion.span>
+            {t("wk.h1.post") && <span>&nbsp;</span>}
+            {t("wk.h1.post") && (
+              <RevealText as="span" text={t("wk.h1.post")} className="inline" delay={0.2} />
+            )}
+            <span>&nbsp;</span>
+            <RevealText as="span" text={t("wk.h2")} className="inline italic" delay={0.3} />
+          </h1>
         </div>
       </section>
 

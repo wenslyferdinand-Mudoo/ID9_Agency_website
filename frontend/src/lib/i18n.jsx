@@ -15,7 +15,8 @@ const DICT = {
 
   // Hero
   "hero.badge": { en: "International Digital Agency", fr: "Agence Digitale Internationale" },
-  "hero.h1.line1": { en: "Be Impactful.", fr: "Soyez Impactant." },
+  "hero.h1.line1a": { en: "Be", fr: "Soyez" },
+  "hero.h1.line1b": { en: "Impactful.", fr: "Impactant." },
   "hero.h1.line2": { en: "Build", fr: "Bâtissez des" },
   "hero.h1.line3": { en: "Unforgettable", fr: "Marques" },
   "hero.h1.line4": { en: "Digital Brands.", fr: "Digitales Inoubliables." },
@@ -67,6 +68,9 @@ const DICT = {
   // Portfolio
   "wk.tag": { en: "(03) — Selected Projects", fr: "(03) — Projets sélectionnés" },
   "wk.h1": { en: "Impactful brands made", fr: "Des marques impactantes rendues" },
+  "wk.h1.pre": { en: "", fr: "Des marques" },
+  "wk.h1.hl": { en: "Impactful", fr: "impactantes" },
+  "wk.h1.post": { en: "brands made", fr: "rendues" },
   "wk.h2": { en: "undeniable.", fr: "indéniables." },
   "wk.viewAll": { en: "View all Projects", fr: "Voir tous les projets" },
   "wk.filters.all": { en: "All", fr: "Tous" },
@@ -279,7 +283,9 @@ export function I18nProvider({ children }) {
   const t = (key) => {
     const entry = DICT[key];
     if (!entry) return key;
-    return entry[lang] || entry.en || key;
+    const val = entry[lang];
+    if (val !== undefined) return val;
+    return entry.en !== undefined ? entry.en : key;
   };
   return (
     <I18nCtx.Provider value={{ lang, setLang, t, toggle: () => setLang((l) => (l === "en" ? "fr" : "en")) }}>

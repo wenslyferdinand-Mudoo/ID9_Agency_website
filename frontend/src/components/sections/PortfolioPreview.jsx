@@ -24,11 +24,25 @@ export default function PortfolioPreview() {
             <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.3em] mb-6">
               {t("wk.tag")}
             </p>
-            <RevealText
-              as="h2"
-              text={t("wk.h1")}
-              className="font-display text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-[1.02]"
-            />
+            <h2 className="font-display text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-[1.02]">
+              {t("wk.h1.pre") && (
+                <RevealText as="span" text={t("wk.h1.pre")} className="inline" />
+              )}
+              {t("wk.h1.pre") && <span>&nbsp;</span>}
+              <motion.span
+                initial={{ opacity: 0, y: 28 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "0px" }}
+                transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                className="inline-block text-gradient-gold italic pr-2"
+              >
+                {t("wk.h1.hl")}
+              </motion.span>
+              {t("wk.h1.post") && <span>&nbsp;</span>}
+              {t("wk.h1.post") && (
+                <RevealText as="span" text={t("wk.h1.post")} className="inline" delay={0.2} />
+              )}
+            </h2>
             <RevealText
               as="h2"
               text={t("wk.h2")}
