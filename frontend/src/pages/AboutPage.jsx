@@ -87,13 +87,21 @@ export default function AboutPage() {
       <section className="px-4 md:px-8 py-20 bg-ink-800/60">
         <div className="max-w-7xl mx-auto grid md:grid-cols-12 gap-10 items-center">
           <div className="md:col-span-6">
-            <div className="relative aspect-[4/5] rounded-3xl overflow-hidden">
+            <div className="relative aspect-[4/5] rounded-3xl overflow-hidden group">
               <img
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1200&q=80"
-                alt="Wensly Ferdinand"
-                className="w-full h-full object-cover"
+                src="/wensly-founder.jpg"
+                alt="Wensly Ferdinand — Founder & Creative Director"
+                className="w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-ink-900 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-ink-900 via-ink-900/20 to-transparent" />
+              {/* signature red halo glow accent */}
+              <div
+                className="absolute -inset-10 opacity-40 pointer-events-none mix-blend-screen"
+                style={{
+                  background:
+                    "radial-gradient(circle at 50% 35%, rgba(255,40,80,0.35), transparent 55%)",
+                }}
+              />
               <div className="absolute bottom-8 left-8 right-8">
                 <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.25em] mb-2">
                   {t("ap.founderRole")}

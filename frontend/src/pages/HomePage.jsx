@@ -8,6 +8,7 @@ import Testimonials from "@/components/sections/Testimonials";
 import LeadMagnet from "@/components/sections/LeadMagnet";
 import FinalCTA from "@/components/sections/FinalCTA";
 import MarqueeDivider from "@/components/site/MarqueeDivider";
+import KineticTypography from "@/components/site/KineticTypography";
 
 export default function HomePage() {
   return (
@@ -17,6 +18,12 @@ export default function HomePage() {
       <MarqueeDivider items={["Brand", "Web", "Motion", "Strategy", "Story", "Identity", "Growth"]} />
       <ServicesGrid />
       <PortfolioPreview />
+      <KineticTypography
+        lines={[
+          { text: "STRATEGY × DESIGN × IMPACT.", direction: "left" },
+          { text: "BRANDS. SYSTEMS. GROWTH.", direction: "right" },
+        ]}
+      />
       <ProcessTimeline />
       <MarqueeDivider items={["Discover", "Strategy", "Design", "Develop", "Launch", "Scale"]} speed={45} />
       <WhyUs />
