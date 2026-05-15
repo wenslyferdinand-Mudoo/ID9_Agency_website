@@ -4,22 +4,62 @@ import { Link } from "react-router-dom";
 import RevealText from "@/components/site/RevealText";
 import GlowOrb from "@/components/site/GlowOrb";
 import FinalCTA from "@/components/sections/FinalCTA";
-import { BRAND } from "@/lib/brand";
 import { useI18n } from "@/lib/i18n";
 
 const TIMELINE_EN = [
-  { y: "2018", t: "ID9 is born", d: "Wensly Ferdinand founds Impact Digital 9 in Port-au-Prince with a focus on craft." },
-  { y: "2020", t: "First international clients", d: "Brands from the US and France join the roster — remote-first becomes a way of working." },
-  { y: "2022", t: "Studio expands", d: "Senior designers, engineers and motion artists join. ID9 ships its first cinematic launches." },
-  { y: "2024", t: "Premium positioning", d: "ID9 quietly becomes the brand-of-choice for ambitious founders across the Caribbean." },
-  { y: "2025", t: "Global stage", d: "Clients across 3 continents. ID9 begins building scalable digital ecosystems." },
+  {
+    y: "2018",
+    t: "Foundation of ID9_AGENCY",
+    d: "Impact Digital 9 is founded in Port-au-Prince by Wensly Ferdinand. The studio establishes a vision centered on strategy, precision design, and digital performance.",
+  },
+  {
+    y: "2020",
+    t: "International Expansion",
+    d: "The agency welcomes its first clients across North America and Europe. ID9 adopts a remote-first and multi-market operational model.",
+  },
+  {
+    y: "2022",
+    t: "Studio Structuring",
+    d: "The creative ecosystem expands with senior experts in branding, web development, UI/UX, and motion design. The studio begins producing immersive and narrative-driven experiences.",
+  },
+  {
+    y: "2024",
+    t: "Premium Positioning",
+    d: "ID9_AGENCY becomes a leading digital studio for ambitious founders, premium brands, and companies scaling their digital presence.",
+  },
+  {
+    y: "2025",
+    t: "Global Deployment",
+    d: "The agency manages projects across multiple continents and builds scalable digital ecosystems focused on visibility, credibility, and growth.",
+  },
 ];
+
 const TIMELINE_FR = [
-  { y: "2018", t: "Naissance d'ID9", d: "Wensly Ferdinand fonde Impact Digital 9 à Port-au-Prince, avec l'artisanat comme obsession." },
-  { y: "2020", t: "Premiers clients internationaux", d: "Des marques américaines et françaises rejoignent l'agence — le remote-first s'impose." },
-  { y: "2022", t: "Le studio grandit", d: "Designers, ingénieurs et motion artists seniors rejoignent ID9. Premiers lancements cinématiques." },
-  { y: "2024", t: "Positionnement premium", d: "ID9 devient discrètement la marque de référence des fondateurs ambitieux de la Caraïbe." },
-  { y: "2025", t: "Scène internationale", d: "Clients sur 3 continents. ID9 bâtit des écosystèmes numériques scalables." },
+  {
+    y: "2018",
+    t: "Fondation d'ID9_AGENCY",
+    d: "Création d'Impact Digital 9 à Port-au-Prince par Wensly Ferdinand. Le studio pose les bases d'une approche centrée sur la stratégie, le design de précision et la performance digitale.",
+  },
+  {
+    y: "2020",
+    t: "Expansion internationale",
+    d: "Les premiers clients en Amérique du Nord et en Europe rejoignent l'agence. ID9 adopte une structure remote-first et développe une approche multi-marché.",
+  },
+  {
+    y: "2022",
+    t: "Structuration du studio",
+    d: "Renforcement de l'écosystème créatif avec des profils seniors en branding, développement web, UI/UX et motion design. Début des productions immersives et narratives.",
+  },
+  {
+    y: "2024",
+    t: "Positionnement premium",
+    d: "ID9_AGENCY devient un studio digital de référence pour les fondateurs ambitieux, les marques premium et les entreprises en phase de croissance stratégique.",
+  },
+  {
+    y: "2025",
+    t: "Déploiement international",
+    d: "L'agence pilote des projets sur plusieurs continents et construit des écosystèmes numériques scalables orientés visibilité, crédibilité et croissance.",
+  },
 ];
 
 export default function AboutPage() {

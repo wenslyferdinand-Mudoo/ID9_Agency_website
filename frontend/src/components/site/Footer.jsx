@@ -182,7 +182,7 @@ export default function Footer() {
               © {new Date().getFullYear()} {BRAND.fullName}. {t("ft.rights")}
             </p>
             <p>
-              {t("ft.crafted")} {BRAND.city}. <span className="text-orange_impact">●</span>{" "}
+              {t("ft.designed")} <span className="text-orange_impact">●</span>{" "}
               {t("ft.worldwide")}
             </p>
           </div>

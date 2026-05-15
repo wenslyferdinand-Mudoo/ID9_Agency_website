@@ -8,67 +8,67 @@ const DICT = {
   "nav.home": { en: "Home", fr: "Accueil" },
   "nav.about": { en: "About", fr: "À propos" },
   "nav.services": { en: "Services", fr: "Services" },
-  "nav.portfolio": { en: "Work", fr: "Projets" },
+  "nav.portfolio": { en: "Projects", fr: "Projets" },
   "nav.blog": { en: "Journal", fr: "Journal" },
   "nav.contact": { en: "Contact", fr: "Contact" },
   "nav.cta": { en: "Start a project", fr: "Démarrer un projet" },
 
   // Hero
-  "hero.badge": { en: "New clients · 2026 roster open", fr: "Nouveaux clients · agenda 2026 ouvert" },
+  "hero.badge": { en: "International Digital Agency", fr: "Agence Digitale Internationale" },
   "hero.h1.line1": { en: "Be Impactful.", fr: "Soyez Impactant." },
   "hero.h1.line2": { en: "Build", fr: "Bâtissez des" },
-  "hero.h1.line3": { en: "Powerful", fr: "Marques" },
-  "hero.h1.line4": { en: "Digital Brands.", fr: "Inoubliables." },
+  "hero.h1.line3": { en: "Unforgettable", fr: "Marques" },
+  "hero.h1.line4": { en: "Digital Brands.", fr: "Digitales Inoubliables." },
   "hero.sub": {
-    en: "ID9_AGENCY transforms ambitious ideas into premium digital ecosystems — branding, web, marketing & media production engineered for visibility, credibility and growth.",
-    fr: "ID9_AGENCY transforme les idées ambitieuses en écosystèmes numériques haut de gamme — branding, web, marketing et production média conçus pour la visibilité, la crédibilité et la croissance.",
+    en: "We design exceptional digital ecosystems from ambitious ideas, transforming brands into global references. Branding, web, marketing, and media production unified under one vision: strategic clarity, visual impact, and measurable growth. Brands engineered to dominate their space.",
+    fr: "Nous concevons des écosystèmes numériques d'exception à partir d'idées ambitieuses, pour transformer les marques en références mondiales. Branding, web, marketing et production média intégrés dans une seule vision: la clarté stratégique, l'impact visuel et la croissance mesurable. Des marques pensées pour dominer leur espace.",
   },
-  "hero.cta.quote": { en: "Get a free quote", fr: "Devis gratuit" },
-  "hero.cta.whatsapp": { en: "WhatsApp us", fr: "Nous écrire sur WhatsApp" },
+  "hero.cta.quote": { en: "Free Quote", fr: "Devis gratuit" },
+  "hero.cta.whatsapp": { en: "Message Us on WhatsApp", fr: "Nous écrire sur WhatsApp" },
   "hero.trust": { en: "Trusted by ambitious brands worldwide", fr: "La confiance de marques ambitieuses dans le monde" },
 
   // About preview
   "about.tag": { en: "(01) — About", fr: "(01) — À propos" },
   "about.h2": {
-    en: "A studio for ambitious founders, premium brands and serious operators.",
-    fr: "Un studio pour les fondateurs ambitieux, les marques premium et les opérateurs sérieux.",
+    en: "A studio built for founders creating enduring brands. For ambitious companies, premium brands, and execution-driven operators.",
+    fr: "Un studio pour les fondateurs qui construisent des marques durables. Pour les entreprises ambitieuses, les marques premium et les opérateurs orientés exécution.",
   },
   "about.body": {
-    en: "Since 2018, ID9_AGENCY has been quietly building the digital ecosystems behind some of the most distinctive brands across the Caribbean, North America and Europe. We obsess over craft, strategy and outcomes — not deliverables.",
-    fr: "Depuis 2018, ID9_AGENCY construit discrètement les écosystèmes numériques de marques distinctives à travers la Caraïbe, l'Amérique du Nord et l'Europe. Nous sommes obsédés par l'artisanat, la stratégie et les résultats — pas par les livrables.",
+    en: "Since 2018, ID9_AGENCY has designed and structured digital ecosystems for distinctive brands across Haiti, the Caribbean, North America, and Europe. Our work exists at the intersection of design, strategy, and product engineering. We do not produce deliverables. We build systems that generate value, credibility, and growth.",
+    fr: "Depuis 2018, ID9_AGENCY conçoit et structure des écosystèmes numériques pour des marques distinctives en Haïti, dans la Caraïbe, en Amérique du Nord et en Europe. Notre travail se situe à l'intersection du design, de la stratégie et de l'ingénierie produit. Nous ne produisons pas de livrables. Nous construisons des systèmes qui génèrent de la valeur, de la crédibilité et de la croissance.",
   },
   "about.vision.k": { en: "Vision", fr: "Vision" },
   "about.vision.v": {
-    en: "A world where every ambitious brand has an undeniable digital presence.",
-    fr: "Un monde où chaque marque ambitieuse possède une présence numérique indéniable.",
+    en: "A digital environment where every serious brand owns a clear, coherent, and undeniable presence.",
+    fr: "Un environnement digital où chaque marque sérieuse possède une présence claire, cohérente et incontestable.",
   },
   "about.mission.k": { en: "Mission", fr: "Mission" },
   "about.mission.v": {
-    en: "Engineer premium digital ecosystems that compound credibility and growth.",
-    fr: "Concevoir des écosystèmes numériques premium qui composent crédibilité et croissance.",
+    en: "To design premium digital ecosystems that align identity, performance, and expansion.",
+    fr: "Concevoir des écosystèmes numériques premium qui alignent identité, performance et expansion.",
   },
   "about.values.k": { en: "Values", fr: "Valeurs" },
   "about.values.v": {
-    en: "Craft. Clarity. Speed. Integrity. Long-term thinking.",
-    fr: "Artisanat. Clarté. Vitesse. Intégrité. Pensée long terme.",
+    en: "Structural clarity. Rapid execution. Product integrity. Long-term vision.",
+    fr: "Clarté structurelle. Exécution rapide. Intégrité produit. Vision long terme.",
   },
   "about.cta": { en: "The full ID9 story", fr: "L'histoire complète d'ID9" },
 
   // Services
   "svc.tag": { en: "(02) — Services", fr: "(02) — Services" },
   "svc.h1": { en: "Twelve disciplines.", fr: "Douze disciplines." },
-  "svc.h2": { en: "One studio.", fr: "Un seul studio." },
+  "svc.h2": { en: "One unified system.", fr: "Un seul système." },
   "svc.sub": {
-    en: "We operate as a single integrated studio — strategy, design, build, motion and growth — so your brand moves in lockstep instead of fighting handoffs.",
-    fr: "Nous opérons comme un studio unique et intégré — stratégie, design, développement, motion et croissance — pour que votre marque avance en parfaite cohérence.",
+    en: "We operate as an integrated agency: strategy, design, development, motion, and growth within one connected workflow. Every discipline is connected. Every decision serves the overall coherence of the brand. We do not create visible brands. We create unavoidable brands.",
+    fr: "Nous opérons comme une agence intégrée : stratégie, design, développement, motion et croissance dans un flux unifié. Chaque discipline est connectée. Chaque décision sert la cohérence globale de la marque. Nous ne créons pas des marques visibles. Nous créons des marques inévitables.",
   },
   "svc.explore": { en: "Explore", fr: "Découvrir" },
 
   // Portfolio
-  "wk.tag": { en: "(03) — Selected Work", fr: "(03) — Projets sélectionnés" },
-  "wk.h1": { en: "Brands we made", fr: "Des marques rendues" },
+  "wk.tag": { en: "(03) — Selected Projects", fr: "(03) — Projets sélectionnés" },
+  "wk.h1": { en: "Impactful brands made", fr: "Des marques impactantes rendues" },
   "wk.h2": { en: "undeniable.", fr: "indéniables." },
-  "wk.viewAll": { en: "View all work", fr: "Voir tous les projets" },
+  "wk.viewAll": { en: "View all Projects", fr: "Voir tous les projets" },
   "wk.filters.all": { en: "All", fr: "Tous" },
   "wk.filters.branding": { en: "Branding", fr: "Branding" },
   "wk.filters.web": { en: "Web", fr: "Web" },
@@ -82,37 +82,55 @@ const DICT = {
   "wk.challenge": { en: "Challenge", fr: "Défi" },
   "wk.strategy": { en: "Strategy", fr: "Stratégie" },
   "wk.outcome": { en: "Outcome", fr: "Résultat" },
-  "wk.allBack": { en: "All work", fr: "Tous les projets" },
+  "wk.allBack": { en: "All Projects", fr: "Tous les projets" },
   "wk.deserveCraft": {
-    en: "Have a brief that deserves this level of craft?",
-    fr: "Avez-vous un projet qui mérite ce niveau d'artisanat ?",
+    en: "Do you have a project that deserves this level of dedication?",
+    fr: "Avez-vous un projet qui mérite ce niveau de dévouement ?",
   },
   "wk.startProject": { en: "Start a project", fr: "Démarrer un projet" },
 
   // Process
   "pr.tag": { en: "(04) — Process", fr: "(04) — Processus" },
   "pr.h1": { en: "Six moves.", fr: "Six mouvements." },
-  "pr.h2": { en: "One arc.", fr: "Un seul arc." },
+  "pr.h2": { en: "One logic.", fr: "Une seule logique." },
   "pr.sub": {
-    en: "A clear, repeatable arc that takes you from ambiguous ambition to compounding outcome — without the agency drama.",
-    fr: "Un arc clair et reproductible qui vous emmène de l'ambition floue au résultat composé — sans le drame d'agence.",
+    en: "A structured production system that transforms uncertainty into controlled execution — without friction, improvisation, or the \u201Cagency effect.\u201D",
+    fr: "Un système de production structuré qui transforme l'incertitude en exécution maîtrisée — sans friction, sans improvisation, sans «\u00A0effet agence\u00A0».",
   },
-  "pr.discover": { en: "Discover", fr: "Découverte" },
+  "pr.discover": { en: "Discovery", fr: "Découverte" },
   "pr.strategy": { en: "Strategy", fr: "Stratégie" },
   "pr.design": { en: "Design", fr: "Design" },
-  "pr.develop": { en: "Develop", fr: "Développement" },
+  "pr.develop": { en: "Engineering", fr: "Ingénierie" },
   "pr.launch": { en: "Launch", fr: "Lancement" },
-  "pr.scale": { en: "Scale", fr: "Croissance" },
-  "pr.discoverV": { en: "Deep audits, strategy sprints and positioning workshops with founders.", fr: "Audits approfondis, sprints stratégiques et ateliers de positionnement avec les fondateurs." },
-  "pr.strategyV": { en: "Brand narrative, customer journey, technical and growth blueprint.", fr: "Narratif de marque, parcours client, plan technique et de croissance." },
-  "pr.designV": { en: "Editorial visual systems, identity, UX and motion language.", fr: "Systèmes visuels éditoriaux, identité, UX et langage motion." },
-  "pr.developV": { en: "Premium engineering — performant, accessible, scalable.", fr: "Ingénierie premium — performante, accessible, scalable." },
-  "pr.launchV": { en: "Cinematic launch, paid media activation and content rollout.", fr: "Lancement cinématique, activation média payant et déploiement de contenu." },
-  "pr.scaleV": { en: "Iterate, optimise, compound. Long-term partnership mode.", fr: "Itérer, optimiser, composer. Mode partenariat long terme." },
+  "pr.scale": { en: "Growth", fr: "Croissance" },
+  "pr.discoverV": {
+    en: "Complete audits, product immersion, founder workshops, and extraction of critical strategic leverage points. We clarify what must exist before building it.",
+    fr: "Audits complets, immersion produit, ateliers fondateurs et extraction des leviers stratégiques critiques. Nous clarifions ce qui doit exister avant de le construire.",
+  },
+  "pr.strategyV": {
+    en: "Brand architecture, narrative design, user journey mapping, and multi-channel growth planning. Strategy designed as a system — not a document.",
+    fr: "Architecture de marque, conception narrative, cartographie du parcours utilisateur et planification de croissance multi-canal. Une stratégie conçue comme un système — pas comme un document.",
+  },
+  "pr.designV": {
+    en: "Systemic visual identity, precision UX, and coherent motion language. Every detail serves one purpose: perceived value.",
+    fr: "Identité visuelle systémique, UX de précision et langage motion cohérent. Chaque détail sert un seul objectif : la valeur perçue.",
+  },
+  "pr.developV": {
+    en: "High-performance development, scalable by design, product-oriented by nature. Fast, stable systems built for scale.",
+    fr: "Développement haute performance, scalable par conception, orienté produit par nature. Des systèmes rapides et stables, pensés pour l'échelle.",
+  },
+  "pr.launchV": {
+    en: "Controlled deployment, media activation, launch assets, and visibility orchestration. We do not publish — we activate.",
+    fr: "Déploiement contrôlé, activation média, supports de lancement et orchestration de la visibilité. Nous ne publions pas — nous activons.",
+  },
+  "pr.scaleV": {
+    en: "Continuous optimization, product iterations, marketing performance, and expansion. A partnership mindset — not a one-time project.",
+    fr: "Optimisation continue, itérations produit, performance marketing et expansion. Un état d'esprit partenariat — pas un projet ponctuel.",
+  },
 
   // Why
   "why.tag": { en: "(05) — Why ID9", fr: "(05) — Pourquoi ID9" },
-  "why.h1": { en: "Built for founders who refuse forgettable.", fr: "Conçu pour les fondateurs qui refusent l'oubliable." },
+  "why.h1": { en: "Built for founders who refuse to be forgettable.", fr: "Conçu pour les fondateurs qui refusent l'oubliable." },
   "why.stat1": { en: "Projects shipped", fr: "Projets livrés" },
   "why.stat2": { en: "Active retainer clients", fr: "Clients actifs" },
   "why.stat3": { en: "Industries served", fr: "Secteurs couverts" },
@@ -150,12 +168,12 @@ const DICT = {
   // Final CTA
   "fc.h1.a": { en: "Ready to build", fr: "Prêt à bâtir" },
   "fc.h1.b": { en: "a brand that", fr: "une marque qui" },
-  "fc.h1.c": { en: "truly impacts?", fr: "marque vraiment ?" },
+  "fc.h1.c": { en: "redefines its market?", fr: "redéfinit son marché ?" },
   "fc.sub": {
-    en: "One call. One studio. One arc — from ambiguous ambition to compounding outcome.",
-    fr: "Un appel. Un studio. Un arc — de l'ambition floue au résultat composé.",
+    en: "One call. One studio. One system. From blurred ambition to controlled execution — without friction, dilution, or randomness. \u201CWe transform intentions into dominant brands.\u201D",
+    fr: "Un appel. Un studio. Un système. De l'ambition floue à une exécution maîtrisée — sans friction, sans dilution, sans hasard. «\u00A0Nous transformons les intentions en marques dominantes.\u00A0»",
   },
-  "fc.launch": { en: "Launch my project", fr: "Lancer mon projet" },
+  "fc.launch": { en: "Launch My Project", fr: "Lancer mon projet" },
   "fc.wa": { en: "WhatsApp ID9", fr: "WhatsApp ID9" },
 
   // Footer
@@ -164,8 +182,8 @@ const DICT = {
   "ft.svc": { en: "Services", fr: "Services" },
   "ft.contact": { en: "Contact", fr: "Contact" },
   "ft.rights": { en: "All rights reserved.", fr: "Tous droits réservés." },
-  "ft.crafted": { en: "Crafted with obsession in", fr: "Conçu avec obsession à" },
-  "ft.worldwide": { en: "Available worldwide.", fr: "Disponible dans le monde entier." },
+  "ft.designed": { en: "Designed with precision.", fr: "Conçu avec précision." },
+  "ft.worldwide": { en: "Deployed without borders.", fr: "Déployé sans frontières." },
 
   // Contact page
   "co.tag": { en: "Contact", fr: "Contact" },
@@ -187,7 +205,7 @@ const DICT = {
     fr: "La marque, l'ambition, ce qui vous bloque — tout est utile.",
   },
   "co.submit": { en: "Send brief", fr: "Envoyer le brief" },
-  "co.submitting": { en: "Sending…", fr: "Envoi…" },
+  "co.submitting": { en: "Sending\u2026", fr: "Envoi\u2026" },
   "co.wa": { en: "Send on WhatsApp", fr: "Envoyer sur WhatsApp" },
   "co.success.h2": { en: "Brief received.", fr: "Brief bien reçu." },
   "co.success.body": {
@@ -201,23 +219,26 @@ const DICT = {
 
   // About page
   "ap.tag": { en: "About ID9", fr: "À propos d'ID9" },
-  "ap.h1": { en: "A studio built around craft, clarity and consequence.", fr: "Un studio construit autour de l'artisanat, la clarté et la conséquence." },
+  "ap.h1": {
+    en: "A digital studio built around clarity, precision, and performance.",
+    fr: "Un studio digital construit autour de la clarté, de la précision et de la performance.",
+  },
   "ap.body": {
-    en: "Since 2018, ID9_AGENCY has been quietly shaping the digital ecosystems behind some of the most distinctive brands in the Caribbean, North America and Europe. We work as a single integrated studio — strategy, design, build, motion and growth — so your brand moves in lockstep instead of fighting handoffs.",
-    fr: "Depuis 2018, ID9_AGENCY façonne discrètement les écosystèmes numériques de marques distinctives à travers la Caraïbe, l'Amérique du Nord et l'Europe. Nous travaillons comme un studio unique et intégré — stratégie, design, développement, motion et croissance — pour que votre marque avance en parfaite cohérence.",
+    en: "Since 2018, ID9_AGENCY has designed and structured digital ecosystems for distinctive brands across Haiti, the Caribbean, North America, and Europe. We operate as an integrated agency — strategy, design, development, motion, and growth — ensuring total coherence between vision, execution, and impact.",
+    fr: "Depuis 2018, ID9_AGENCY conçoit et structure des écosystèmes numériques pour des marques distinctives en Haïti, dans la Caraïbe, en Amérique du Nord et en Europe. Nous opérons comme une agence intégrée — stratégie, design, développement, motion et croissance — afin d'assurer une cohérence totale entre vision, exécution et impact.",
   },
   "ap.founderRole": { en: "Founder · Creative Director", fr: "Fondateur · Directeur créatif" },
-  "ap.founderNote": { en: "Founder note", fr: "Note du fondateur" },
+  "ap.founderNote": { en: "Founder's Note", fr: "Note du fondateur" },
   "ap.founderQuote": {
-    en: "\"Impact always starts with an idea — but it only becomes real when craft, strategy and timing collide.\"",
-    fr: "« L'impact commence toujours par une idée — mais il ne devient réel que lorsque l'artisanat, la stratégie et le timing se rencontrent. »",
+    en: "\u201CImpact is never accidental. It emerges from alignment between vision, precision of execution, and the right moment of activation.\u201D",
+    fr: "«\u00A0L'impact n'est jamais accidentel. Il naît de l'alignement entre la vision, la précision d'exécution et le bon moment d'activation.\u00A0»",
   },
   "ap.founderBio": {
-    en: "Wensly is a designer, entrepreneur, digital strategist and creative director. He started ID9 because he was tired of agencies that talked premium but delivered template. Today he leads a small, senior studio committed to a single promise: every brand we touch leaves visibly stronger than we found it.",
-    fr: "Wensly est designer, entrepreneur, stratège digital et directeur créatif. Il a fondé ID9 parce qu'il en avait assez des agences qui parlaient premium mais livraient des templates. Aujourd'hui, il dirige un studio compact et senior animé d'une seule promesse : chaque marque que nous touchons repart visiblement plus forte.",
+    en: "Wensly is a designer, entrepreneur, digital strategist, and creative director. He founded ID9_AGENCY with one simple conviction: most agencies overcomplicate what should be clear. Today, he leads a selective, senior-level studio centered around one requirement: every brand we work with must emerge stronger, clearer, and more performant.",
+    fr: "Wensly est designer, entrepreneur, stratège digital et directeur créatif. Il a fondé ID9_AGENCY avec une conviction simple : la majorité des agences complexifient ce qui devrait être clair. Aujourd'hui, il dirige un studio sélectif et senior, centré sur une seule exigence : chaque marque que nous accompagnons doit sortir plus forte, plus claire et plus performante.",
   },
   "ap.timeline": { en: "Timeline", fr: "Chronologie" },
-  "ap.timelineH": { en: "Seven years of compounding craft.", fr: "Sept années d'artisanat composé." },
+  "ap.timelineH": { en: "Seven years of strategic construction.", fr: "Sept années de construction stratégique." },
   "ap.workWithUs": { en: "Work with us", fr: "Travailler avec nous" },
 
   // Services page
@@ -230,19 +251,18 @@ const DICT = {
 
   // Blog page
   "bp.tag": { en: "Journal", fr: "Journal" },
-  "bp.h1": { en: "Field notes on craft,", fr: "Carnets sur l'artisanat," },
+  "bp.h1": { en: "Field notes on digital excellence,", fr: "Carnets sur l'excellence digitale," },
   "bp.h2": { en: "strategy and growth.", fr: "la stratégie et la croissance." },
   "bp.featured": { en: "Featured", fr: "À la une" },
 
   // Common
-  "common.loading": { en: "Loading…", fr: "Chargement…" },
+  "common.loading": { en: "Loading\u2026", fr: "Chargement\u2026" },
   "common.signin": { en: "Sign in", fr: "Connexion" },
 };
 
 export function I18nProvider({ children }) {
   const [lang, setLang] = useState(() => {
     if (typeof window === "undefined") return "en";
-    // URL param takes priority for testing: ?lang=fr
     try {
       const url = new URL(window.location.href);
       const param = url.searchParams.get("lang");
