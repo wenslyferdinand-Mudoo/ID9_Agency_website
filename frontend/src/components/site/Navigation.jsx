@@ -217,22 +217,6 @@ export default function Navigation() {
                   </motion.li>
                 ))}
               </ul>
-
-              {/* Lang toggle */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
-                className="mt-8 flex items-center gap-3"
-              >
-                <button
-                  onClick={toggle}
-                  className="touch-target inline-flex items-center gap-2 text-white/80 text-sm font-ui glass rounded-full px-5 py-3 active:scale-95 transition-transform"
-                  data-testid="nav-mobile-lang"
-                >
-                  <Languages className="w-4 h-4" /> {lang === "en" ? "Français" : "English"}
-                </button>
-              </motion.div>
             </nav>
 
             {/* Bottom: socials + contact info */}
@@ -243,13 +227,25 @@ export default function Navigation() {
               className="absolute bottom-0 inset-x-0 px-6 pb-10 safe-bottom"
             >
               <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-3 text-white/55 font-ui text-xs">
-                  <span className="relative flex w-1.5 h-1.5">
-                    <span className="absolute inline-flex h-full w-full rounded-full bg-orange_impact opacity-75 animate-ping" />
-                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-orange_impact" />
-                  </span>
-                  {lang === "fr" ? "Disponible 24/7" : "Available 24/7"}
+                {/* Row 1: status (left) + language toggle (right) */}
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 text-white/55 font-ui text-xs">
+                    <span className="relative flex w-1.5 h-1.5">
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-orange_impact opacity-75 animate-ping" />
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-orange_impact" />
+                    </span>
+                    {lang === "fr" ? "Disponible 24/7" : "Available 24/7"}
+                  </div>
+                  <button
+                    onClick={toggle}
+                    className="touch-target inline-flex items-center gap-2 text-white/85 text-sm font-ui glass rounded-full px-4 py-2 active:scale-95 transition-transform"
+                    data-testid="nav-mobile-lang"
+                  >
+                    <Languages className="w-4 h-4" /> {lang === "en" ? "Français" : "English"}
+                  </button>
                 </div>
+
+                {/* Row 2: socials (left) + CTA (right) */}
                 <div className="flex items-center gap-3">
                   <a
                     href={whatsappLink()}
