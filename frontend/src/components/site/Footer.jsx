@@ -177,7 +177,7 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="mt-16 pt-6 border-t border-white/5 flex flex-col sm:flex-row justify-between gap-3 text-xs font-ui text-white/40">
+          <div className="mt-16 pt-6 pb-24 md:pb-0 border-t border-white/5 flex flex-col sm:flex-row justify-between gap-3 text-xs font-ui text-white/40">
             <p>
               © {new Date().getFullYear()} {BRAND.fullName}. {t("ft.rights")}
             </p>

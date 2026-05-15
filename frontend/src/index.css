@@ -32,11 +32,20 @@ html,
 body,
 #root {
   height: 100%;
+  /* Prevent horizontal overflow globally */
+  overflow-x: clip;
+  /* iPhone notch / dynamic island safe areas */
+  -webkit-tap-highlight-color: transparent;
 }
 
 html {
   scroll-behavior: auto;
   background-color: #070707;
+  /* Native-app feel: no overscroll bounce on body */
+  overscroll-behavior-y: none;
+  /* Prevent zoom-on-tap iOS */
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -47,7 +56,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: "ss01", "cv01";
-  overflow-x: hidden;
+  overflow-x: clip;
+  /* Better touch behavior */
+  touch-action: manipulation;
 }
 
 ::selection {
@@ -157,4 +168,72 @@ html.lenis body {
 .magnetic-btn {
   transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform;
+}
+
+/* ============================================================
+   MOBILE-FIRST UTILITIES
+   ============================================================ */
+
+/* iPhone safe-area (notch + home indicator) */
+.safe-top { padding-top: env(safe-area-inset-top); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+.safe-x {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Fluid type tokens — clamp(min, preferred, max) */
+.text-fluid-xs { font-size: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem); }
+.text-fluid-sm { font-size: clamp(0.85rem, 0.8rem + 0.3vw, 1rem); }
+.text-fluid-base { font-size: clamp(0.95rem, 0.9rem + 0.4vw, 1.125rem); }
+.text-fluid-lg { font-size: clamp(1.1rem, 1rem + 0.6vw, 1.35rem); }
+.text-fluid-xl { font-size: clamp(1.5rem, 1.2rem + 1.5vw, 2.25rem); line-height: 1.15; }
+.text-fluid-2xl { font-size: clamp(2rem, 1.5rem + 2.5vw, 3.5rem); line-height: 1.05; }
+.text-fluid-display { font-size: clamp(2.5rem, 1.5rem + 6vw, 7rem); line-height: 0.95; letter-spacing: -0.04em; }
+
+/* Touch-friendly minimum hit target (44px Apple HIG) */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Prevent body scroll when mobile menu opens */
+body.menu-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+/* GPU-accelerated transitions for mobile */
+.gpu {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Lighter glass on mobile for better perf */
+@media (max-width: 768px) {
+  .glass {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .glass-strong {
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+}
+
+/* Better focus for keyboard nav */
+:focus-visible {
+  outline: 2px solid rgba(255, 165, 0, 0.7);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Disable hover-only effects on touch */
+@media (hover: none) {
+  .hover-only { display: none; }
 }

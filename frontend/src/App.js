@@ -12,6 +12,7 @@ import ProtectedRoute from "@/components/site/ProtectedRoute";
 import Preloader from "@/components/site/Preloader";
 import ScrollProgress from "@/components/site/ScrollProgress";
 import TopContactBar from "@/components/site/TopContactBar";
+import MobileBottomBar from "@/components/site/MobileBottomBar";
 
 import HomePage from "@/pages/HomePage";
 import AboutPage from "@/pages/AboutPage";
@@ -66,6 +67,7 @@ function App() {
               </Route>
             </Routes>
             <Footer />
+            <MobileBottomBar />
             <Toaster theme="dark" position="bottom-right" />
           </LenisProvider>
         </AuthProvider>
