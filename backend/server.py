@@ -127,14 +127,19 @@ class PortfolioCreate(BaseModel):
     category: str  # branding | web | app | marketing | motion | photo
     client: Optional[str] = None
     year: Optional[str] = None
+    sector: Optional[str] = None
     summary: str
     description: Optional[str] = None
     cover_image: str
     gallery: List[str] = []
     services: List[str] = []
+    tools: List[str] = []
     challenge: Optional[str] = None
+    approach: Optional[str] = None
     strategy: Optional[str] = None
+    solution: Optional[str] = None
     outcome: Optional[str] = None
+    kpis: List[dict] = []
     testimonial: Optional[str] = None
     featured: bool = False
 
@@ -354,105 +359,36 @@ async def get_service(slug: str):
 # ---------- Seed data ----------
 PORTFOLIO_SEED = [
     {
-        "title": "Lumen Studio — Brand Reinvention",
+        "title": "Akya Dance Company — Cultural Identity Reborn",
         "category": "branding",
-        "client": "Lumen Studio",
-        "year": "2025",
-        "summary": "Repositioning a boutique photography studio into a premium international brand.",
-        "description": "We rebuilt Lumen's identity from the ground up: a confident wordmark, a flexible visual system, and a tone of voice that radiates editorial confidence.",
-        "cover_image": "https://images.unsplash.com/photo-1561070791-2526d30994b8?auto=format&fit=crop&w=1600&q=80",
+        "client": "Akya Dance Company",
+        "sector": "Culture · Dance",
+        "year": "2022",
+        "summary": "Branding complet pour une compagnie de danse haïtienne — identité visuelle, cartes de visite, flyers, program cards.",
+        "description": "Akya Dance Company, dirigée par Markenley Georges (CDMG — Centre de Danse Markenley Georges), avait besoin d'une identité visuelle capable de porter sa vision artistique au-delà de Pétion-Ville. Nous avons construit un système complet — du logo aux supports événementiels — pour transformer chaque représentation en moment de marque mémorable.",
+        "cover_image": "/projects/akya/flyer-janvier-2023.jpg",
         "gallery": [
-            "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?auto=format&fit=crop&w=1600&q=80",
-            "https://images.unsplash.com/photo-1558655146-9f40138edfeb?auto=format&fit=crop&w=1600&q=80",
+            "/projects/akya/business-card-flat.jpg",
+            "/projects/akya/business-card-mockup.jpg",
+            "/projects/akya/program-card.jpg",
+            "/projects/akya/flyer-juin-2022.jpg",
+            "/projects/akya/flyer-janvier-2023.jpg",
         ],
-        "services": ["Branding", "Visual System", "Guidelines"],
-        "challenge": "Lumen was perceived as a local studio in a saturated market.",
-        "strategy": "Position the studio as an editorial-grade premium brand serving global clients.",
-        "outcome": "+312% inbound inquiries, 4 international retainer clients signed in 90 days.",
-        "testimonial": "ID9 didn't just redesign our brand — they reframed our entire business.",
-        "featured": True,
-    },
-    {
-        "title": "Atlas Capital — Investor Platform",
-        "category": "web",
-        "client": "Atlas Capital",
-        "year": "2025",
-        "summary": "Cinematic investor platform with live portfolio dashboards.",
-        "description": "A premium web platform built for an investment firm targeting HNW clients across the Caribbean and US.",
-        "cover_image": "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=1600&q=80",
-        "gallery": [
-            "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1600&q=80",
+        "services": ["Branding", "Business Card Design", "Flyer Design", "Program Card"],
+        "tools": ["Adobe Photoshop", "Adobe Illustrator"],
+        "challenge": "Akya Dance était reconnue localement pour la qualité artistique de ses spectacles, mais souffrait d'une identité visuelle dispersée. Chaque flyer, chaque carte, chaque support utilisait des styles différents — affaiblissant la perception de marque et compliquant la promotion des événements en folklore haïtien.",
+        "approach": "Nous avons abordé Akya comme une marque culturelle premium : ancrée dans la tradition haïtienne (couleurs terre, bordeaux, ocre) mais portée par un langage moderne. Sessions stratégiques avec Markenley Georges pour comprendre l'âme de la compagnie, puis création d'un système graphique cohérent déclinable sur tous les supports.",
+        "strategy": "Une identité double : élégante en B2B (cartes de visite, communication officielle) et expressive en B2C (flyers, program cards) — toujours reconnaissable au premier coup d'œil. Photographie chorégraphique mise en valeur, typographie scriptée pour l'émotion, blocs solides pour l'information.",
+        "solution": "Logo Markenley Georges + monogramme CDMG, charte chromatique signature (jaune solaire / vert profond / bordeaux), business cards recto-verso, flyers événementiels (audition juin 2022, spectacle Cri de la Liberté janvier 2023), program cards et tickets numérotés.",
+        "outcome": "Akya Dance dispose désormais d'une identité cohérente qui amplifie chaque communication et renforce le positionnement de Markenley Georges comme figure de la danse contemporaine haïtienne.",
+        "kpis": [
+            {"label": "Supports créés", "value": "12+"},
+            {"label": "Événements promus", "value": "4"},
+            {"label": "Cohérence visuelle", "value": "100%"},
+            {"label": "Année de partenariat", "value": "2022"},
         ],
-        "services": ["Web", "UI/UX", "Motion"],
-        "challenge": "Investors needed clarity, credibility and real-time data.",
-        "strategy": "Sober editorial design, micro-interactions, secure investor dashboard.",
-        "outcome": "$4.2M committed within 6 weeks of launch.",
-        "testimonial": "An experience our clients describe as 'in a different league'.",
+        "testimonial": "ID9 a compris notre âme artistique et l'a traduite en une identité visuelle dont nous sommes fiers à chaque représentation.",
         "featured": True,
-    },
-    {
-        "title": "Noir Hotel — Booking Experience",
-        "category": "web",
-        "client": "Noir Hotel Group",
-        "year": "2024",
-        "summary": "Immersive booking experience for a boutique luxury hotel chain.",
-        "description": "Hero films, parallax storytelling, frictionless booking.",
-        "cover_image": "https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=1600&q=80",
-        "gallery": [],
-        "services": ["Web", "Motion", "Photography"],
-        "challenge": "Compete with global OTA platforms while preserving brand soul.",
-        "strategy": "Cinematic storytelling + 2-click direct booking.",
-        "outcome": "Direct bookings +186%, OTA dependency reduced 40%.",
-        "testimonial": "Booking became part of the experience.",
-        "featured": True,
-    },
-    {
-        "title": "Vortex — AI Agent Suite",
-        "category": "app",
-        "client": "Vortex Labs",
-        "year": "2025",
-        "summary": "AI agent platform with custom GPTs and workflow automation.",
-        "description": "From product strategy to launch — a polished AI tool used by 2,400+ teams.",
-        "cover_image": "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1600&q=80",
-        "gallery": [],
-        "services": ["App", "UI/UX", "AI"],
-        "challenge": "Differentiate in a crowded AI tooling market.",
-        "strategy": "Sharp positioning + obsessive UX + first-class onboarding.",
-        "outcome": "2,400 teams onboarded in 90 days, $180k MRR.",
-        "testimonial": "ID9 ships like a senior product team.",
-        "featured": True,
-    },
-    {
-        "title": "Solara — Skincare Campaign",
-        "category": "marketing",
-        "client": "Solara",
-        "year": "2024",
-        "summary": "Editorial campaign + paid media strategy for a clean beauty brand.",
-        "description": "Full funnel campaign — content, paid, CRM.",
-        "cover_image": "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=1600&q=80",
-        "gallery": [],
-        "services": ["Marketing", "Content", "Paid Media"],
-        "challenge": "Launch in a crowded clean beauty market.",
-        "strategy": "Editorial-first, story-led campaign with tight performance loop.",
-        "outcome": "1.2M reach, 4.1x ROAS, sold out in 11 days.",
-        "testimonial": "We sold out faster than we could restock.",
-        "featured": False,
-    },
-    {
-        "title": "Aria — Music Brand Launch",
-        "category": "motion",
-        "client": "Aria",
-        "year": "2025",
-        "summary": "Visual identity + motion launch package for emerging artist.",
-        "description": "Logo system, motion identity, release rollout.",
-        "cover_image": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1600&q=80",
-        "gallery": [],
-        "services": ["Branding", "Motion", "Artist Management"],
-        "challenge": "Launch with no existing fanbase.",
-        "strategy": "Premium positioning, cinematic visual story.",
-        "outcome": "42k followers in 6 weeks, 2 label offers.",
-        "testimonial": "They made me look like a star before I was one.",
-        "featured": False,
     },
 ]
 
