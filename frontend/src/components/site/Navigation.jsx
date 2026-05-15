@@ -34,7 +34,7 @@ export default function Navigation() {
             <Logo className="w-9 h-9" />
             <div className="hidden sm:flex flex-col leading-none">
               <span className="font-display font-black tracking-tight text-base">
-                ID9<span className="text-orange_impact">_</span>
+                ID9<span className="text-orange_impact">_</span>AGENCY
               </span>
               <span className="font-ui text-[9px] uppercase tracking-[0.22em] text-white/55 mt-0.5">
                 Impact Digital 9
