@@ -23,18 +23,23 @@ export default function Navigation() {
 
   return (
     <>
-      <div className="fixed top-0 inset-x-0 z-50 px-4 md:px-8 pt-4 md:pt-6" data-testid="site-navigation">
+      <div className="fixed top-0 inset-x-0 z-50 px-4 md:px-8 pt-4 md:pt-6 lg:pt-10" data-testid="site-navigation">
         <motion.nav
           initial={{ y: -30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="glass-strong rounded-full max-w-6xl mx-auto flex items-center justify-between pl-3 pr-3 py-2"
         >
-          <Link to="/" className="flex items-center gap-2 pl-2" data-testid="nav-logo-link">
+          <Link to="/" className="flex items-center gap-2.5 pl-2" data-testid="nav-logo-link">
             <Logo className="w-9 h-9" />
-            <span className="font-display font-black tracking-tight text-base hidden sm:inline">
-              ID9<span className="text-orange_impact">_</span>
-            </span>
+            <div className="hidden sm:flex flex-col leading-none">
+              <span className="font-display font-black tracking-tight text-base">
+                ID9<span className="text-orange_impact">_</span>
+              </span>
+              <span className="font-ui text-[9px] uppercase tracking-[0.22em] text-white/55 mt-0.5">
+                Impact Digital 9
+              </span>
+            </div>
           </Link>
 
           <ul className="hidden md:flex items-center gap-1 font-ui text-sm">

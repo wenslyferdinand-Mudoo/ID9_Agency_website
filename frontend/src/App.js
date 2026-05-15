@@ -11,6 +11,7 @@ import Footer from "@/components/site/Footer";
 import ProtectedRoute from "@/components/site/ProtectedRoute";
 import Preloader from "@/components/site/Preloader";
 import ScrollProgress from "@/components/site/ScrollProgress";
+import TopContactBar from "@/components/site/TopContactBar";
 
 import HomePage from "@/pages/HomePage";
 import AboutPage from "@/pages/AboutPage";
@@ -37,6 +38,7 @@ function App() {
             <Preloader />
             <ScrollProgress />
             <ScrollToTop />
+            <TopContactBar />
             <Navigation />
             <Routes>
               <Route path="/" element={<HomePage />} />
