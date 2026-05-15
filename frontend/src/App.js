@@ -10,7 +10,6 @@ import Navigation from "@/components/site/Navigation";
 import Footer from "@/components/site/Footer";
 import ProtectedRoute from "@/components/site/ProtectedRoute";
 import Preloader from "@/components/site/Preloader";
-import CustomCursor from "@/components/site/CustomCursor";
 import ScrollProgress from "@/components/site/ScrollProgress";
 
 import HomePage from "@/pages/HomePage";
@@ -36,7 +35,6 @@ function App() {
         <AuthProvider>
           <LenisProvider>
             <Preloader />
-            <CustomCursor />
             <ScrollProgress />
             <ScrollToTop />
             <Navigation />

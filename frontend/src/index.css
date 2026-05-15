@@ -55,20 +55,6 @@ body {
   color: #070707;
 }
 
-/* Custom cursor — hide native cursor on desktop */
-html.custom-cursor-on,
-html.custom-cursor-on body,
-html.custom-cursor-on * {
-  cursor: none !important;
-}
-@media (pointer: coarse) {
-  html.custom-cursor-on,
-  html.custom-cursor-on body,
-  html.custom-cursor-on * {
-    cursor: auto !important;
-  }
-}
-
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
