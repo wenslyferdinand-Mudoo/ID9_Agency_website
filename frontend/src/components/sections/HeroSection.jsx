@@ -36,19 +36,19 @@ export default function HeroSection() {
       data-testid="hero-section"
     >
       {/* Background layers — z order matters */}
-      <FluidGradient intensity={1} />
+      <FluidGradient intensity={0.55} />
       {show3D && (
         <Suspense fallback={null}>
-          <Hero3D />
+          <Hero3D className="opacity-80" />
         </Suspense>
       )}
-      <div className="absolute inset-0 grid-lines opacity-25 pointer-events-none z-10" />
+      <div className="absolute inset-0 grid-lines opacity-[0.08] pointer-events-none z-10" />
       {/* Soft vignette to focus center */}
       <div
         className="absolute inset-0 pointer-events-none z-10"
         style={{
           background:
-            "radial-gradient(ellipse at center, transparent 35%, rgba(7,7,7,0.55) 95%)",
+            "radial-gradient(ellipse at center, transparent 25%, rgba(7,7,7,0.45) 95%)",
         }}
       />
 
@@ -68,7 +68,10 @@ export default function HeroSection() {
           </span>
         </motion.div>
 
-        <h1 className="font-display font-black tracking-[-0.04em] leading-[1] text-[clamp(2.4rem,7.5vw,7rem)] text-balance mx-auto">
+        <h1
+          className="font-display font-black tracking-[-0.04em] leading-[1] text-[clamp(2.4rem,7.5vw,7rem)] text-balance mx-auto"
+          style={{ textShadow: "0 2px 40px rgba(0,0,0,0.4)" }}
+        >
           <span className="block">
             <RevealText as="span" text={t("hero.h1.line1a")} className="inline" />
             <span>&nbsp;</span>

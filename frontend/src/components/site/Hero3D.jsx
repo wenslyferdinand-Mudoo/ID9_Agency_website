@@ -1,18 +1,31 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import * as THREE from "three";
 
+// Optional: Spline scene (if user publishes a custom scene, drop URL in env)
+const SPLINE_SCENE_URL = process.env.REACT_APP_SPLINE_SCENE_URL || "";
+const SplineScene = lazy(() => import("@splinetool/react-spline"));
+
 /**
- * Subtle premium 3D background — animated displaced sphere + ambient particles.
- * - Auto-rotates slowly
- * - Reacts to cursor parallax (desktop)
- * - GPU-accelerated WebGL
- * - Mobile-optimized (lower poly + smaller canvas)
- * - Lazy-mounts after first paint to avoid blocking LCP
+ * Subtle premium 3D background.
+ * - If REACT_APP_SPLINE_SCENE_URL is set, loads a Spline scene
+ * - Otherwise renders a custom Three.js shader sphere + ambient particles
+ * - Lazy-mounted, mobile-aware, reduced-motion aware
  */
 export default function Hero3D({ className = "" }) {
   const mountRef = useRef(null);
+  const [reduced, setReduced] = useState(false);
 
   useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mq.matches);
+    const onChange = (e) => setReduced(e.matches);
+    mq.addEventListener?.("change", onChange);
+    return () => mq.removeEventListener?.("change", onChange);
+  }, []);
+
+  // ---------- Three.js fallback scene ----------
+  useEffect(() => {
+    if (SPLINE_SCENE_URL || reduced) return;
     const container = mountRef.current;
     if (!container) return;
 
@@ -20,7 +33,6 @@ export default function Hero3D({ className = "" }) {
     const w = container.clientWidth;
     const h = container.clientHeight;
 
-    // Scene + camera + renderer
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 100);
     camera.position.z = 6.5;
@@ -38,23 +50,19 @@ export default function Hero3D({ className = "" }) {
     renderer.domElement.style.inset = "0";
     renderer.domElement.style.pointerEvents = "none";
 
-    // ---------- Displaced sphere (signature 3D object) ----------
-    const segments = isMobile ? 64 : 96;
-    const sphereGeo = new THREE.IcosahedronGeometry(1.7, segments / 16);
-
-    // Custom shader material — soft gradient + animated noise displacement on rim
+    // Distorted signature sphere
+    const sphereGeo = new THREE.IcosahedronGeometry(1.75, isMobile ? 4 : 6);
     const sphereMat = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
-        uColorA: { value: new THREE.Color(0xffa500) }, // orange_impact
-        uColorB: { value: new THREE.Color(0x7a3076) }, // violet
-        uColorC: { value: new THREE.Color(0x0a0a0c) }, // ink
+        uColorA: { value: new THREE.Color(0xffa500) },
+        uColorB: { value: new THREE.Color(0x7a3076) },
+        uColorC: { value: new THREE.Color(0x0a0a0c) },
       },
       vertexShader: `
         varying vec3 vNormal;
         varying vec3 vPos;
         uniform float uTime;
-        // 3D simplex noise — simplified
         float n3(vec3 p) {
           return sin(p.x*1.7 + uTime*0.4) * cos(p.y*2.1 + uTime*0.3) * sin(p.z*1.5 + uTime*0.5);
         }
@@ -74,21 +82,13 @@ export default function Hero3D({ className = "" }) {
         uniform vec3 uColorC;
         uniform float uTime;
         void main() {
-          // Fresnel rim
           vec3 viewDir = normalize(cameraPosition - vPos);
           float fres = pow(1.0 - max(dot(vNormal, viewDir), 0.0), 2.2);
-
-          // Vertical gradient
           float t = (vNormal.y + 1.0) * 0.5;
           vec3 base = mix(uColorB, uColorA, t);
-          base = mix(base, uColorC, 0.55); // darken into ink
-
-          // Rim glow
+          base = mix(base, uColorC, 0.55);
           vec3 col = mix(base, uColorA, fres * 0.85);
-          // Soft pulse
           col += uColorA * 0.06 * sin(uTime * 0.9);
-
-          // Soft edge fade — premium look
           float alpha = 0.55 + fres * 0.35;
           gl_FragColor = vec4(col, alpha);
         }
@@ -99,7 +99,7 @@ export default function Hero3D({ className = "" }) {
     const sphere = new THREE.Mesh(sphereGeo, sphereMat);
     scene.add(sphere);
 
-    // ---------- Ambient depth particles ----------
+    // Ambient particles
     const pCount = isMobile ? 160 : 360;
     const pGeo = new THREE.BufferGeometry();
     const positions = new Float32Array(pCount * 3);
@@ -122,9 +122,7 @@ export default function Hero3D({ className = "" }) {
     const points = new THREE.Points(pGeo, pMat);
     scene.add(points);
 
-    // ---------- Lighting (subtle key + rim) ----------
-    const ambient = new THREE.AmbientLight(0xffffff, 0.35);
-    scene.add(ambient);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.35));
     const key = new THREE.PointLight(0xffa500, 1.4, 18);
     key.position.set(4, 3, 5);
     scene.add(key);
@@ -132,7 +130,6 @@ export default function Hero3D({ className = "" }) {
     rim.position.set(-4, -2, 4);
     scene.add(rim);
 
-    // ---------- Interaction state ----------
     const target = { x: 0, y: 0 };
     const current = { x: 0, y: 0 };
     const onMove = (e) => {
@@ -143,7 +140,6 @@ export default function Hero3D({ className = "" }) {
     };
     if (!isMobile) window.addEventListener("mousemove", onMove, { passive: true });
 
-    // ---------- Resize ----------
     const onResize = () => {
       const nw = container.clientWidth;
       const nh = container.clientHeight;
@@ -153,24 +149,17 @@ export default function Hero3D({ className = "" }) {
     };
     window.addEventListener("resize", onResize);
 
-    // ---------- Animate ----------
     const clock = new THREE.Clock();
     let raf;
     const tick = () => {
       const t = clock.getElapsedTime();
       sphereMat.uniforms.uTime.value = t;
-
-      // smooth parallax
       current.x += (target.x - current.x) * 0.04;
       current.y += (target.y - current.y) * 0.04;
-
-      // base slow auto-rotation + interaction
       sphere.rotation.y = t * 0.12 + current.x;
       sphere.rotation.x = Math.sin(t * 0.18) * 0.15 + current.y;
       sphere.position.x = current.x * 0.4;
       sphere.position.y = current.y * 0.3;
-
-      // particles slow drift upward
       const pos = pGeo.attributes.position.array;
       for (let i = 0; i < pCount; i++) {
         pos[i * 3 + 1] += speeds[i] * 0.005;
@@ -178,14 +167,11 @@ export default function Hero3D({ className = "" }) {
       }
       pGeo.attributes.position.needsUpdate = true;
       points.rotation.y = t * 0.02 + current.x * 0.3;
-
       renderer.render(scene, camera);
       raf = requestAnimationFrame(tick);
     };
-    // Lazy start on next frame to avoid blocking initial paint
     raf = requestAnimationFrame(tick);
 
-    // Pause when tab hidden
     const onVisibility = () => {
       if (document.hidden) {
         cancelAnimationFrame(raf);
@@ -210,8 +196,27 @@ export default function Hero3D({ className = "" }) {
         renderer.domElement.parentNode.removeChild(renderer.domElement);
       }
     };
-  }, []);
+  }, [reduced]);
 
+  if (reduced) return null;
+
+  // Spline branch
+  if (SPLINE_SCENE_URL) {
+    return (
+      <div
+        aria-hidden
+        className={`absolute inset-0 overflow-hidden ${className}`}
+        data-testid="hero-3d"
+        style={{ pointerEvents: "none" }}
+      >
+        <Suspense fallback={null}>
+          <SplineScene scene={SPLINE_SCENE_URL} style={{ width: "100%", height: "100%" }} />
+        </Suspense>
+      </div>
+    );
+  }
+
+  // Three.js branch
   return (
     <div
       ref={mountRef}

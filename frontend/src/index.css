@@ -237,3 +237,13 @@ body.menu-open {
 @media (hover: none) {
   .hover-only { display: none; }
 }
+
+/* Hide Spline "Built with Spline" watermark (we use community CC scene) */
+[data-testid="hero-3d"] a[href*="spline.design"],
+[data-testid="hero-3d"] a[aria-label*="Spline"],
+[data-testid="hero-3d"] #logo,
+[data-testid="hero-3d"] [class*="logo"] {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}

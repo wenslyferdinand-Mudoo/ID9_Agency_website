@@ -3,6 +3,7 @@ import AboutPreview from "@/components/sections/AboutPreview";
 import ServicesGrid from "@/components/sections/ServicesGrid";
 import PortfolioPreview from "@/components/sections/PortfolioPreview";
 import ProcessTimeline from "@/components/sections/ProcessTimeline";
+import FounderAuthority from "@/components/sections/FounderAuthority";
 import WhyUs from "@/components/sections/WhyUs";
 import Testimonials from "@/components/sections/Testimonials";
 import LeadMagnet from "@/components/sections/LeadMagnet";
@@ -25,6 +26,7 @@ export default function HomePage() {
         ]}
       />
       <ProcessTimeline />
+      <FounderAuthority />
       <MarqueeDivider items={["Discover", "Strategy", "Design", "Develop", "Launch", "Scale"]} speed={45} />
       <WhyUs />
       <Testimonials />

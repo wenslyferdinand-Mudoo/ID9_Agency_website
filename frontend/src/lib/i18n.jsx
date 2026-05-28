@@ -93,44 +93,53 @@ const DICT = {
   },
   "wk.startProject": { en: "Start a project", fr: "Démarrer un projet" },
 
-  // Process
-  "pr.tag": { en: "(04) — Process", fr: "(04) — Processus" },
-  "pr.h1": { en: "Six moves.", fr: "Six mouvements." },
-  "pr.h2": { en: "One logic.", fr: "Une seule logique." },
+  // Process — System Architecture Flow
+  "pr.tag": { en: "(04) — System Architecture", fr: "(04) — Architecture Système" },
+  "pr.h1": { en: "Six layers.", fr: "Six couches." },
+  "pr.h2": { en: "One system.", fr: "Un seul système." },
   "pr.sub": {
-    en: "A structured production system that transforms uncertainty into controlled execution — without friction, improvisation, or the \u201Cagency effect.\u201D",
-    fr: "Un système de production structuré qui transforme l'incertitude en exécution maîtrisée — sans friction, sans improvisation, sans «\u00A0effet agence\u00A0».",
+    en: "Not a process. An engineered production architecture that converts intent into measurable digital infrastructure — without friction, improvisation, or the \u201Cagency effect.\u201D",
+    fr: "Pas un processus. Une architecture de production conçue qui convertit l'intention en infrastructure digitale mesurable — sans friction, sans improvisation, sans «\u00A0effet agence\u00A0».",
   },
-  "pr.discover": { en: "Discovery", fr: "Découverte" },
-  "pr.strategy": { en: "Strategy", fr: "Stratégie" },
-  "pr.design": { en: "Design", fr: "Design" },
-  "pr.develop": { en: "Engineering", fr: "Ingénierie" },
-  "pr.launch": { en: "Launch", fr: "Lancement" },
-  "pr.scale": { en: "Growth", fr: "Croissance" },
+  "pr.discover": { en: "Input Layer", fr: "Couche d'Entrée" },
+  "pr.strategy": { en: "Strategy Layer", fr: "Couche Stratégie" },
+  "pr.design": { en: "Design Layer", fr: "Couche Design" },
+  "pr.develop": { en: "Engineering Layer", fr: "Couche Ingénierie" },
+  "pr.launch": { en: "Launch Layer", fr: "Couche Lancement" },
+  "pr.scale": { en: "Growth Layer", fr: "Couche Croissance" },
   "pr.discoverV": {
-    en: "Complete audits, product immersion, founder workshops, and extraction of critical strategic leverage points. We clarify what must exist before building it.",
-    fr: "Audits complets, immersion produit, ateliers fondateurs et extraction des leviers stratégiques critiques. Nous clarifions ce qui doit exister avant de le construire.",
+    en: "Founder workshops, business audits, market diagnostic, and competitive mapping. Output: a clarified strategic brief defining what must exist.",
+    fr: "Ateliers fondateurs, audits business, diagnostic marché et cartographie concurrentielle. Livrable : un brief stratégique clarifié définissant ce qui doit exister.",
   },
   "pr.strategyV": {
-    en: "Brand architecture, narrative design, user journey mapping, and multi-channel growth planning. Strategy designed as a system — not a document.",
-    fr: "Architecture de marque, conception narrative, cartographie du parcours utilisateur et planification de croissance multi-canal. Une stratégie conçue comme un système — pas comme un document.",
+    en: "Brand architecture, narrative system, positioning, user journey design, and growth model. Output: a strategic operating system, not a slide deck.",
+    fr: "Architecture de marque, système narratif, positionnement, parcours utilisateur et modèle de croissance. Livrable : un système d'exploitation stratégique, pas un PDF.",
   },
   "pr.designV": {
-    en: "Systemic visual identity, precision UX, and coherent motion language. Every detail serves one purpose: perceived value.",
-    fr: "Identité visuelle systémique, UX de précision et langage motion cohérent. Chaque détail sert un seul objectif : la valeur perçue.",
+    en: "Visual identity system, design tokens, UI/UX patterns, and motion language. Output: a coherent design system shippable across every surface.",
+    fr: "Système d'identité visuelle, design tokens, patterns UI/UX et langage motion. Livrable : un design system cohérent déployable sur chaque surface.",
   },
   "pr.developV": {
-    en: "High-performance development, scalable by design, product-oriented by nature. Fast, stable systems built for scale.",
-    fr: "Développement haute performance, scalable par conception, orienté produit par nature. Des systèmes rapides et stables, pensés pour l'échelle.",
+    en: "Performance-first engineering, scalable architecture, integrations, and infrastructure. Output: a production-grade product, not a prototype.",
+    fr: "Ingénierie performance-first, architecture scalable, intégrations et infrastructure. Livrable : un produit en qualité production, pas un prototype.",
   },
   "pr.launchV": {
-    en: "Controlled deployment, media activation, launch assets, and visibility orchestration. We do not publish — we activate.",
-    fr: "Déploiement contrôlé, activation média, supports de lancement et orchestration de la visibilité. Nous ne publions pas — nous activons.",
+    en: "Orchestrated rollout, paid activation, media assets, PR sequencing. Output: a launch event — not a publication. Day-1 traction by design.",
+    fr: "Déploiement orchestré, activation payante, supports médias, séquencement RP. Livrable : un événement de lancement — pas une publication. Traction dès le jour 1.",
   },
   "pr.scaleV": {
-    en: "Continuous optimization, product iterations, marketing performance, and expansion. A partnership mindset — not a one-time project.",
-    fr: "Optimisation continue, itérations produit, performance marketing et expansion. Un état d'esprit partenariat — pas un projet ponctuel.",
+    en: "Compounding optimization, CRO, product iteration, performance marketing. Output: a perpetual growth engine — partnership over project.",
+    fr: "Optimisation cumulative, CRO, itération produit, marketing performance. Livrable : un moteur de croissance perpétuel — partenariat plutôt que projet.",
   },
+  "pr.purpose": { en: "Purpose", fr: "Finalité" },
+  "pr.output": { en: "Output", fr: "Livrable" },
+  "pr.impact": { en: "Impact", fr: "Impact" },
+  "pr.impact01": { en: "Strategic clarity from day one.", fr: "Clarté stratégique dès le jour 1." },
+  "pr.impact02": { en: "Decisions become repeatable systems.", fr: "Les décisions deviennent des systèmes reproductibles." },
+  "pr.impact03": { en: "Perception shifts from local to premium.", fr: "La perception passe de locale à premium." },
+  "pr.impact04": { en: "Scale without rebuilding.", fr: "Échelle sans tout reconstruire." },
+  "pr.impact05": { en: "Day-1 traction, not vanity launches.", fr: "Traction dès le jour 1, pas un lancement gadget." },
+  "pr.impact06": { en: "Compounding value, not flat invoices.", fr: "Valeur cumulative, pas des factures plates." },
 
   // Why
   "why.tag": { en: "(05) — Why ID9", fr: "(05) — Pourquoi ID9" },
@@ -155,6 +164,48 @@ const DICT = {
   // Testimonials
   "ts.tag": { en: "(06) — Testimonials", fr: "(06) — Témoignages" },
   "ts.h1": { en: "Founders we've helped.", fr: "Les fondateurs accompagnés." },
+
+  // Founder Authority (editorial section)
+  "fa.tag": { en: "(07) — Founder", fr: "(07) — Fondateur" },
+  "fa.eyebrow": { en: "A statement from the founder.", fr: "Mot du fondateur." },
+  "fa.h1": { en: "Most agencies", fr: "La plupart des agences" },
+  "fa.h2": { en: "produce deliverables.", fr: "produisent des livrables." },
+  "fa.h3": { en: "We engineer systems.", fr: "Nous, des systèmes." },
+  "fa.body1": {
+    en: "I founded ID9_AGENCY because the digital industry confused activity with execution. Most agencies ship logos, sites, and posts. Few ship outcomes. None ship systems that compound. That gap is our entire reason to exist.",
+    fr: "J'ai fondé ID9_AGENCY parce que l'industrie digitale a confondu activité et exécution. La plupart des agences livrent des logos, des sites et des posts. Très peu livrent des résultats. Aucune ne livre des systèmes qui se composent dans le temps. Cet écart est toute notre raison d'être.",
+  },
+  "fa.body2": {
+    en: "We do not sell creativity. Creativity is a commodity. We sell strategic architecture — a decision framework that turns ambition into infrastructure. Every brand we build must clarify, perform, and scale. Anything else is decoration.",
+    fr: "Nous ne vendons pas de la créativité. La créativité est devenue une commodité. Nous vendons de l'architecture stratégique — un cadre de décision qui transforme l'ambition en infrastructure. Chaque marque que nous bâtissons doit clarifier, performer, échelonner. Tout le reste est de la décoration.",
+  },
+  "fa.pillar1.k": { en: "Belief", fr: "Conviction" },
+  "fa.pillar1.v": {
+    en: "Premium is not a price. It's an operating system.",
+    fr: "Le premium n'est pas un prix. C'est un système d'exploitation.",
+  },
+  "fa.pillar2.k": { en: "Standard", fr: "Standard" },
+  "fa.pillar2.v": {
+    en: "If it can't be measured, it can't be claimed.",
+    fr: "Si ce n'est pas mesurable, ce n'est pas affirmable.",
+  },
+  "fa.pillar3.k": { en: "Method", fr: "Méthode" },
+  "fa.pillar3.v": {
+    en: "Strategy precedes design. Design precedes code. Code precedes scale.",
+    fr: "La stratégie précède le design. Le design précède le code. Le code précède l'échelle.",
+  },
+  "fa.pillar4.k": { en: "Refusal", fr: "Refus" },
+  "fa.pillar4.v": {
+    en: "We do not produce decoration disguised as branding.",
+    fr: "Nous ne produisons pas de la décoration déguisée en branding.",
+  },
+  "fa.signature": { en: "Wensly Ferdinand", fr: "Wensly Ferdinand" },
+  "fa.role": {
+    en: "Founder · Creative Director · Strategist",
+    fr: "Fondateur · Directeur Créatif · Stratège",
+  },
+  "fa.cta": { en: "Read the full studio philosophy", fr: "Lire la philosophie complète du studio" },
+  "fa.cta2": { en: "Talk to the studio", fr: "Parler au studio" },
 
   // Lead magnet
   "lm.badge": { en: "Free · 15 minutes · No pitch", fr: "Gratuit · 15 minutes · Sans argumentaire" },
