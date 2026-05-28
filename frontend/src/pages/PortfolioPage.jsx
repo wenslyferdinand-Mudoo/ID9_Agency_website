@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import api from "@/lib/api";
+import { fetchPortfolioList } from "@/lib/portfolio";
 import RevealText from "@/components/site/RevealText";
 import FinalCTA from "@/components/sections/FinalCTA";
 import { useI18n } from "@/lib/i18n";
@@ -22,7 +23,15 @@ export default function PortfolioPage() {
   ];
 
   useEffect(() => {
-    api.get("/portfolio").then((r) => setItems(r.data)).catch(() => {});
+    // 1) Try Sanity first (CMS)
+    fetchPortfolioList().then((sanityItems) => {
+      if (sanityItems && sanityItems.length) {
+        setItems(sanityItems);
+        return;
+      }
+      // 2) Fallback to FastAPI/MongoDB (legacy data, e.g. Akya Dance seed)
+      api.get("/portfolio").then((r) => setItems(r.data)).catch(() => {});
+    });
   }, []);
 
   const filtered = useMemo(
