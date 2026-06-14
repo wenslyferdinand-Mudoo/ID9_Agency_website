@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, Quote, Wrench, Target, Lightbulb, Rocket, TrendingUp } from "lucide-react";
 import api from "@/lib/api";
+import { fetchPortfolioBySlug } from "@/lib/portfolio";
 import FinalCTA from "@/components/sections/FinalCTA";
 import RevealText from "@/components/site/RevealText";
 import { useI18n } from "@/lib/i18n";
@@ -23,10 +24,18 @@ export default function PortfolioDetailPage() {
   const titleY = useTransform(scrollYProgress, [0, 1], [0, 120]);
 
   useEffect(() => {
-    api
-      .get(`/portfolio/${slug}`)
-      .then((r) => setItem(r.data))
-      .catch(() => setNotFound(true));
+    // 1) Sanity CMS first
+    fetchPortfolioBySlug(slug).then((doc) => {
+      if (doc) {
+        setItem(doc);
+        return;
+      }
+      // 2) Fallback to FastAPI/MongoDB (legacy data)
+      api
+        .get(`/portfolio/${slug}`)
+        .then((r) => setItem(r.data))
+        .catch(() => setNotFound(true));
+    });
   }, [slug]);
 
   if (notFound)

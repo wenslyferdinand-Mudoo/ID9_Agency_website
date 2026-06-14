@@ -1,17 +1,33 @@
 import { useState, useEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ArrowUpRight, Languages, Instagram, Facebook, Mail, MessageCircle } from "lucide-react";
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
+import { ArrowUpRight, Languages, Instagram, Facebook, Mail, MessageCircle } from "lucide-react";
 import Logo from "@/components/site/Logo";
+import AnimatedHamburger from "@/components/site/AnimatedHamburger";
 import { useI18n } from "@/lib/i18n";
 import { BRAND, whatsappLink } from "@/lib/brand";
 
 export default function Navigation() {
   const [open, setOpen] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const [compact, setCompact] = useState(false);
   const loc = useLocation();
   const { t, lang, toggle } = useI18n();
+  const { scrollY } = useScroll();
 
-  // Lock body scroll when mobile menu is open
+  // Smart scroll: compact past 70px, hide on scroll-down past 180px, reveal on scroll-up
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    const prev = scrollY.getPrevious() ?? 0;
+    setCompact(latest > 70);
+    if (open) {
+      setHidden(false);
+      return;
+    }
+    if (latest > prev + 4 && latest > 180) setHidden(true);
+    else if (latest < prev - 4 || latest <= 180) setHidden(false);
+  });
+
+  // Lock body scroll when fullscreen menu is open
   useEffect(() => {
     if (open) {
       document.body.classList.add("menu-open");
@@ -39,15 +55,22 @@ export default function Navigation() {
 
   return (
     <>
-      <div className="fixed top-0 inset-x-0 z-50 px-4 md:px-8 pt-4 md:pt-6 lg:pt-10" data-testid="site-navigation">
-        <motion.nav
-          initial={{ y: -30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="glass-strong rounded-full max-w-6xl mx-auto flex items-center justify-between pl-3 pr-3 py-2"
+      <motion.div
+        className="fixed top-0 inset-x-0 z-50 px-4 md:px-8"
+        initial={{ y: -40, opacity: 0 }}
+        animate={hidden ? { y: "-130%", opacity: 1 } : { y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+        data-testid="site-navigation"
+      >
+        <nav
+          className={`glass-strong rounded-full max-w-6xl mx-auto flex items-center justify-between pl-3 pr-3 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+            compact
+              ? "py-1.5 mt-2 md:mt-3 lg:mt-9 shadow-[0_16px_48px_-12px_rgba(0,0,0,0.65)]"
+              : "py-2 mt-4 md:mt-6 lg:mt-10 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.4)]"
+          }`}
         >
           <Link to="/" className="flex items-center gap-2.5 pl-2" data-testid="nav-logo-link">
-            <Logo className="w-9 h-9" />
+            <Logo className={`transition-all duration-500 ${compact ? "w-8 h-8" : "w-9 h-9"}`} />
             <div className="hidden sm:flex flex-col leading-none">
               <span className="font-display font-black tracking-tight text-base">
                 ID9<span className="text-orange_impact">_</span>AGENCY
@@ -60,31 +83,13 @@ export default function Navigation() {
 
           <ul className="hidden md:flex items-center gap-1 font-ui text-sm">
             {links.map((l) => (
-              <li key={l.to}>
-                <NavLink
-                  to={l.to}
-                  end={l.to === "/"}
-                  className={({ isActive }) =>
-                    `relative px-4 py-2 rounded-full transition-colors ${
-                      isActive ? "text-white" : "text-white/60 hover:text-white"
-                    }`
-                  }
-                  data-testid={`nav-link-${l.to === "/" ? "home" : l.to.replace("/", "")}`}
-                >
-                  {({ isActive }) => (
-                    <>
-                      {isActive && (
-                        <motion.span
-                          layoutId="nav-pill"
-                          className="absolute inset-0 rounded-full bg-white/8 border border-white/10"
-                          transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                        />
-                      )}
-                      <span className="relative">{l.label}</span>
-                    </>
-                  )}
-                </NavLink>
-              </li>
+              <DesktopNavItem
+                key={l.to}
+                to={l.to}
+                label={l.label}
+                end={l.to === "/"}
+                testId={`nav-link-${l.to === "/" ? "home" : l.to.replace("/", "")}`}
+              />
             ))}
           </ul>
 
@@ -106,20 +111,17 @@ export default function Navigation() {
               {t("nav.cta")}
               <ArrowUpRight className="w-4 h-4" />
             </Link>
-            <motion.button
+            <AnimatedHamburger
+              open={open}
               onClick={() => setOpen((v) => !v)}
-              whileTap={{ scale: 0.9 }}
-              className="md:hidden touch-target w-11 h-11 grid place-items-center rounded-full bg-white/5 border border-white/10 active:bg-white/10 transition-colors"
-              aria-label={open ? "Close menu" : "Open menu"}
-              data-testid="nav-mobile-toggle"
-            >
-              {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </motion.button>
+              label={open ? (lang === "fr" ? "Fermer le menu" : "Close menu") : (lang === "fr" ? "Ouvrir le menu" : "Open menu")}
+              testId="nav-mobile-toggle"
+            />
           </div>
-        </motion.nav>
-      </div>
+        </nav>
+      </motion.div>
 
-      {/* ============ CINEMATIC FULLSCREEN MOBILE MENU ============ */}
+      {/* ============ CINEMATIC FULLSCREEN MENU ============ */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -127,7 +129,7 @@ export default function Navigation() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="md:hidden fixed inset-0 z-[60] safe-x"
+            className="fixed inset-0 z-[60] safe-x"
             data-testid="nav-mobile-panel"
           >
             {/* Background — solid + mesh + blur layers */}
@@ -149,7 +151,7 @@ export default function Navigation() {
               <div className="noise-overlay absolute inset-0 pointer-events-none" />
             </motion.div>
 
-            {/* Top: close button */}
+            {/* Top: logo + animated close button */}
             <div className="relative pt-6 px-6 safe-top flex justify-between items-center">
               <Link
                 to="/"
@@ -167,20 +169,18 @@ export default function Navigation() {
                   </span>
                 </div>
               </Link>
-              <motion.button
-                whileTap={{ scale: 0.9 }}
+              <AnimatedHamburger
+                open={true}
                 onClick={() => setOpen(false)}
-                aria-label={lang === "fr" ? "Fermer le menu" : "Close menu"}
-                className="touch-target w-12 h-12 grid place-items-center rounded-full glass-strong border border-white/10"
-                data-testid="nav-mobile-close"
-              >
-                <X className="w-5 h-5" />
-              </motion.button>
+                label={lang === "fr" ? "Fermer le menu" : "Close menu"}
+                testId="nav-mobile-close"
+                className="w-12 h-12"
+              />
             </div>
 
             {/* Main menu items — staggered cinematic reveal */}
-            <nav className="relative px-6 mt-12 overflow-y-auto" style={{ maxHeight: "calc(100vh - 240px)" }}>
-              <ul className="flex flex-col gap-0">
+            <nav className="relative px-6 md:px-12 lg:px-20 mt-12 overflow-y-auto" style={{ maxHeight: "calc(100vh - 240px)" }}>
+              <ul className="flex flex-col gap-0 max-w-5xl">
                 {links.map((l, i) => (
                   <motion.li
                     key={l.to}
@@ -204,8 +204,9 @@ export default function Navigation() {
                       }
                       data-testid={`nav-mobile-link-${l.to === "/" ? "home" : l.to.replace("/", "")}`}
                     >
-                      <span className="font-display font-black tracking-tighter text-[clamp(2rem,9vw,3.5rem)] leading-none">
+                      <span className="relative inline-block font-display font-black tracking-tighter text-[clamp(2rem,9vw,3.5rem)] leading-none transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-3">
                         {l.label}
+                        <span className="absolute left-0 -bottom-1 h-[3px] w-full rounded-full bg-gradient-to-r from-orange_impact to-gold_light origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" />
                       </span>
                       <motion.span
                         className="text-white/30 group-hover:text-orange_impact transition-colors"
@@ -224,9 +225,9 @@ export default function Navigation() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.65, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute bottom-0 inset-x-0 px-6 pb-10 safe-bottom"
+              className="absolute bottom-0 inset-x-0 px-6 md:px-12 lg:px-20 pb-10 safe-bottom"
             >
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4 max-w-5xl">
                 {/* Row 1: status (left) + language toggle (right) */}
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2 text-white/55 font-ui text-xs">
@@ -252,7 +253,7 @@ export default function Navigation() {
                     target="_blank"
                     rel="noreferrer"
                     aria-label="WhatsApp"
-                    className="touch-target w-12 h-12 grid place-items-center rounded-full glass border border-white/10 active:scale-95 transition-transform"
+                    className="touch-target w-12 h-12 grid place-items-center rounded-full glass border border-white/10 active:scale-95 hover:border-orange_impact/50 transition-all"
                     data-testid="nav-mobile-whatsapp"
                   >
                     <MessageCircle className="w-5 h-5" />
@@ -260,7 +261,7 @@ export default function Navigation() {
                   <a
                     href={`mailto:${BRAND.email}`}
                     aria-label="Email"
-                    className="touch-target w-12 h-12 grid place-items-center rounded-full glass border border-white/10 active:scale-95 transition-transform"
+                    className="touch-target w-12 h-12 grid place-items-center rounded-full glass border border-white/10 active:scale-95 hover:border-orange_impact/50 transition-all"
                     data-testid="nav-mobile-email"
                   >
                     <Mail className="w-5 h-5" />
@@ -270,7 +271,7 @@ export default function Navigation() {
                     target="_blank"
                     rel="noreferrer"
                     aria-label="Instagram"
-                    className="touch-target w-12 h-12 grid place-items-center rounded-full glass border border-white/10 active:scale-95 transition-transform"
+                    className="touch-target w-12 h-12 grid place-items-center rounded-full glass border border-white/10 active:scale-95 hover:border-orange_impact/50 transition-all"
                   >
                     <Instagram className="w-5 h-5" />
                   </a>
@@ -279,14 +280,14 @@ export default function Navigation() {
                     target="_blank"
                     rel="noreferrer"
                     aria-label="Facebook"
-                    className="touch-target w-12 h-12 grid place-items-center rounded-full glass border border-white/10 active:scale-95 transition-transform"
+                    className="touch-target w-12 h-12 grid place-items-center rounded-full glass border border-white/10 active:scale-95 hover:border-orange_impact/50 transition-all"
                   >
                     <Facebook className="w-5 h-5" />
                   </a>
                   <Link
                     to="/contact"
                     onClick={() => setOpen(false)}
-                    className="touch-target flex-1 inline-flex items-center justify-center gap-2 bg-orange_impact text-ink-900 font-ui font-semibold px-6 py-3 rounded-full active:scale-95 transition-transform ml-auto"
+                    className="touch-target flex-1 md:flex-none md:px-10 inline-flex items-center justify-center gap-2 bg-orange_impact text-ink-900 font-ui font-semibold px-6 py-3 rounded-full active:scale-95 hover:bg-gold_light transition-all ml-auto"
                     data-testid="nav-mobile-cta"
                   >
                     {t("nav.cta")} <ArrowUpRight className="w-4 h-4" />
@@ -298,5 +299,48 @@ export default function Navigation() {
         )}
       </AnimatePresence>
     </>
+  );
+}
+
+/**
+ * Desktop nav item with premium micro-interactions:
+ * sliding gradient underline, scale 1.05, -2px lift, gradient color shift.
+ */
+function DesktopNavItem({ to, label, end, testId }) {
+  return (
+    <li>
+      <NavLink to={to} end={end} className="block" data-testid={testId}>
+        {({ isActive }) => (
+          <motion.span
+            whileHover={{ y: -2, scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 400, damping: 24 }}
+            className={`group relative inline-flex px-4 py-2 rounded-full ${
+              isActive ? "text-white" : "text-white/60"
+            }`}
+          >
+            {isActive && (
+              <motion.span
+                layoutId="nav-pill"
+                className="absolute inset-0 rounded-full bg-white/8 border border-white/10"
+                transition={{ type: "spring", stiffness: 380, damping: 32 }}
+              />
+            )}
+            {/* base label — fades out on hover */}
+            <span className="relative transition-opacity duration-300 group-hover:opacity-0">
+              {label}
+            </span>
+            {/* gradient label — fades in on hover (progressive color shift) */}
+            <span
+              aria-hidden
+              className="absolute inset-x-4 inset-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-orange_impact to-gold_light bg-clip-text text-transparent whitespace-nowrap"
+            >
+              {label}
+            </span>
+            {/* sliding underline */}
+            <span className="absolute left-4 right-4 bottom-1 h-[2px] rounded-full bg-gradient-to-r from-orange_impact to-gold_light origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" />
+          </motion.span>
+        )}
+      </NavLink>
+    </li>
   );
 }

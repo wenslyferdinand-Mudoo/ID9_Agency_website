@@ -6,6 +6,7 @@ import { AuthProvider } from "@/lib/auth";
 import { I18nProvider } from "@/lib/i18n";
 import LenisProvider from "@/components/site/LenisProvider";
 import ScrollToTop from "@/components/site/ScrollToTop";
+import RouteSeo from "@/components/site/RouteSeo";
 import Navigation from "@/components/site/Navigation";
 import Footer from "@/components/site/Footer";
 import ProtectedRoute from "@/components/site/ProtectedRoute";
@@ -39,6 +40,7 @@ function App() {
             <Preloader />
             <ScrollProgress />
             <ScrollToTop />
+            <RouteSeo />
             <TopContactBar />
             <Navigation />
             <Routes>

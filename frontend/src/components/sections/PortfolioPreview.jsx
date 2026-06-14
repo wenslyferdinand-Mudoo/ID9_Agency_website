@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import api from "@/lib/api";
+import { fetchPortfolioList } from "@/lib/portfolio";
 import RevealText from "@/components/site/RevealText";
 import { useI18n } from "@/lib/i18n";
 
@@ -13,7 +14,15 @@ export default function PortfolioPreview() {
   const { t } = useI18n();
 
   useEffect(() => {
-    api.get("/portfolio").then((r) => setItems(r.data.slice(0, 6))).catch(() => {});
+    // 1) Sanity CMS first
+    fetchPortfolioList().then((sanityItems) => {
+      if (sanityItems && sanityItems.length) {
+        setItems(sanityItems.slice(0, 6));
+        return;
+      }
+      // 2) Fallback to FastAPI/MongoDB (legacy data)
+      api.get("/portfolio").then((r) => setItems(r.data.slice(0, 6))).catch(() => {});
+    });
   }, []);
 
   return (
