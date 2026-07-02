@@ -86,6 +86,28 @@ Premium creative & strategic digital agency website. Tagline: "Be Impactful. Bui
 - P2 — SEO meta per page (react-helmet-async) — currently only the global meta
 - P3 — Stripe payments + client portal (per problem statement future scalability)
 
+## Iteration 4 (2026-02) — Vercel deployment compatibility fix
+
+### Problem
+Vercel build failing with `Cannot find module 'ajv/dist/compile/codegen'` on Node.js v24.15.0.
+
+### Root cause
+1. Vercel defaulted to npm installer which hoisted `ajv@6` at top-level while `schema-utils@4` (via CRA/webpack chain) expected `ajv@8` codegen path.
+2. No `engines` field → Vercel used Node 24 (non-LTS, incompatible with `react-scripts@5`).
+3. `CI=true` on Vercel treated CRA ESLint warnings as errors.
+
+### Definitive fix applied
+- `package.json`: added `engines.node = ">=20.0.0 <23.0.0"`, added `vercel-build` script (`CI=false craco build`), removed obsolete `cra-template` dep.
+- `vercel.json`: rewritten with `installCommand=yarn install --frozen-lockfile`, `buildCommand=yarn vercel-build`, `framework=create-react-app`, `outputDirectory=build`, `build.env.CI=false`, `SKIP_PREFLIGHT_CHECK`, `DISABLE_ESLINT_PLUGIN`, `GENERATE_SOURCEMAP=false`, plus SPA rewrites and cache headers.
+- `.nvmrc`: new file pinning Node `20`.
+- `yarn.lock`: regenerated cleanly.
+
+### Verified
+- `yarn install --frozen-lockfile` → exit 0, no ajv errors.
+- `CI=true yarn vercel-build` → exit 0, full `build/` output (`index.html`, `static/`, `favicon.svg`, `sitemap.xml`, `robots.txt`, `asset-manifest.json`).
+- Frontend dev server (supervisor) still running on port 3000.
+
+
 ## Iteration 3 (2025-12) — Awwwards-level upgrade
 
 ### New cinematic systems
