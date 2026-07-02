@@ -40,7 +40,7 @@ export default function Preloader() {
       cancelAnimationFrame(raf);
       document.documentElement.style.overflow = "";
     };
-  }, [show]);
+  }, [show, isAdmin]);
 
   return (
     <AnimatePresence>

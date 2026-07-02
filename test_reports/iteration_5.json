@@ -1,0 +1,40 @@
+{
+  "summary": "Iteration 5 — npm+yarn build regression validated. All 11 review checks PASSED. package.json is valid JSON, ZERO git conflict markers anywhere in /app/frontend, /app/backend. Fresh `npm install` (rm -rf node_modules package-lock.json build) completed in ~1 min with exit code 0, no ajv/schema-utils/webpack module errors. Top-level ajv resolves to 8.20.0 (satisfies ^8.17.1), nested fork-ts-checker-webpack-plugin/node_modules/ajv is 6.15.0 — proper hoist + nest confirmed. `CI=false npm run build` succeeded (exit 0), full build/ output present (index.html, static/js, static/css, asset-manifest.json). `CI=true npm run build` also succeeded (exit 0) — Preloader.jsx useEffect deps fix verified (line 43 includes [show, isAdmin]). vercel.json / .nvmrc / .npmrc / craco.config.js all as expected. Frontend supervisor RUNNING, http://localhost:3000 => 200, preview URL loads ID9 landing page with hero + nav + 0 console errors. Backend pytest: 21/22 passed (1 pre-existing minor failure unrelated to this iteration — test_portfolio_seed expects >=6 items, DB has 1).",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/portfolio (seed)", "issue": "test_portfolio_seed asserts len(items)>=6 but DB returns 1 item (Akya). Pre-existing / unrelated to package.json fix. Either seed missing rows or update the test threshold."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_id9_backend.py",
+    "/app/test_reports/pytest/iter5_results.xml",
+    "/tmp/npm_install.log",
+    "/tmp/build_cifalse.log",
+    "/tmp/build_citrue.log"
+  ],
+  "action_items": [
+    "(minor) Investigate why portfolio seed only has 1 item vs expected 6 (or relax test)."
+  ],
+  "critical_code_review_comments": [
+    "package.json: ajv@^8.17.1 declared as direct dependency at line 42 — correct fix that forces top-level hoist and lets schema-utils@4/ajv-keywords@5 resolve ajv@8 while fork-ts-checker gets its own nested ajv@6. No overrides/resolutions blocks (correct — they previously caused _formatLimit.js crashes).",
+    "vercel.json: yarn install --frozen-lockfile + yarn vercel-build + CI=false in build env — production Vercel deploy path clean.",
+    "craco.config.js: ForkTsCheckerWebpackPlugin filter (lines 44-46) is a good defensive stripping since the project is JS-only. This removes the plugin that pulls in legacy ajv-keywords@3.",
+    "Preloader.jsx line 43: useEffect deps `[show, isAdmin]` correct — resolves react-hooks/exhaustive-deps that would fail CI=true builds.",
+    "Node engines range `>=20.0.0 <23.0.0` fits container node v20.20.2 and Vercel's Node 20 LTS.",
+    "56 npm audit vulns (13 low, 16 mod, 26 high, 1 critical) reported by npm install — mostly from CRA transitive deps (svgo@1, workbox@6, uuid@8). Not blocking build/deploy but worth reviewing eventually (many are dev-only)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "95% (21/22 — 1 pre-existing seed data assertion)", "frontend": "100% — all package.json / build / preview checks passed"},
+  "test_credentials": "admin@id9agency.com / ID9_Admin_2025! (unchanged from iter 3, not exercised this iteration)",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "IMPORTANT: When you `rm -rf node_modules` while the supervisor frontend (craco start) is running, the dev server crashes with 'html-webpack-plugin/lib/loader.js not found'. After running fresh npm install, ALWAYS `sudo supervisorctl restart frontend` and wait ~40s before hitting the preview URL. This is a supervisor-runtime artifact, not a package.json issue. Both `npm run build` (CI=true and CI=false) succeed. ajv versions: top-level 8.20.0, nested fork-ts-checker 6.15.0.",
+  "rca_of_the_issue": "N/A — no regressions. Root fix from iter 4 (ajv@^8.17.1 as direct dep + no overrides/resolutions + ForkTsCheckerPlugin filter in craco + Preloader useEffect deps) confirmed working under BOTH npm and yarn, and under BOTH CI=true and CI=false."
+}

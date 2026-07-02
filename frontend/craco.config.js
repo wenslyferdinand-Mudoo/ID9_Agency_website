@@ -38,6 +38,13 @@ let webpackConfig = {
     },
     configure: (webpackConfig) => {
 
+      // Remove ForkTsCheckerWebpackPlugin — project is JavaScript, not TypeScript.
+      // This plugin pulls in legacy ajv-keywords@3 which conflicts with ajv v8
+      // required by schema-utils@4 across the modern webpack toolchain.
+      webpackConfig.plugins = webpackConfig.plugins.filter(
+        (plugin) => plugin.constructor.name !== "ForkTsCheckerWebpackPlugin"
+      );
+
       // Add ignored patterns to reduce watched directories
         webpackConfig.watchOptions = {
           ...webpackConfig.watchOptions,
