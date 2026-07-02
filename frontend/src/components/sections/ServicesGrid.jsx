@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import * as Icons from "lucide-react";
 import { Link } from "react-router-dom";
-import api from "@/lib/api";
+import api, { safeArray } from "@/lib/api";
 import RevealText from "@/components/site/RevealText";
 import { useI18n } from "@/lib/i18n";
 
@@ -51,7 +51,10 @@ export default function ServicesGrid() {
   const { t, lang } = useI18n();
 
   useEffect(() => {
-    api.get("/services").then((r) => setServices(r.data)).catch(() => {});
+    api
+      .get("/services")
+      .then((r) => setServices(safeArray(r?.data)))
+      .catch(() => setServices([]));
   }, []);
 
   return (

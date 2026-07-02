@@ -182,7 +182,24 @@ Le projet apparaît instantanément sur https://votre-site.com/portfolio et /por
 Sanity Manage → https://www.sanity.io/manage/personal/project/mqrbsugj
 → **Members** → **Invite** → entrez leur email.
 
-### 4.4 Références importantes
+### 4.4 ⚠️ Autoriser votre domaine Vercel dans Sanity (CORS)
+
+**Étape CRITIQUE après déploiement Vercel** — sans cela, le site affichera un écran blanc et l'erreur `blocked by CORS policy: No 'Access-Control-Allow-Origin'` en console.
+
+1. Aller sur https://www.sanity.io/manage/personal/project/mqrbsugj/api
+2. Section **CORS Origins** → **Add CORS origin**
+3. Ajouter chaque URL une par une :
+   - `https://id9-agency-website.vercel.app` (URL prod Vercel)
+   - `https://*.vercel.app` (preview URLs — cocher **Allow credentials**)
+   - `http://localhost:3000` (dev local)
+   - `http://localhost:3333` (Sanity Studio local, si utilisé)
+   - Votre domaine custom quand vous en aurez un (ex: `https://id9agency.com`)
+4. Cliquer **Save**.
+5. Rafraîchir le site Vercel — les projets portfolio doivent maintenant charger.
+
+> 💡 Vous pouvez ajouter/supprimer des origines à tout moment sans redéployer.
+
+### 4.5 Références importantes
 
 | Fichier | Rôle |
 |---|---|

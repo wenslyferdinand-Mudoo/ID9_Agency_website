@@ -1,0 +1,28 @@
+{
+  "summary": "Iteration 8 runtime resilience verified: safeArray guards, hardened Sanity portfolio normalizers, global ErrorBoundary, and docs section 4.4 all confirmed. Production build passes (exit 0). Browser smoke tests on /portfolio and /services?lang=fr succeed with no white screen and no console errors.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "safeArray() exported from /app/frontend/src/lib/api.js — confirmed.",
+    "PortfolioPreview, PortfolioPage, ServicesPage, ServicesGrid, BlogPage all wrap setState with safeArray(r?.data) and have .catch(() => setX([])) — confirmed no raw setItems(r.data).",
+    "portfolio.js normalizePortfolio() has Array.isArray guards for gallery/services/tools/kpis. fetchPortfolioList/fetchFeaturedPortfolio wrap results in Array.isArray check and try/catch returning [] — confirmed.",
+    "PortfolioDetailPage.jsx: MetaBlock services uses `Array.isArray(item.services) && item.services.length > 0` guard before slice/join. BentoGallery does `const list = Array.isArray(images) ? images : []` before .map — confirmed.",
+    "ErrorBoundary class component present with getDerivedStateFromError + componentDidCatch + Retry/Back home fallback (data-testid=error-boundary, error-retry-button, error-home-button). App.js wraps entire router tree with <ErrorBoundary> inside <BrowserRouter> — confirmed.",
+    "SETUP_GUIDE.md line 185 has section '### 4.4 Autoriser votre domaine Vercel dans Sanity (CORS)' with step-by-step CORS setup — confirmed.",
+    "npm/yarn build exit 0. Only non-blocking Tailwind ambiguity warnings (ease-[cubic-bezier(...)]) — cosmetic, unrelated to this iteration.",
+    "Browser smoke: /portfolio renders 'Impactful brands made undeniable.' heading, 6 filter buttons, Akya Dance card, no error-boundary, no console errors. /services?lang=fr renders 12 service rows."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (not tested this iteration - frontend runtime resilience focus)", "frontend": "100%"},
+  "seed_data_creation": "",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Iteration 8 focused on Vercel white-screen/CORS resilience. All defensive .map guards + ErrorBoundary + CORS docs verified. Next iteration should retest if user reports another crash on Vercel after adding the Vercel URL in Sanity CORS dashboard.",
+  "rca of the issue": "White screen on Vercel was caused by unguarded .map() on non-array API responses when Sanity CORS blocked the request (returned undefined/error). Mitigated by safeArray() wrapper on all setState calls, Array.isArray guards in portfolio normalize/fetch, and global ErrorBoundary as last-line safety net. User must add Vercel domain to Sanity CORS origins per SETUP_GUIDE.md section 4.4."
+}

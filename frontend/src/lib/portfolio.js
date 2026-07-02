@@ -47,22 +47,26 @@ const FEATURED_QUERY = `
  * (matching the legacy FastAPI response so components stay unchanged).
  */
 export function normalizePortfolio(doc) {
-  if (!doc) return null
+  if (!doc || typeof doc !== "object") return null
+  const gallery = Array.isArray(doc.gallery) ? doc.gallery : []
+  const services = Array.isArray(doc.services) ? doc.services : []
+  const tools = Array.isArray(doc.tools) ? doc.tools : []
+  const kpis = Array.isArray(doc.kpis) ? doc.kpis : []
   return {
     ...doc,
     id: doc._id,
     cover_image: doc.coverImage ? imageUrl(doc.coverImage, 1600) : '',
-    gallery: (doc.gallery || []).map((g) => imageUrl(g, 1600)),
-    // pass-through fields stay as-is: title, slug, category, client, sector, year,
-    // featured, summary, description, services, tools, challenge, approach,
-    // strategy, solution, outcome, kpis, testimonial, videos.
+    gallery: gallery.map((g) => imageUrl(g, 1600)),
+    services,
+    tools,
+    kpis,
   }
 }
 
 export async function fetchPortfolioList() {
   try {
     const data = await sanityClient.fetch(LIST_QUERY)
-    return (data || []).map(normalizePortfolio)
+    return Array.isArray(data) ? data.map(normalizePortfolio).filter(Boolean) : []
   } catch (e) {
     console.warn('[Sanity] fetchPortfolioList failed:', e?.message)
     return []
@@ -82,7 +86,7 @@ export async function fetchPortfolioBySlug(slug) {
 export async function fetchFeaturedPortfolio() {
   try {
     const data = await sanityClient.fetch(FEATURED_QUERY)
-    return (data || []).map(normalizePortfolio)
+    return Array.isArray(data) ? data.map(normalizePortfolio).filter(Boolean) : []
   } catch (e) {
     console.warn('[Sanity] fetchFeaturedPortfolio failed:', e?.message)
     return []

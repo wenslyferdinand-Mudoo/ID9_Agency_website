@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import * as Icons from "lucide-react";
-import api from "@/lib/api";
+import api, { safeArray } from "@/lib/api";
 import RevealText from "@/components/site/RevealText";
 import FinalCTA from "@/components/sections/FinalCTA";
 import LeadMagnet from "@/components/sections/LeadMagnet";
@@ -11,7 +11,10 @@ export default function ServicesPage() {
   const [services, setServices] = useState([]);
   const { t, lang } = useI18n();
   useEffect(() => {
-    api.get("/services").then((r) => setServices(r.data)).catch(() => {});
+    api
+      .get("/services")
+      .then((r) => setServices(safeArray(r?.data)))
+      .catch(() => setServices([]));
   }, []);
 
   return (
@@ -42,7 +45,8 @@ export default function ServicesPage() {
             const Icon = Icons[s.icon] || Icons.Sparkles;
             const title = lang === "fr" && s.title_fr ? s.title_fr : s.title;
             const desc = lang === "fr" && s.desc_fr ? s.desc_fr : s.desc;
-            const deliverables = lang === "fr" && s.deliverables_fr ? s.deliverables_fr : s.deliverables;
+            const deliverables =
+              lang === "fr" && Array.isArray(s.deliverables_fr) ? s.deliverables_fr : safeArray(s.deliverables);
             return (
               <motion.div
                 key={s.slug}

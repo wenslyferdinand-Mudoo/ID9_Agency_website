@@ -14,6 +14,7 @@ import Preloader from "@/components/site/Preloader";
 import ScrollProgress from "@/components/site/ScrollProgress";
 import TopContactBar from "@/components/site/TopContactBar";
 import MobileBottomBar from "@/components/site/MobileBottomBar";
+import ErrorBoundary from "@/components/site/ErrorBoundary";
 
 import HomePage from "@/pages/HomePage";
 import AboutPage from "@/pages/AboutPage";
@@ -34,46 +35,48 @@ import AdminContacts from "@/pages/admin/AdminContacts";
 function App() {
   return (
     <BrowserRouter>
-      <I18nProvider>
-        <AuthProvider>
-          <LenisProvider>
-            <Preloader />
-            <ScrollProgress />
-            <ScrollToTop />
-            <RouteSeo />
-            <TopContactBar />
-            <Navigation />
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/services" element={<ServicesPage />} />
-              <Route path="/portfolio" element={<PortfolioPage />} />
-              <Route path="/portfolio/:slug" element={<PortfolioDetailPage />} />
-              <Route path="/blog" element={<BlogPage />} />
-              <Route path="/blog/:slug" element={<BlogDetailPage />} />
-              <Route path="/contact" element={<ContactPage />} />
+      <ErrorBoundary>
+        <I18nProvider>
+          <AuthProvider>
+            <LenisProvider>
+              <Preloader />
+              <ScrollProgress />
+              <ScrollToTop />
+              <RouteSeo />
+              <TopContactBar />
+              <Navigation />
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/services" element={<ServicesPage />} />
+                <Route path="/portfolio" element={<PortfolioPage />} />
+                <Route path="/portfolio/:slug" element={<PortfolioDetailPage />} />
+                <Route path="/blog" element={<BlogPage />} />
+                <Route path="/blog/:slug" element={<BlogDetailPage />} />
+                <Route path="/contact" element={<ContactPage />} />
 
-              <Route path="/admin/login" element={<AdminLoginPage />} />
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute>
-                    <AdminLayout />
-                  </ProtectedRoute>
-                }
-              >
-                <Route index element={<AdminOverview />} />
-                <Route path="portfolio" element={<AdminPortfolio />} />
-                <Route path="blog" element={<AdminBlog />} />
-                <Route path="contacts" element={<AdminContacts />} />
-              </Route>
-            </Routes>
-            <Footer />
-            <MobileBottomBar />
-            <Toaster theme="dark" position="bottom-right" />
-          </LenisProvider>
-        </AuthProvider>
-      </I18nProvider>
+                <Route path="/admin/login" element={<AdminLoginPage />} />
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute>
+                      <AdminLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<AdminOverview />} />
+                  <Route path="portfolio" element={<AdminPortfolio />} />
+                  <Route path="blog" element={<AdminBlog />} />
+                  <Route path="contacts" element={<AdminContacts />} />
+                </Route>
+              </Routes>
+              <Footer />
+              <MobileBottomBar />
+              <Toaster theme="dark" position="bottom-right" />
+            </LenisProvider>
+          </AuthProvider>
+        </I18nProvider>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }

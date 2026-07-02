@@ -25,17 +25,22 @@ export default function PortfolioDetailPage() {
 
   useEffect(() => {
     // 1) Sanity CMS first
-    fetchPortfolioBySlug(slug).then((doc) => {
-      if (doc) {
-        setItem(doc);
-        return;
-      }
-      // 2) Fallback to FastAPI/MongoDB (legacy data)
-      api
-        .get(`/portfolio/${slug}`)
-        .then((r) => setItem(r.data))
-        .catch(() => setNotFound(true));
-    });
+    fetchPortfolioBySlug(slug)
+      .then((doc) => {
+        if (doc && typeof doc === "object") {
+          setItem(doc);
+          return;
+        }
+        // 2) Fallback to FastAPI/MongoDB (legacy data)
+        api
+          .get(`/portfolio/${slug}`)
+          .then((r) => {
+            if (r?.data && typeof r.data === "object") setItem(r.data);
+            else setNotFound(true);
+          })
+          .catch(() => setNotFound(true));
+      })
+      .catch(() => setNotFound(true));
   }, [slug]);
 
   if (notFound)
@@ -135,7 +140,12 @@ export default function PortfolioDetailPage() {
           <MetaBlock label={L("Année", "Year")} value={item.year} />
           <MetaBlock
             label={L("Services", "Services")}
-            value={item.services?.slice(0, 2).join(" · ") + (item.services?.length > 2 ? ` +${item.services.length - 2}` : "")}
+            value={
+              Array.isArray(item.services) && item.services.length > 0
+                ? item.services.slice(0, 2).join(" · ") +
+                  (item.services.length > 2 ? ` +${item.services.length - 2}` : "")
+                : ""
+            }
           />
         </div>
       </section>
@@ -388,9 +398,10 @@ function BentoGallery({ images, title }) {
     "md:col-span-6 aspect-[4/3]",
     "md:col-span-6 aspect-[4/3]",
   ];
+  const list = Array.isArray(images) ? images : [];
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
-      {images.map((src, i) => (
+      {list.map((src, i) => (
         <motion.figure
           key={src + i}
           initial={{ opacity: 0, y: 40 }}

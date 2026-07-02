@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
-import api from "@/lib/api";
+import api, { safeArray } from "@/lib/api";
 import { fetchPortfolioList } from "@/lib/portfolio";
 import RevealText from "@/components/site/RevealText";
 import FinalCTA from "@/components/sections/FinalCTA";
@@ -24,20 +24,26 @@ export default function PortfolioPage() {
 
   useEffect(() => {
     // 1) Try Sanity first (CMS)
-    fetchPortfolioList().then((sanityItems) => {
-      if (sanityItems && sanityItems.length) {
-        setItems(sanityItems);
-        return;
-      }
-      // 2) Fallback to FastAPI/MongoDB (legacy data, e.g. Akya Dance seed)
-      api.get("/portfolio").then((r) => setItems(r.data)).catch(() => {});
-    });
+    fetchPortfolioList()
+      .then((sanityItems) => {
+        const list = safeArray(sanityItems);
+        if (list.length) {
+          setItems(list);
+          return;
+        }
+        // 2) Fallback to FastAPI/MongoDB (legacy data, e.g. Akya Dance seed)
+        api
+          .get("/portfolio")
+          .then((r) => setItems(safeArray(r?.data)))
+          .catch(() => setItems([]));
+      })
+      .catch(() => setItems([]));
   }, []);
 
-  const filtered = useMemo(
-    () => (filter === "all" ? items : items.filter((p) => p.category === filter)),
-    [items, filter]
-  );
+  const filtered = useMemo(() => {
+    const list = safeArray(items);
+    return filter === "all" ? list : list.filter((p) => p && p.category === filter);
+  }, [items, filter]);
 
   return (
     <main data-testid="portfolio-page" className="pt-32 md:pt-40">

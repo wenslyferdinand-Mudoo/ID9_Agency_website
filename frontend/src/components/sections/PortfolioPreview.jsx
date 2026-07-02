@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import api from "@/lib/api";
+import api, { safeArray } from "@/lib/api";
 import { fetchPortfolioList } from "@/lib/portfolio";
 import RevealText from "@/components/site/RevealText";
 import { useI18n } from "@/lib/i18n";
@@ -15,14 +15,20 @@ export default function PortfolioPreview() {
 
   useEffect(() => {
     // 1) Sanity CMS first
-    fetchPortfolioList().then((sanityItems) => {
-      if (sanityItems && sanityItems.length) {
-        setItems(sanityItems.slice(0, 6));
-        return;
-      }
-      // 2) Fallback to FastAPI/MongoDB (legacy data)
-      api.get("/portfolio").then((r) => setItems(r.data.slice(0, 6))).catch(() => {});
-    });
+    fetchPortfolioList()
+      .then((sanityItems) => {
+        const list = safeArray(sanityItems);
+        if (list.length) {
+          setItems(list.slice(0, 6));
+          return;
+        }
+        // 2) Fallback to FastAPI/MongoDB (legacy data)
+        api
+          .get("/portfolio")
+          .then((r) => setItems(safeArray(r?.data).slice(0, 6)))
+          .catch(() => setItems([]));
+      })
+      .catch(() => setItems([]));
   }, []);
 
   return (

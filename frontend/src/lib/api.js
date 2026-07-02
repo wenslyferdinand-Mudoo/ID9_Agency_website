@@ -16,6 +16,15 @@ api.interceptors.request.use((config) => {
 
 export default api;
 
+/**
+ * Guarantees an array from any API response.
+ * Protects against crashes when a backend/CDN returns HTML, an object,
+ * null, or is unreachable (e.g. CORS blocked on Vercel).
+ */
+export function safeArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
 export function formatApiError(detail) {
   if (detail == null) return "Something went wrong. Please try again.";
   if (typeof detail === "string") return detail;

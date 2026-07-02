@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
-import api from "@/lib/api";
+import api, { safeArray } from "@/lib/api";
 import RevealText from "@/components/site/RevealText";
 import FinalCTA from "@/components/sections/FinalCTA";
 import { useI18n } from "@/lib/i18n";
@@ -11,7 +11,10 @@ export default function BlogPage() {
   const [posts, setPosts] = useState([]);
   const { t } = useI18n();
   useEffect(() => {
-    api.get("/blog").then((r) => setPosts(r.data)).catch(() => {});
+    api
+      .get("/blog")
+      .then((r) => setPosts(safeArray(r?.data)))
+      .catch(() => setPosts([]));
   }, []);
 
   const featured = posts.find((p) => p.featured) || posts[0];
