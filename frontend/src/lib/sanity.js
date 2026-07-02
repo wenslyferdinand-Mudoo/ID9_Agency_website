@@ -1,6 +1,9 @@
 import {createClient} from '@sanity/client'
 import imageUrlBuilder from '@sanity/image-url'
 
+console.log("SANITY PROJECT ID:", process.env.REACT_APP_SANITY_PROJECT_ID);
+console.log("SANITY DATASET:", process.env.REACT_APP_SANITY_DATASET);
+
 // ---- Public config (safe to expose in client bundle) ----
 export const SANITY_CONFIG = {
   projectId: process.env.REACT_APP_SANITY_PROJECT_ID || 'mqrbsugj',
