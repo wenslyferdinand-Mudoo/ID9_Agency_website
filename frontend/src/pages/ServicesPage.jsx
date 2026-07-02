@@ -9,7 +9,7 @@ import { useI18n } from "@/lib/i18n";
 
 export default function ServicesPage() {
   const [services, setServices] = useState([]);
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   useEffect(() => {
     api.get("/services").then((r) => setServices(r.data)).catch(() => {});
   }, []);
@@ -40,6 +40,9 @@ export default function ServicesPage() {
         <div className="max-w-7xl mx-auto space-y-3">
           {services.map((s, i) => {
             const Icon = Icons[s.icon] || Icons.Sparkles;
+            const title = lang === "fr" && s.title_fr ? s.title_fr : s.title;
+            const desc = lang === "fr" && s.desc_fr ? s.desc_fr : s.desc;
+            const deliverables = lang === "fr" && s.deliverables_fr ? s.deliverables_fr : s.deliverables;
             return (
               <motion.div
                 key={s.slug}
@@ -59,15 +62,15 @@ export default function ServicesPage() {
                       <Icon className="w-4 h-4" />
                     </span>
                     <h2 className="font-display text-3xl md:text-4xl font-black tracking-tighter group-hover:text-gradient-gold transition-colors">
-                      {s.title}
+                      {title}
                     </h2>
                   </div>
                 </div>
                 <p className="col-span-12 md:col-span-4 text-white/70 font-inter leading-relaxed">
-                  {s.desc}
+                  {desc}
                 </p>
                 <ul className="col-span-12 md:col-span-3 flex md:block flex-wrap gap-2 md:gap-1.5">
-                  {s.deliverables.map((d) => (
+                  {deliverables.map((d) => (
                     <li
                       key={d}
                       className="text-xs font-ui text-white/55 inline-flex items-center gap-2 md:before:content-['—'] md:before:text-orange_impact md:before:mr-1.5"

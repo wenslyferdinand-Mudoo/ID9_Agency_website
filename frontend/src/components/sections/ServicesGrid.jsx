@@ -6,8 +6,10 @@ import api from "@/lib/api";
 import RevealText from "@/components/site/RevealText";
 import { useI18n } from "@/lib/i18n";
 
-function ServiceCard({ s, idx, exploreLabel }) {
+function ServiceCard({ s, idx, exploreLabel, lang }) {
   const Icon = Icons[s.icon] || Icons.Sparkles;
+  const title = lang === "fr" && s.title_fr ? s.title_fr : s.title;
+  const desc = lang === "fr" && s.desc_fr ? s.desc_fr : s.desc;
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -32,8 +34,8 @@ function ServiceCard({ s, idx, exploreLabel }) {
           {String(idx + 1).padStart(2, "0")}
         </span>
       </div>
-      <h3 className="font-display text-2xl font-bold tracking-tight mb-2">{s.title}</h3>
-      <p className="text-white/60 font-inter text-sm leading-relaxed mb-6 line-clamp-3">{s.desc}</p>
+      <h3 className="font-display text-2xl font-bold tracking-tight mb-2">{title}</h3>
+      <p className="text-white/60 font-inter text-sm leading-relaxed mb-6 line-clamp-3">{desc}</p>
       <Link
         to="/services"
         className="text-xs font-ui uppercase tracking-[0.2em] text-white/50 group-hover:text-orange_impact transition-colors inline-flex items-center gap-1"
@@ -46,7 +48,7 @@ function ServiceCard({ s, idx, exploreLabel }) {
 
 export default function ServicesGrid() {
   const [services, setServices] = useState([]);
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
 
   useEffect(() => {
     api.get("/services").then((r) => setServices(r.data)).catch(() => {});
@@ -79,7 +81,7 @@ export default function ServicesGrid() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {services.map((s, i) => (
-            <ServiceCard key={s.slug} s={s} idx={i} exploreLabel={t("svc.explore")} />
+            <ServiceCard key={s.slug} s={s} idx={i} exploreLabel={t("svc.explore")} lang={lang} />
           ))}
         </div>
       </div>
