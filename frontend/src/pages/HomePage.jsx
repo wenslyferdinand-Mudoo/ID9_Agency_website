@@ -12,11 +12,25 @@ import MarqueeDivider from "@/components/site/MarqueeDivider";
 import KineticTypography from "@/components/site/KineticTypography";
 
 export default function HomePage() {
+  console.log("HOME LOADED ON VERCEL");
+  console.log("HeroSection:", typeof HeroSection);
+  console.log("PortfolioPreview:", typeof PortfolioPreview);
+
   return (
     <main data-testid="home-page">
       <HeroSection />
       <AboutPreview />
-      <MarqueeDivider items={["Brand", "Web", "Motion", "Strategy", "Story", "Identity", "Growth"]} />
+      <MarqueeDivider
+        items={[
+          "Brand",
+          "Web",
+          "Motion",
+          "Strategy",
+          "Story",
+          "Identity",
+          "Growth",
+        ]}
+      />
       <ServicesGrid />
       <PortfolioPreview />
       <KineticTypography
@@ -27,7 +41,17 @@ export default function HomePage() {
       />
       <ProcessTimeline />
       <FounderAuthority />
-      <MarqueeDivider items={["Discover", "Strategy", "Design", "Develop", "Launch", "Scale"]} speed={45} />
+      <MarqueeDivider
+        items={[
+          "Discover",
+          "Strategy",
+          "Design",
+          "Develop",
+          "Launch",
+          "Scale",
+        ]}
+        speed={45}
+      />
       <WhyUs />
       <Testimonials />
       <LeadMagnet />
