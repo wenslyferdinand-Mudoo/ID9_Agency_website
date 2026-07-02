@@ -86,7 +86,36 @@ Premium creative & strategic digital agency website. Tagline: "Be Impactful. Bui
 - P2 — SEO meta per page (react-helmet-async) — currently only the global meta
 - P3 — Stripe payments + client portal (per problem statement future scalability)
 
-## Iteration 7 (2026-02) — Clean Vercel deployment fix (definitive)
+## Iteration 8 (2026-02) — Vercel runtime resilience (white-screen fix)
+
+### Problem
+Site déployé sur Vercel affichait un écran blanc avec `Uncaught TypeError: a.map is not a function` + `blocked by CORS policy` sur Sanity.
+
+### Root cause
+1. Multiple `.map()` / `.filter()` / `.slice()` sur des réponses API sans validation. Quand Sanity CORS bloquait la requête (domaine Vercel non autorisé), les fetchers retournaient parfois `undefined` au lieu de `[]`, cassant tout render en aval.
+2. `normalizePortfolio()` spread doc directement — si `doc.gallery` absent → propagé comme `undefined` → `.map()` crash plus tard.
+3. Pas de safety net ErrorBoundary → moindre erreur = écran blanc total.
+
+### Fixes (code, root cause)
+- **`src/lib/api.js`** : ajout helper `safeArray(v)` → `Array.isArray(v) ? v : []`.
+- **`src/lib/portfolio.js`** : `normalizePortfolio` valide et coerce `gallery`, `services`, `tools`, `kpis` en arrays. `fetchPortfolioList`/`fetchFeaturedPortfolio` retournent `[]` si réponse non-array.
+- **Setters API sécurisés** dans : `PortfolioPreview.jsx`, `PortfolioPage.jsx`, `ServicesPage.jsx`, `ServicesGrid.jsx`, `BlogPage.jsx` → tous les `setX(safeArray(r?.data))` + `.catch(() => setX([]))`.
+- **`PortfolioDetailPage.jsx`** : `BentoGallery` guard `Array.isArray(images)`. Meta Services block guard `Array.isArray(item.services)` avant slice/join.
+- **`ErrorBoundary.jsx`** (NEW) : classe React globale wrappant tout le router. UI de repli premium avec Retry + Back home.
+- **`SETUP_GUIDE.md §4.4`** : instructions pas-à-pas CORS Sanity (à faire côté user dans le dashboard Sanity Manage).
+
+### Verified (Testing Agent iteration 8 — 100% pass)
+- ✅ `CI=true npm run build` → exit 0.
+- ✅ `/portfolio` charge sans écran blanc, filtres + carte Akya Dance visibles, 0 erreur console.
+- ✅ `/services?lang=fr` — 12 services FR rendus.
+- ✅ ErrorBoundary correctement câblé (`data-testid=error-boundary`).
+- ✅ Tous les setX API-safe (aucun `setItems(r.data)` brut restant).
+
+### Action user (nécessaire pour Vercel prod)
+Ajouter les origines Vercel dans **Sanity Manage** → https://www.sanity.io/manage/personal/project/mqrbsugj/api → CORS Origins → Add : `https://id9-agency-website.vercel.app`, `https://*.vercel.app` (avec credentials), + domaine custom.
+
+
+## Iteration 7 (2026-02) — Clean Vercel deployment fix
 
 ### User requirement
 Definitive clean fix: no manual ajv dep, no overrides/resolutions, npm-only (no yarn), Node 20 LTS, no --legacy-peer-deps.
