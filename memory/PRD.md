@@ -86,38 +86,45 @@ Premium creative & strategic digital agency website. Tagline: "Be Impactful. Bui
 - P2 — SEO meta per page (react-helmet-async) — currently only the global meta
 - P3 — Stripe payments + client portal (per problem statement future scalability)
 
-## Iteration 4 (2026-02) — Vercel deployment compatibility fix
+## Iteration 7 (2026-02) — Clean Vercel deployment fix (definitive)
 
-### Problem
-Vercel build failing with `Cannot find module 'ajv/dist/compile/codegen'` on Node.js v24.15.0. Follow-up: `npm install` locally also failing with same error.
+### User requirement
+Definitive clean fix: no manual ajv dep, no overrides/resolutions, npm-only (no yarn), Node 20 LTS, no --legacy-peer-deps.
 
-### Root cause
-1. Vercel + npm hoisted `ajv@6` at top-level while `schema-utils@4 → ajv-keywords@5` requires `ajv@8` module paths.
-2. No `engines` field → Vercel used Node 24 (non-LTS, incompatible with `react-scripts@5`).
-3. `CI=true` on Vercel treated CRA ESLint warnings as errors.
-4. Old `fork-ts-checker-webpack-plugin` transitively loaded `ajv-keywords@3` which is incompatible with `ajv@8` API (`formats[name]` undefined crash).
+### Real root cause found
+`react-day-picker@8.10.1` peer deps require `date-fns@^2||^3` + `react@^16-18`, conflicting with project's `date-fns@4` + `react@19` → forced `--legacy-peer-deps` historically → npm's nested resolution behaved unpredictably → ajv v6/v8 conflicts on Vercel.
 
-### Definitive fix applied
-- `package.json`:
-  - Added `ajv@^8.17.1` as **direct dependency** → forces top-level hoist of ajv@8 (satisfies schema-utils@4), while npm auto-nests `ajv@6` inside `fork-ts-checker-webpack-plugin/node_modules/` for its legacy ajv-keywords@3.
-  - Added `engines.node = ">=20.0.0 <23.0.0"`.
-  - Added `vercel-build` script (`CI=false craco build`).
-  - Removed obsolete `cra-template` dep.
-  - NO `overrides` / `resolutions` blocks (they caused nested `_formatLimit.js` crashes).
-- `vercel.json`: `installCommand=yarn install --frozen-lockfile`, `buildCommand=yarn vercel-build`, `framework=create-react-app`, `outputDirectory=build`, `build.env.CI=false`, `SKIP_PREFLIGHT_CHECK`, `DISABLE_ESLINT_PLUGIN`, `GENERATE_SOURCEMAP=false`.
-- `.nvmrc`: pin Node **20 LTS**.
-- `.npmrc`: `legacy-peer-deps=true` for npm compat.
-- `craco.config.js`: filter out `ForkTsCheckerWebpackPlugin` (project is JS, plugin is unused and pulls legacy deps).
-- `src/components/site/Preloader.jsx`: added `isAdmin` to useEffect deps (fixes `react-hooks/exhaustive-deps` warning that broke CI=true).
-- `yarn.lock` regenerated.
+### Definitive clean fix
+- **`package.json`**: upgraded `react-day-picker` → `^9.5.0` (React 19 native), downgraded `date-fns` → `^3.6.0` (compat with rdp v9 peer range). Removed `ajv` direct dep, removed `overrides` block, removed `resolutions` block.
+- **Deleted**: `yarn.lock`, `.npmrc`.
+- **Regenerated**: `package-lock.json` (npm-only, deterministic).
+- **`vercel.json`**: switched to `installCommand=npm ci`, `buildCommand=npm run vercel-build`.
+- **Kept from iter 4**: `craco.config.js` ForkTsCheckerWebpackPlugin filter (legitimate code fix — project is 100% JavaScript), `Preloader.jsx` useEffect deps fix.
+- **`.nvmrc`**: Node 20.
 
-### Verified (Testing Agent iteration 5 — 11/11 checks passed)
-- ✅ `package.json` valid JSON, zero git conflict markers anywhere in repo.
-- ✅ `npm install` (clean) → exit 0. Top-level ajv=**8.20.0**, nested `fork-ts-checker/node_modules/ajv`=**6.15.0**.
-- ✅ `CI=false npm run build` → exit 0, full `build/` output.
-- ✅ `CI=true npm run build` → exit 0 (Preloader deps fix confirmed).
-- ✅ `CI=true yarn vercel-build` → exit 0.
-- ✅ Frontend supervisor RUNNING, HTTP 200, preview URL loads with 0 console errors.
+### Verified (Testing Agent iteration 7 — 11/11 PASS)
+- ✅ `npm ci` clean, no `--legacy-peer-deps`, no peer-dep errors, 1519 packages in 34s.
+- ✅ `ajv@6.15.0` top-level + `ajv@8.20.0` auto-nested under schema-utils@4 (npm default hoisting).
+- ✅ `CI=false npm run build` → exit 0, full build/ output.
+- ✅ `CI=true npm run build` → exit 0, no ajv codegen error.
+- ✅ Frontend HTTP 200, preview URL loads, 0 console errors.
+- ✅ 31 npm audit vulns (down from 56) — all CRA5 transitive, non-blocking.
+
+
+## Iteration 6 (2026-02) — Services FR translation + Setup doc
+
+### Delivered
+- ✅ Backend: 12 services in `SERVICES` now expose `title_fr`, `desc_fr`, `deliverables_fr` alongside EN.
+- ✅ Frontend: `ServicesGrid.jsx` + `ServicesPage.jsx` read `lang` from `useI18n()` and pick FR/EN dynamically with EN fallback.
+- ✅ Docs: `/app/docs/SETUP_GUIDE.md` — comprehensive guide covering prerequisites, local setup (Windsurf/VS Code), Sanity CMS usage, Vercel + Railway deployment, env variables, troubleshooting, security checklist.
+
+### Verified
+- Backend `GET /api/services` returns 12 items with complete FR fields.
+- Live screenshot at `/services?lang=fr` shows correct French rendering on all 12 rows.
+
+
+## Iterations 4-5 (superseded by 7)
+Earlier Vercel fix attempts added `ajv@^8` as direct dep + npm `.npmrc` legacy-peer-deps as a workaround. Superseded by iteration 7's clean fix (upgrade react-day-picker@9 + downgrade date-fns@3 → natural peer alignment, no manual ajv needed).
 
 
 ## Iteration 3 (2025-12) — Awwwards-level upgrade
