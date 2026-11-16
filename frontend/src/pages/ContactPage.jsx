@@ -212,6 +212,7 @@ export default function ContactPage() {
                       </label>
                       <Select value={form.budget} onValueChange={onChange("budget")}>
                         <SelectTrigger
+                          id="contact-select-budget"
                           className="bg-transparent border-0 border-b border-white/15 rounded-none px-0 h-11 focus:ring-0 focus:border-orange_impact font-inter"
                           data-testid="contact-select-budget"
                         >
@@ -232,6 +233,7 @@ export default function ContactPage() {
                       </label>
                       <Select value={form.service} onValueChange={onChange("service")}>
                         <SelectTrigger
+                          id="contact-select-service"
                           className="bg-transparent border-0 border-b border-white/15 rounded-none px-0 h-11 focus:ring-0 focus:border-orange_impact font-inter"
                           data-testid="contact-select-service"
                         >
@@ -263,6 +265,13 @@ export default function ContactPage() {
                       data-testid="contact-input-message"
                     />
                   </div>
+                  {!apiConfigured && (
+                    <p className="text-sm text-white/55 font-inter" role="status">
+                      {lang === "fr"
+                        ? "L’envoi du formulaire sera activé après la configuration du serveur. WhatsApp reste disponible."
+                        : "Form submission will be enabled once the backend is configured. WhatsApp is available now."}
+                    </p>
+                  )}
                   <div className="flex flex-wrap gap-3 pt-2">
                     <button
                       type="submit"
