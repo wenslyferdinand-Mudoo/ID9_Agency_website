@@ -14,19 +14,19 @@ const DICT = {
   "nav.cta": { en: "Start a project", fr: "Démarrer un projet" },
 
   // Hero
-  "hero.badge": { en: "International Digital Agency", fr: "Agence Digitale Internationale" },
-  "hero.h1.line1a": { en: "Be", fr: "Soyez" },
-  "hero.h1.line1b": { en: "Impactful.", fr: "Impactant." },
-  "hero.h1.line2": { en: "Build", fr: "Bâtissez des" },
-  "hero.h1.line3": { en: "Unforgettable", fr: "Marques" },
-  "hero.h1.line4": { en: "Digital Brands.", fr: "Digitales Inoubliables." },
+  "hero.badge": { en: "Wensly Ferdinand × Impact Digital 9", fr: "Wensly Ferdinand × Impact Digital 9" },
+  "hero.h1.line1a": { en: "Wensly", fr: "Wensly" },
+  "hero.h1.line1b": { en: "Ferdinand.", fr: "Ferdinand." },
+  "hero.h1.line2": { en: "Founder of", fr: "Fondateur de" },
+  "hero.h1.line3": { en: "Impact Digital 9", fr: "Impact Digital 9" },
+  "hero.h1.line4": { en: "Creative direction · Design · Digital experiences.", fr: "Direction créative · Design · Expériences digitales." },
   "hero.sub": {
-    en: "We design exceptional digital ecosystems from ambitious ideas, transforming brands into global references. Branding, web, marketing, and media production unified under one vision: strategic clarity, visual impact, and measurable growth. Brands engineered to dominate their space.",
-    fr: "Nous concevons des écosystèmes numériques d'exception à partir d'idées ambitieuses, pour transformer les marques en références mondiales. Branding, web, marketing et production média intégrés dans une seule vision: la clarté stratégique, l'impact visuel et la croissance mesurable. Des marques pensées pour dominer leur espace.",
+    en: "I am Wensly Ferdinand, a multidisciplinary creative and founder of Impact Digital 9. Since 2015, I have worked across graphic design, brand identity, marketing campaigns, photography and digital content. Through ID9, I connect these disciplines to help businesses communicate with clarity and visual impact.",
+    fr: "Je suis Wensly Ferdinand, créatif multidisciplinaire et fondateur d’Impact Digital 9. Depuis 2015, je travaille dans le design graphique, l’identité de marque, les campagnes marketing, la photographie et la création de contenus. Avec ID9, je relie ces disciplines pour aider les entreprises à communiquer avec clarté et impact visuel.",
   },
   "hero.cta.quote": { en: "Free Quote", fr: "Devis gratuit" },
   "hero.cta.whatsapp": { en: "Message Us on WhatsApp", fr: "Nous écrire sur WhatsApp" },
-  "hero.trust": { en: "Trusted by ambitious brands worldwide", fr: "La confiance de marques ambitieuses dans le monde" },
+  "hero.trust": { en: "Selected brands & creative projects", fr: "Marques et projets créatifs sélectionnés" },
 
   // About preview
   "about.tag": { en: "(01) — About", fr: "(01) — À propos" },
@@ -66,6 +66,9 @@ const DICT = {
   "svc.explore": { en: "Explore", fr: "Découvrir" },
 
   // Portfolio
+  "wk.socialProof": { en: "Explore more work", fr: "Découvrir davantage de réalisations" },
+  "wk.instagram": { en: "View Instagram", fr: "Voir Instagram" },
+  "wk.catalog": { en: "WhatsApp catalogue", fr: "Catalogue WhatsApp" },
   "wk.tag": { en: "(03) — Selected Projects", fr: "(03) — Projets sélectionnés" },
   "wk.h1": { en: "Impactful brands made", fr: "Des marques impactantes rendues" },
   "wk.h1.pre": { en: "", fr: "Des marques" },
@@ -166,18 +169,18 @@ const DICT = {
   "ts.h1": { en: "Founders we've helped.", fr: "Les fondateurs accompagnés." },
 
   // Founder Authority (editorial section)
-  "fa.tag": { en: "(07) — Founder", fr: "(07) — Fondateur" },
-  "fa.eyebrow": { en: "A statement from the founder.", fr: "Mot du fondateur." },
-  "fa.h1": { en: "Most agencies", fr: "La plupart des agences" },
-  "fa.h2": { en: "produce deliverables.", fr: "produisent des livrables." },
-  "fa.h3": { en: "We engineer systems.", fr: "Nous, des systèmes." },
+  "fa.tag": { en: "Wensly Ferdinand · Founder", fr: "Wensly Ferdinand · Fondateur" },
+  "fa.eyebrow": { en: "Creative practice & digital entrepreneurship", fr: "Pratique créative & entrepreneuriat digital" },
+  "fa.h1": { en: "Creative thinking.", fr: "La pensée créative." },
+  "fa.h2": { en: "Disciplined execution.", fr: "L’exécution disciplinée." },
+  "fa.h3": { en: "Digital impact.", fr: "L’impact digital." },
   "fa.body1": {
-    en: "I founded ID9_AGENCY because the digital industry confused activity with execution. Most agencies ship logos, sites, and posts. Few ship outcomes. None ship systems that compound. That gap is our entire reason to exist.",
-    fr: "J'ai fondé ID9_AGENCY parce que l'industrie digitale a confondu activité et exécution. La plupart des agences livrent des logos, des sites et des posts. Très peu livrent des résultats. Aucune ne livre des systèmes qui se composent dans le temps. Cet écart est toute notre raison d'être.",
+    en: "I am Wensly Ferdinand, an independent designer since 2015 and founder of Impact Digital 9, established on 1 May 2018. My practice spans graphic design, brand identity, marketing campaigns, photography and content creation.",
+    fr: "Je suis Wensly Ferdinand, designer indépendant depuis 2015 et fondateur d’Impact Digital 9, créé le 1er mai 2018. Ma pratique couvre le design graphique, l’identité de marque, les campagnes marketing, la photographie et la création de contenus.",
   },
   "fa.body2": {
-    en: "We do not sell creativity. Creativity is a commodity. We sell strategic architecture — a decision framework that turns ambition into infrastructure. Every brand we build must clarify, perform, and scale. Anything else is decoration.",
-    fr: "Nous ne vendons pas de la créativité. La créativité est devenue une commodité. Nous vendons de l'architecture stratégique — un cadre de décision qui transforme l'ambition en infrastructure. Chaque marque que nous bâtissons doit clarifier, performer, échelonner. Tout le reste est de la décoration.",
+    en: "Since 2021, I have also worked as a trainer. I use AI as a practical tool to support content creation and improve creative workflows. Through ID9, I connect creative direction and digital services to help brands communicate clearly and build a stronger presence.",
+    fr: "Depuis 2021, j’exerce également comme formateur. J’utilise l’IA comme un outil pratique pour soutenir la création de contenus et améliorer les processus créatifs. Avec ID9, je relie direction créative et services digitaux afin d’aider les marques à communiquer clairement et à renforcer leur présence.",
   },
   "fa.pillar1.k": { en: "Belief", fr: "Conviction" },
   "fa.pillar1.v": {
@@ -201,10 +204,10 @@ const DICT = {
   },
   "fa.signature": { en: "Wensly Ferdinand", fr: "Wensly Ferdinand" },
   "fa.role": {
-    en: "Founder · Creative Director · Strategist",
-    fr: "Fondateur · Directeur Créatif · Stratège",
+    en: "Founder · Graphic Designer · Creative & Digital Manager",
+    fr: "Fondateur · Graphiste · Creative & Digital Manager",
   },
-  "fa.cta": { en: "Read the full studio philosophy", fr: "Lire la philosophie complète du studio" },
+  "fa.cta": { en: "Discover my journey", fr: "Découvrir mon parcours" },
   "fa.cta2": { en: "Talk to the studio", fr: "Parler au studio" },
 
   // Lead magnet
@@ -273,27 +276,27 @@ const DICT = {
   "co.couldNotSend": { en: "Could not send. Try WhatsApp.", fr: "Envoi impossible. Essayez WhatsApp." },
 
   // About page
-  "ap.tag": { en: "About ID9", fr: "À propos d'ID9" },
+  "ap.tag": { en: "The founder & the studio", fr: "Le fondateur & le studio" },
   "ap.h1": {
-    en: "A digital studio built around clarity, precision, and performance.",
-    fr: "Un studio digital construit autour de la clarté, de la précision et de la performance.",
+    en: "One creative vision. A studio built to make it real.",
+    fr: "Une vision créative. Un studio pour lui donner vie.",
   },
   "ap.body": {
-    en: "Since 2018, ID9_AGENCY has designed and structured digital ecosystems for distinctive brands across Haiti, the Caribbean, North America, and Europe. We operate as an integrated agency — strategy, design, development, motion, and growth — ensuring total coherence between vision, execution, and impact.",
-    fr: "Depuis 2018, ID9_AGENCY conçoit et structure des écosystèmes numériques pour des marques distinctives en Haïti, dans la Caraïbe, en Amérique du Nord et en Europe. Nous opérons comme une agence intégrée — stratégie, design, développement, motion et croissance — afin d'assurer une cohérence totale entre vision, exécution et impact.",
+    en: "Wensly Ferdinand founded Impact Digital 9 on 1 May 2018. The agency offers creative and digital services across graphic design, brand identity, marketing, photography, content creation and digital experiences. Based in Haiti and operating online, ID9 brings the founder’s multidisciplinary practice into one recognizable brand.",
+    fr: "Wensly Ferdinand a fondé Impact Digital 9 le 1er mai 2018. L’agence propose des services créatifs et digitaux dans les domaines du design graphique, de l’identité de marque, du marketing, de la photographie, de la création de contenus et des expériences numériques. Basée en Haïti et opérant en ligne, ID9 rassemble la pratique multidisciplinaire de son fondateur sous une même marque.",
   },
-  "ap.founderRole": { en: "Founder · Creative Director", fr: "Fondateur · Directeur créatif" },
-  "ap.founderNote": { en: "Founder's Note", fr: "Note du fondateur" },
+  "ap.founderRole": { en: "Founder · Graphic Designer · Creative & Digital Manager", fr: "Fondateur · Graphiste · Creative & Digital Manager" },
+  "ap.founderNote": { en: "Meet the founder", fr: "Rencontrer le fondateur" },
   "ap.founderQuote": {
-    en: "\u201CImpact is never accidental. It emerges from alignment between vision, precision of execution, and the right moment of activation.\u201D",
-    fr: "«\u00A0L'impact n'est jamais accidentel. Il naît de l'alignement entre la vision, la précision d'exécution et le bon moment d'activation.\u00A0»",
+    en: "A multidisciplinary creative practice grounded in design, curiosity and disciplined execution.",
+    fr: "Une pratique créative multidisciplinaire fondée sur le design, la curiosité et une exécution disciplinée.",
   },
   "ap.founderBio": {
-    en: "Wensly is a designer, entrepreneur, digital strategist, and creative director. He founded ID9_AGENCY with one simple conviction: most agencies overcomplicate what should be clear. Today, he leads a selective, senior-level studio centered around one requirement: every brand we work with must emerge stronger, clearer, and more performant.",
-    fr: "Wensly est designer, entrepreneur, stratège digital et directeur créatif. Il a fondé ID9_AGENCY avec une conviction simple : la majorité des agences complexifient ce qui devrait être clair. Aujourd'hui, il dirige un studio sélectif et senior, centré sur une seule exigence : chaque marque que nous accompagnons doit sortir plus forte, plus claire et plus performante.",
+    en: "Wensly has worked as an independent designer since 2015 and has been a trainer since 2021. His work spans graphic design, brand identity, marketing campaigns, photography, content creation and creative/digital management. He also uses AI tools to support content production and streamline creative workflows. He founded Impact Digital 9 on 1 May 2018.",
+    fr: "Wensly exerce comme designer indépendant depuis 2015 et comme formateur depuis 2021. Son travail couvre le design graphique, l’identité de marque, les campagnes marketing, la photographie, la création de contenus et la gestion créative et digitale. Il utilise également des outils d’IA pour soutenir la production de contenus et optimiser les processus créatifs. Il a fondé Impact Digital 9 le 1er mai 2018.",
   },
   "ap.timeline": { en: "Timeline", fr: "Chronologie" },
-  "ap.timelineH": { en: "Seven years of strategic construction.", fr: "Sept années de construction stratégique." },
+  "ap.timelineH": { en: "A path shaped by practice, teaching and entrepreneurship.", fr: "Un parcours façonné par la pratique, la formation et l’entrepreneuriat." },
   "ap.workWithUs": { en: "Work with us", fr: "Travailler avec nous" },
 
   // Services page
