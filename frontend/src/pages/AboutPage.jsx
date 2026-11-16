@@ -46,7 +46,7 @@ export default function AboutPage() {
             <div className="relative aspect-[4/5] rounded-3xl overflow-hidden group">
               <img
                 src="/wensly-founder.jpg"
-                alt="Wensly Ferdinand — Founder & Creative Director"
+                alt="Wensly Ferdinand — Founder, Graphic Designer and Creative & Digital Manager"
                 className="w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-ink-900 via-ink-900/20 to-transparent" />
