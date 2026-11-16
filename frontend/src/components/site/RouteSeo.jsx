@@ -2,8 +2,6 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 
-// ⚠️ Remplacez par votre domaine final avant la mise en production (voir README.md)
-const SITE_URL = "https://id9agency.com";
 
 const META = {
   "/": {
@@ -27,8 +25,8 @@ const META = {
     fr: ["Journal — ID9_AGENCY", "Analyses sur le branding, la stratégie digitale et la croissance par l'équipe ID9."],
   },
   "/contact": {
-    en: ["Contact — ID9_AGENCY", "Start a project with Impact Digital 9. Free strategy session, reply within 1 hour."],
-    fr: ["Contact — ID9_AGENCY", "Démarrez un projet avec Impact Digital 9. Session stratégique gratuite, réponse sous 1h."],
+    en: ["Contact — ID9_AGENCY", "Start a project with Impact Digital 9. Tell us about your goals and timeline."],
+    fr: ["Contact — ID9_AGENCY", "Démarrez un projet avec Impact Digital 9. Présentez-nous vos objectifs et votre échéance."],
   },
 };
 
@@ -51,7 +49,8 @@ export default function RouteSeo() {
     setMeta('meta[name="description"]', "content", desc);
     setMeta('meta[property="og:title"]', "content", title);
     setMeta('meta[property="og:description"]', "content", desc);
-    setMeta('meta[property="og:url"]', "content", SITE_URL + pathname);
+    const siteUrl = window.location.origin;
+    setMeta('meta[property="og:url"]', "content", siteUrl + pathname);
     setMeta('meta[property="og:locale"]', "content", lang === "fr" ? "fr_FR" : "en_US");
     setMeta('meta[name="twitter:title"]', "content", title);
     setMeta('meta[name="twitter:description"]', "content", desc);
@@ -62,7 +61,7 @@ export default function RouteSeo() {
       canonical.setAttribute("rel", "canonical");
       document.head.appendChild(canonical);
     }
-    canonical.setAttribute("href", SITE_URL + pathname);
+    canonical.setAttribute("href", siteUrl + pathname);
     document.documentElement.lang = lang;
   }, [pathname, lang]);
 
