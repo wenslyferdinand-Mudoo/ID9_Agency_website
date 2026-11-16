@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
+import { BRAND } from "@/lib/brand";
 import api, { safeArray } from "@/lib/api";
 import { fetchPortfolioList } from "@/lib/portfolio";
 import RevealText from "@/components/site/RevealText";
@@ -72,6 +73,20 @@ export default function PortfolioPage() {
           </h1>
         </div>
       </section>
+
+      <div className="px-4 md:px-8 pb-8">
+        <div className="max-w-7xl mx-auto">
+          <p className="text-white/45 text-xs uppercase tracking-[0.22em] mb-4">{t("wk.socialProof")}</p>
+          <div className="flex flex-wrap gap-3">
+            <a href={BRAND.instagramUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-5 py-3 text-sm text-white/80 hover:border-orange_impact/50 hover:text-white transition-colors" data-testid="portfolio-instagram-link">
+              {t("wk.instagram")} <ArrowUpRight className="w-4 h-4" />
+            </a>
+            <a href={BRAND.catalogUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-5 py-3 text-sm text-white/80 hover:border-orange_impact/50 hover:text-white transition-colors" data-testid="portfolio-whatsapp-catalog-link">
+              {t("wk.catalog")} <ArrowUpRight className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+      </div>
 
       <section className="px-4 md:px-8 sticky top-[88px] z-30 bg-ink-900/80 backdrop-blur py-5 border-y border-white/[0.06]">
         <div className="max-w-7xl mx-auto flex flex-wrap gap-2" data-testid="portfolio-filters">
