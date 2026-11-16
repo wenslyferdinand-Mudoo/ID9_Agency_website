@@ -17,7 +17,7 @@ const DICT = {
   "hero.badge": { en: "Wensly Ferdinand × Impact Digital 9", fr: "Wensly Ferdinand × Impact Digital 9" },
   "hero.h1.line1a": { en: "Wensly", fr: "Wensly" },
   "hero.h1.line1b": { en: "Ferdinand.", fr: "Ferdinand." },
-  "hero.h1.line2": { en: "Founder of", fr: "Fondateur de" },
+  "hero.h1.line2": { en: "Founder of", fr: "Fondateur d’" },
   "hero.h1.line3": { en: "Impact Digital 9", fr: "Impact Digital 9" },
   "hero.h1.line4": { en: "Creative direction · Design · Digital experiences.", fr: "Direction créative · Design · Expériences digitales." },
   "hero.sub": {
