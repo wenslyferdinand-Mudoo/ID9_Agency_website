@@ -31,12 +31,12 @@ const DICT = {
   // About preview
   "about.tag": { en: "(01) — About", fr: "(01) — À propos" },
   "about.h2": {
-    en: "A studio built for founders creating enduring brands. For ambitious companies, premium brands, and execution-driven operators.",
-    fr: "Un studio pour les fondateurs qui construisent des marques durables. Pour les entreprises ambitieuses, les marques premium et les opérateurs orientés exécution.",
+    en: "A founder-led creative studio connecting design, brand identity and digital work.",
+    fr: "Un studio créatif dirigé par son fondateur, au croisement du design, de l’identité de marque et du digital.",
   },
   "about.body": {
-    en: "Since 2018, ID9_AGENCY has designed and structured digital ecosystems for distinctive brands across Haiti, the Caribbean, North America, and Europe. Our work exists at the intersection of design, strategy, and product engineering. We do not produce deliverables. We build systems that generate value, credibility, and growth.",
-    fr: "Depuis 2018, ID9_AGENCY conçoit et structure des écosystèmes numériques pour des marques distinctives en Haïti, dans la Caraïbe, en Amérique du Nord et en Europe. Notre travail se situe à l'intersection du design, de la stratégie et de l'ingénierie produit. Nous ne produisons pas de livrables. Nous construisons des systèmes qui génèrent de la valeur, de la crédibilité et de la croissance.",
+    en: "Wensly Ferdinand has worked as an independent designer since 2015 and founded Impact Digital 9 on 1 May 2018. The studio brings together graphic design, brand identity, marketing campaigns, photography, content creation and digital services, with AI-assisted workflows supporting the creative process.",
+    fr: "Wensly Ferdinand exerce comme designer indépendant depuis 2015 et a fondé Impact Digital 9 le 1er mai 2018. Le studio réunit design graphique, identité de marque, campagnes marketing, photographie, création de contenus et services digitaux, avec des outils d’IA en soutien aux processus créatifs.",
   },
   "about.vision.k": { en: "Vision", fr: "Vision" },
   "about.vision.v": {
