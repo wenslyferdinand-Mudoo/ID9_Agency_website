@@ -7,6 +7,7 @@ import { fetchPortfolioBySlug } from "@/lib/portfolio";
 import FinalCTA from "@/components/sections/FinalCTA";
 import RevealText from "@/components/site/RevealText";
 import { useI18n } from "@/lib/i18n";
+import { getFounderProjectBySlug } from "@/lib/founder-projects";
 
 export default function PortfolioDetailPage() {
   const { slug } = useParams();
@@ -24,14 +25,19 @@ export default function PortfolioDetailPage() {
   const titleY = useTransform(scrollYProgress, [0, 1], [0, 120]);
 
   useEffect(() => {
-    // 1) Sanity CMS first
+    // Founder products have local case-study content; CMS projects remain unchanged.
     fetchPortfolioBySlug(slug)
       .then((doc) => {
         if (doc && typeof doc === "object") {
           setItem(doc);
           return;
         }
-        // 2) Fallback to FastAPI/MongoDB (legacy data)
+        const founderProject = getFounderProjectBySlug(slug, lang);
+        if (founderProject) {
+          setItem(founderProject);
+          setNotFound(false);
+          return;
+        }
         api
           .get(`/portfolio/${slug}`)
           .then((r) => {
@@ -40,8 +46,12 @@ export default function PortfolioDetailPage() {
           })
           .catch(() => setNotFound(true));
       })
-      .catch(() => setNotFound(true));
-  }, [slug]);
+      .catch(() => {
+        const founderProject = getFounderProjectBySlug(slug, lang);
+        if (founderProject) setItem(founderProject);
+        else setNotFound(true);
+      });
+  }, [slug, lang]);
 
   if (notFound)
     return (
@@ -69,12 +79,18 @@ export default function PortfolioDetailPage() {
           className="absolute inset-0"
           style={{ scale: heroScale, opacity: heroOpacity }}
         >
-          <img
-            src={item.cover_image}
-            alt={item.title}
-            className="w-full h-full object-cover"
-            loading="eager"
-          />
+          {item.cover_image ? (
+            <img
+              src={item.cover_image}
+              alt={item.title}
+              className="w-full h-full object-cover"
+              loading="eager"
+            />
+          ) : (
+            <div className="w-full h-full grid place-items-center bg-[radial-gradient(circle_at_20%_25%,rgba(255,135,22,0.3),transparent_38%),radial-gradient(circle_at_80%_75%,rgba(111,29,157,0.48),transparent_42%),linear-gradient(135deg,#17131f,#09090d)]">
+              <span className="font-display text-[min(34vw,20rem)] font-black tracking-tighter text-white/90">{item.monogram || item.title.slice(0, 2)}</span>
+            </div>
+          )}
           <div className="absolute inset-0 bg-gradient-to-b from-ink-900/40 via-ink-900/30 to-ink-900" />
           <div className="absolute inset-0 bg-gradient-to-tr from-ink-900/60 via-transparent to-transparent" />
         </motion.div>
@@ -101,6 +117,12 @@ export default function PortfolioDetailPage() {
               <span>{item.sector || item.category}</span>
               <span className="w-1 h-1 rounded-full bg-orange_impact" />
               <span>{item.year}</span>
+              {item.status && (
+                <>
+                  <span className="w-1 h-1 rounded-full bg-orange_impact" />
+                  <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 tracking-[0.12em]">{item.status}</span>
+                </>
+              )}
               {item.client && (
                 <>
                   <span className="w-1 h-1 rounded-full bg-orange_impact" />
