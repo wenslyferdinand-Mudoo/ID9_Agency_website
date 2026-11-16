@@ -3,10 +3,19 @@
 These tests use one module-scoped TestClient and the isolated MongoDB service
 provided by CI. They intentionally do not execute the legacy remote suite.
 """
+import sys
+from pathlib import Path
+
 import pytest
 from fastapi.testclient import TestClient
 
-from server import app
+# GitHub Actions runs pytest from backend/, but pytest's import mode can omit
+# that working directory from sys.path when collecting tests from tests/.
+BACKEND_ROOT = Path(__file__).resolve().parents[1]
+if str(BACKEND_ROOT) not in sys.path:
+    sys.path.insert(0, str(BACKEND_ROOT))
+
+from server import app  # noqa: E402
 
 
 @pytest.fixture(scope="module")
