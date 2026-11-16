@@ -53,6 +53,6 @@ def test_admin_endpoint_requires_authentication(client):
 def test_invalid_login_is_rejected(client):
     response = client.post(
         "/api/auth/login",
-        json={"email": "unknown@example.invalid", "password": "not-a-valid-password"},
+        json={"email": "unknown@example.com", "password": "not-a-valid-password"},
     )
     assert response.status_code == 401
