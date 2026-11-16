@@ -9,7 +9,7 @@ import { useI18n } from "@/lib/i18n";
 
 export default function BlogPage() {
   const [posts, setPosts] = useState([]);
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   useEffect(() => {
     api
       .get("/blog")
@@ -108,6 +108,23 @@ export default function BlogPage() {
         </div>
       </section>
 
+      {!posts.length && (
+        <section className="px-4 md:px-8 pb-24" data-testid="blog-empty-state">
+          <div className="max-w-7xl mx-auto rounded-3xl glass p-8 md:p-12">
+            <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.25em] mb-4">
+              {lang === "fr" ? "Journal ID9" : "ID9 Journal"}
+            </p>
+            <h2 className="font-display text-2xl md:text-4xl font-bold tracking-tight">
+              {lang === "fr" ? "Les prochains articles sont en préparation." : "New articles are being prepared."}
+            </h2>
+            <p className="font-inter text-white/60 mt-3 max-w-2xl">
+              {lang === "fr"
+                ? "Retrouvez bientôt nos analyses sur le branding, la stratégie digitale et la création."
+                : "Check back soon for insights on branding, digital strategy and creative work."}
+            </p>
+          </div>
+        </section>
+      )}
       <FinalCTA />
     </main>
   );
