@@ -11,7 +11,7 @@ const SPANS = ["md:col-span-8", "md:col-span-4", "md:col-span-4", "md:col-span-8
 
 export default function PortfolioPreview() {
   const [items, setItems] = useState([]);
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
 
   useEffect(() => {
     // 1) Sanity CMS first
@@ -76,7 +76,8 @@ export default function PortfolioPreview() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-5 md:gap-6">
+        {items.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-5 md:gap-6">
           {items.map((p, i) => (
             <motion.div
               key={p.id}
@@ -113,7 +114,25 @@ export default function PortfolioPreview() {
               </Link>
             </motion.div>
           ))}
-        </div>
+          </div>
+        ) : (
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 md:p-12 text-center">
+            <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.25em] mb-4">
+              {lang === "fr" ? "Sélection ID9" : "ID9 Selection"}
+            </p>
+            <h3 className="font-display text-2xl md:text-3xl font-bold">
+              {lang === "fr" ? "Les réalisations seront publiées ici." : "Selected work will appear here."}
+            </h3>
+            <p className="font-inter text-sm text-white/55 mt-3 max-w-xl mx-auto">
+              {lang === "fr"
+                ? "Notre portfolio est en cours de mise à jour. Contactez-nous pour découvrir nos domaines d'expertise."
+                : "Our portfolio is being updated. Contact us to discuss our areas of expertise."}
+            </p>
+            <Link to="/contact" className="inline-flex mt-6 rounded-full bg-orange_impact text-ink-900 px-5 py-3 font-ui text-sm font-semibold">
+              {lang === "fr" ? "Nous contacter" : "Contact ID9"}
+            </Link>
+          </div>
+        )}
       </div>
     </section>
   );
