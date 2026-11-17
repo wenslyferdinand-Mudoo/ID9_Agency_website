@@ -36,10 +36,12 @@ export default function HeroSection() {
       data-testid="hero-section"
     >
       {/* Background layers — z order matters */}
-      <FluidGradient intensity={0.55} />
+      <FluidGradient intensity={0.55} className="z-0" />
+      {/* CSS-only ambient layer remains visible if WebGL or Spline is unavailable. */}
+      <div className="hero-ambient-fallback absolute inset-0 z-[1] pointer-events-none" aria-hidden="true" />
       {show3D && (
         <Suspense fallback={null}>
-          <Hero3D className="opacity-80" />
+          <Hero3D className="z-[2] opacity-80" />
         </Suspense>
       )}
       <div className="absolute inset-0 grid-lines opacity-[0.08] pointer-events-none z-10" />
