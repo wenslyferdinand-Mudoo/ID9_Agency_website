@@ -11,7 +11,7 @@ import { useI18n } from "@/lib/i18n";
 export default function PortfolioPage() {
   const [items, setItems] = useState([]);
   const [filter, setFilter] = useState("all");
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
 
   const FILTERS = [
     { k: "all", l: t("wk.filters.all") },
@@ -20,6 +20,7 @@ export default function PortfolioPage() {
     { k: "app", l: t("wk.filters.app") },
     { k: "marketing", l: t("wk.filters.marketing") },
     { k: "motion", l: t("wk.filters.motion") },
+    { k: "photo", l: lang === "fr" ? "Photographie" : "Photography" },
   ];
 
   useEffect(() => {
@@ -42,7 +43,8 @@ export default function PortfolioPage() {
 
   const filtered = useMemo(() => {
     const list = safeArray(items);
-    return filter === "all" ? list : list.filter((p) => p && p.category === filter);
+    if (filter === "all") return list;
+    return list.filter((p) => p && normalizeCategory(p.category) === filter);
   }, [items, filter]);
 
   return (
@@ -85,6 +87,7 @@ export default function PortfolioPage() {
                   : "bg-white/5 text-white/70 hover:text-white border border-white/10"
               }`}
               data-testid={`portfolio-filter-${f.k}`}
+              aria-pressed={filter === f.k}
             >
               {f.l}
             </button>
@@ -135,7 +138,32 @@ export default function PortfolioPage() {
             </div>
           </AnimatePresence>
           {filtered.length === 0 && (
-            <p className="text-white/50 text-center py-20 font-ui">{t("wk.empty")}</p>
+            <div className="rounded-3xl border border-white/10 bg-white/[0.03] px-6 py-14 md:py-20 text-center" data-testid="portfolio-empty-state" role="status">
+              <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.25em] mb-4">
+                {lang === "fr" ? "Portfolio ID9" : "ID9 Portfolio"}
+              </p>
+              <h2 className="font-display text-2xl md:text-4xl font-bold tracking-tight">
+                {items.length === 0
+                  ? (lang === "fr" ? "Notre sélection de réalisations arrive." : "Our selected work is coming soon.")
+                  : (lang === "fr" ? "Aucune réalisation dans cette catégorie." : "No projects in this category yet.")}
+              </h2>
+              <p className="font-inter text-sm md:text-base text-white/55 max-w-2xl mx-auto mt-4 leading-relaxed">
+                {items.length === 0
+                  ? (lang === "fr" ? "Les projets seront publiés progressivement. Pour une demande ou une collaboration, contactez directement notre équipe." : "Projects will be published progressively. Contact our team to discuss a brief or collaboration.")
+                  : (lang === "fr" ? "D'autres réalisations sont disponibles dans les autres catégories." : "More work may be available in other categories.")}
+              </p>
+              <div className="mt-7 flex flex-wrap justify-center gap-3">
+                {items.length > 0 && filter !== "all" ? (
+                  <button type="button" onClick={() => setFilter("all")} className="rounded-full bg-white/10 border border-white/15 px-5 py-3 font-ui text-sm hover:bg-white/15 transition-colors">
+                    {lang === "fr" ? "Voir toutes les réalisations" : "View all projects"}
+                  </button>
+                ) : (
+                  <Link to="/contact" className="rounded-full bg-orange_impact text-ink-900 px-5 py-3 font-ui text-sm font-semibold hover:brightness-110 transition">
+                    {lang === "fr" ? "Parler de votre projet" : "Discuss your project"}
+                  </Link>
+                )}
+              </div>
+            </div>
           )}
         </div>
       </section>
@@ -143,4 +171,13 @@ export default function PortfolioPage() {
       <FinalCTA />
     </main>
   );
+}
+
+
+function normalizeCategory(value) {
+  const category = String(value || "").trim().toLowerCase();
+  if (["photography", "photographie", "photograph", "photo"].includes(category)) return "photo";
+  if (["website", "web design", "web-design", "site web"].includes(category)) return "web";
+  if (["mobile app", "application", "application mobile"].includes(category)) return "app";
+  return category;
 }

@@ -1,11 +1,26 @@
 import axios from "axios";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-export const API_BASE = `${BACKEND_URL}/api`;
+const BACKEND_URL = (
+  process.env.REACT_APP_BACKEND_URL ||
+  process.env.REACT_APP_API_URL ||
+  ""
+).trim().replace(/\/+$/, "");
 
-const api = axios.create({ baseURL: API_BASE });
+export const API_BASE = BACKEND_URL ? `${BACKEND_URL}/api` : null;
+export const apiConfigured = Boolean(BACKEND_URL);
+
+const api = axios.create({
+  ...(API_BASE ? { baseURL: API_BASE } : {}),
+  timeout: 15000,
+});
 
 api.interceptors.request.use((config) => {
+  if (!apiConfigured) {
+    return Promise.reject(
+      new Error("ID9 backend API is not configured. Set REACT_APP_BACKEND_URL in the Vercel project.")
+    );
+  }
+
   const token = localStorage.getItem("id9_token");
   if (token) {
     config.headers = config.headers || {};
@@ -16,11 +31,6 @@ api.interceptors.request.use((config) => {
 
 export default api;
 
-/**
- * Guarantees an array from any API response.
- * Protects against crashes when a backend/CDN returns HTML, an object,
- * null, or is unreachable (e.g. CORS blocked on Vercel).
- */
 export function safeArray(value) {
   return Array.isArray(value) ? value : [];
 }

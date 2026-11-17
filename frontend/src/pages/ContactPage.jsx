@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Mail, MessageCircle, MapPin, Instagram, Facebook, Music2, Check, ArrowUpRight } from "lucide-react";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import api, { formatApiError } from "@/lib/api";
+import api, { apiConfigured, formatApiError } from "@/lib/api";
 import { BRAND, whatsappLink } from "@/lib/brand";
 import GlowOrb from "@/components/site/GlowOrb";
 import RevealText from "@/components/site/RevealText";
@@ -25,7 +25,7 @@ const SERVICES = [
 ];
 
 export default function ContactPage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -43,8 +43,14 @@ export default function ContactPage() {
 
   const submit = async (e) => {
     e?.preventDefault?.();
-    if (!form.name || !form.email || !form.message) {
+    if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
       toast.error(t("co.requiredErr"));
+      return;
+    }
+    if (!apiConfigured) {
+      toast.error(lang === "fr"
+        ? "Le formulaire n’est pas encore relié au serveur. Contactez-nous via WhatsApp."
+        : "The form is not connected to the server yet. Please contact us on WhatsApp.");
       return;
     }
     setSubmitting(true);
@@ -77,7 +83,7 @@ export default function ContactPage() {
             className="font-display text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.98]"
           />
           <RevealText
-            as="h1"
+            as="p"
             text={t("co.h2")}
             className="font-display text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.98] text-gradient-gold"
             delay={0.1}
@@ -138,14 +144,16 @@ export default function ContactPage() {
                   <MapPin className="w-5 h-5" /> {BRAND.city}
                 </p>
               </div>
-              <div className="aspect-[4/3] rounded-2xl overflow-hidden glass">
-                <iframe
-                  title="Studio map"
-                  className="w-full h-full"
-                  src="https://www.google.com/maps?q=Port-au-Prince,+Haiti&output=embed"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
+              <div className="rounded-2xl glass p-6 md:p-7">
+                <p className="font-ui text-xs uppercase tracking-[0.2em] text-orange_impact mb-3">
+                  {lang === "fr" ? "Notre présence" : "Our presence"}
+                </p>
+                <p className="font-display text-xl md:text-2xl font-bold leading-snug">
+                  {lang === "fr" ? "Une agence digitale basée à Port-au-Prince, Haïti." : "A digital agency based in Port-au-Prince, Haiti."}
+                </p>
+                <p className="font-inter text-sm text-white/55 mt-3 leading-relaxed">
+                  {lang === "fr" ? "Échanges à distance ou rencontres sur rendez-vous. Aucun studio ouvert au public n’est déclaré." : "Remote collaboration or meetings by appointment. No public studio address is listed."}
+                </p>
               </div>
             </aside>
 
@@ -199,11 +207,12 @@ export default function ContactPage() {
                       testid="contact-input-deadline"
                     />
                     <div>
-                      <label className="block text-white/40 font-ui text-xs uppercase tracking-[0.2em] mb-2">
+                      <label htmlFor="contact-select-budget" className="block text-white/40 font-ui text-xs uppercase tracking-[0.2em] mb-2">
                         {t("co.field.budget")}
                       </label>
                       <Select value={form.budget} onValueChange={onChange("budget")}>
                         <SelectTrigger
+                          id="contact-select-budget"
                           className="bg-transparent border-0 border-b border-white/15 rounded-none px-0 h-11 focus:ring-0 focus:border-orange_impact font-inter"
                           data-testid="contact-select-budget"
                         >
@@ -219,11 +228,12 @@ export default function ContactPage() {
                       </Select>
                     </div>
                     <div>
-                      <label className="block text-white/40 font-ui text-xs uppercase tracking-[0.2em] mb-2">
+                      <label htmlFor="contact-select-service" className="block text-white/40 font-ui text-xs uppercase tracking-[0.2em] mb-2">
                         {t("co.field.service")}
                       </label>
                       <Select value={form.service} onValueChange={onChange("service")}>
                         <SelectTrigger
+                          id="contact-select-service"
                           className="bg-transparent border-0 border-b border-white/15 rounded-none px-0 h-11 focus:ring-0 focus:border-orange_impact font-inter"
                           data-testid="contact-select-service"
                         >
@@ -240,10 +250,13 @@ export default function ContactPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-white/40 font-ui text-xs uppercase tracking-[0.2em] mb-2">
+                    <label htmlFor="contact-input-message" className="block text-white/40 font-ui text-xs uppercase tracking-[0.2em] mb-2">
                       {t("co.field.message")}
                     </label>
                     <textarea
+                      id="contact-input-message"
+                      required
+                      maxLength={5000}
                       rows={5}
                       value={form.message}
                       onChange={onChange("message")}
@@ -252,10 +265,17 @@ export default function ContactPage() {
                       data-testid="contact-input-message"
                     />
                   </div>
+                  {!apiConfigured && (
+                    <p className="text-sm text-white/55 font-inter" role="status">
+                      {lang === "fr"
+                        ? "L’envoi du formulaire sera activé après la configuration du serveur. WhatsApp reste disponible."
+                        : "Form submission will be enabled once the backend is configured. WhatsApp is available now."}
+                    </p>
+                  )}
                   <div className="flex flex-wrap gap-3 pt-2">
                     <button
                       type="submit"
-                      disabled={submitting}
+                      disabled={submitting || !apiConfigured}
                       className="inline-flex items-center gap-2 bg-orange_impact text-ink-900 font-ui font-semibold px-7 py-3.5 rounded-full disabled:opacity-60 hover:bg-gold_light transition-colors"
                       data-testid="contact-submit"
                     >
@@ -285,8 +305,12 @@ export default function ContactPage() {
 function Field({ label, value, onChange, type = "text", placeholder = "", testid }) {
   return (
     <div>
-      <label className="block text-white/40 font-ui text-xs uppercase tracking-[0.2em] mb-2">{label}</label>
+      <label htmlFor={testid} className="block text-white/40 font-ui text-xs uppercase tracking-[0.2em] mb-2">{label}</label>
       <input
+        id={testid}
+        required={type === "email" || testid === "contact-input-name"}
+        maxLength={type === "email" ? 254 : 160}
+        autoComplete={type === "email" ? "email" : testid === "contact-input-name" ? "name" : "off"}
         type={type}
         value={value}
         onChange={onChange}

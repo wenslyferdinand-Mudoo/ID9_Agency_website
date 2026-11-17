@@ -1,0 +1,28 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 8
+    groups:
+      react-and-tooling:
+        patterns:
+          - "react*"
+          - "@types/react*"
+          - "eslint*"
+      ui-dependencies:
+        patterns:
+          - "@radix-ui/*"
+          - "framer-motion"
+          - "lucide-react"
+  - package-ecosystem: "pip"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 8
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
