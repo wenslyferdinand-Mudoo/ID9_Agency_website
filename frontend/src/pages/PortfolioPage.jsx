@@ -2,16 +2,18 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
+import { BRAND } from "@/lib/brand";
 import api, { safeArray } from "@/lib/api";
 import { fetchPortfolioList } from "@/lib/portfolio";
 import RevealText from "@/components/site/RevealText";
 import FinalCTA from "@/components/sections/FinalCTA";
 import { useI18n } from "@/lib/i18n";
+import { getFounderProjects } from "@/lib/founder-projects";
 
 export default function PortfolioPage() {
   const [items, setItems] = useState([]);
   const [filter, setFilter] = useState("all");
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
 
   const FILTERS = [
     { k: "all", l: t("wk.filters.all") },
@@ -23,22 +25,25 @@ export default function PortfolioPage() {
   ];
 
   useEffect(() => {
-    // 1) Try Sanity first (CMS)
+    // Founder products are always visible alongside CMS case studies.
+    const founderProjects = getFounderProjects(lang);
     fetchPortfolioList()
       .then((sanityItems) => {
         const list = safeArray(sanityItems);
         if (list.length) {
-          setItems(list);
+          setItems([...founderProjects, ...list.filter((item) => !founderProjects.some((project) => project.slug === item.slug))]);
           return;
         }
-        // 2) Fallback to FastAPI/MongoDB (legacy data, e.g. Akya Dance seed)
         api
           .get("/portfolio")
-          .then((r) => setItems(safeArray(r?.data)))
-          .catch(() => setItems([]));
+          .then((r) => {
+            const legacy = safeArray(r?.data);
+            setItems([...founderProjects, ...legacy.filter((item) => !founderProjects.some((project) => project.slug === item.slug))]);
+          })
+          .catch(() => setItems(founderProjects));
       })
-      .catch(() => setItems([]));
-  }, []);
+      .catch(() => setItems(founderProjects));
+  }, [lang]);
 
   const filtered = useMemo(() => {
     const list = safeArray(items);
@@ -72,6 +77,20 @@ export default function PortfolioPage() {
           </h1>
         </div>
       </section>
+
+      <div className="px-4 md:px-8 pb-8">
+        <div className="max-w-7xl mx-auto">
+          <p className="text-white/45 text-xs uppercase tracking-[0.22em] mb-4">{t("wk.socialProof")}</p>
+          <div className="flex flex-wrap gap-3">
+            <a href={BRAND.instagramUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-5 py-3 text-sm text-white/80 hover:border-orange_impact/50 hover:text-white transition-colors" data-testid="portfolio-instagram-link">
+              {t("wk.instagram")} <ArrowUpRight className="w-4 h-4" />
+            </a>
+            <a href={BRAND.catalogUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-5 py-3 text-sm text-white/80 hover:border-orange_impact/50 hover:text-white transition-colors" data-testid="portfolio-whatsapp-catalog-link">
+              {t("wk.catalog")} <ArrowUpRight className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+      </div>
 
       <section className="px-4 md:px-8 sticky top-[88px] z-30 bg-ink-900/80 backdrop-blur py-5 border-y border-white/[0.06]">
         <div className="max-w-7xl mx-auto flex flex-wrap gap-2" data-testid="portfolio-filters">
@@ -109,11 +128,18 @@ export default function PortfolioPage() {
                 >
                   <Link to={`/portfolio/${p.slug}`} className="block">
                     <div className="aspect-[4/3] overflow-hidden">
-                      <img
-                        src={p.cover_image}
-                        alt={p.title}
-                        className="w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
-                      />
+                      {p.cover_image ? (
+                        <img
+                          src={p.cover_image}
+                          alt={p.title}
+                          className="w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+                        />
+                      ) : (
+                        <div className="w-full h-full grid place-items-center bg-[radial-gradient(circle_at_25%_20%,rgba(255,135,22,0.28),transparent_38%),radial-gradient(circle_at_80%_80%,rgba(111,29,157,0.4),transparent_42%),linear-gradient(135deg,#17131f,#09090d)] group-hover:scale-105 transition-transform duration-700">
+                          <span className="font-display text-8xl md:text-9xl font-black tracking-tighter text-white/90">{p.monogram || p.title.slice(0, 2)}</span>
+                          <span className="absolute top-6 left-6 text-[10px] uppercase tracking-[0.3em] text-white/45">Impact Digital 9 · Product</span>
+                        </div>
+                      )}
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-ink-900 via-ink-900/30 to-transparent" />
                     <div className="absolute bottom-0 inset-x-0 p-6 md:p-8 flex items-end justify-between">
@@ -121,6 +147,7 @@ export default function PortfolioPage() {
                         <p className="text-orange_impact font-ui text-[10px] uppercase tracking-[0.25em] mb-2">
                           {p.category} · {p.year || "—"}
                         </p>
+                        {p.status && <span className="inline-flex mb-2 rounded-full border border-white/20 bg-black/30 px-3 py-1 text-[10px] uppercase tracking-[0.15em] text-white/75">{p.status}</span>}
                         <h2 className="font-display text-2xl md:text-3xl font-bold tracking-tight">
                           {p.title}
                         </h2>

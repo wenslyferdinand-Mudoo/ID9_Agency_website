@@ -7,59 +7,15 @@ import FinalCTA from "@/components/sections/FinalCTA";
 import { useI18n } from "@/lib/i18n";
 
 const TIMELINE_EN = [
-  {
-    y: "2018",
-    t: "Foundation of ID9_AGENCY",
-    d: "Impact Digital 9 is founded in Port-au-Prince by Wensly Ferdinand. The studio establishes a vision centered on strategy, precision design, and digital performance.",
-  },
-  {
-    y: "2020",
-    t: "International Expansion",
-    d: "The agency welcomes its first clients across North America and Europe. ID9 adopts a remote-first and multi-market operational model.",
-  },
-  {
-    y: "2022",
-    t: "Studio Structuring",
-    d: "The creative ecosystem expands with senior experts in branding, web development, UI/UX, and motion design. The studio begins producing immersive and narrative-driven experiences.",
-  },
-  {
-    y: "2024",
-    t: "Premium Positioning",
-    d: "ID9_AGENCY becomes a leading digital studio for ambitious founders, premium brands, and companies scaling their digital presence.",
-  },
-  {
-    y: "2025",
-    t: "Global Deployment",
-    d: "The agency manages projects across multiple continents and builds scalable digital ecosystems focused on visibility, credibility, and growth.",
-  },
+  { y: "2015", t: "Independent creative practice", d: "Wensly begins working independently in design, building practical experience across visual communication and creative production." },
+  { y: "2018", t: "Impact Digital 9 is founded", d: "On 1 May 2018, Wensly establishes Impact Digital 9 to bring creative and digital services together under one agency identity." },
+  { y: "2021", t: "Training and knowledge sharing", d: "Wensly expands his work into training, sharing practical knowledge and creative methods with learners." },
 ];
 
 const TIMELINE_FR = [
-  {
-    y: "2018",
-    t: "Fondation d'ID9_AGENCY",
-    d: "Création d'Impact Digital 9 à Port-au-Prince par Wensly Ferdinand. Le studio pose les bases d'une approche centrée sur la stratégie, le design de précision et la performance digitale.",
-  },
-  {
-    y: "2020",
-    t: "Expansion internationale",
-    d: "Les premiers clients en Amérique du Nord et en Europe rejoignent l'agence. ID9 adopte une structure remote-first et développe une approche multi-marché.",
-  },
-  {
-    y: "2022",
-    t: "Structuration du studio",
-    d: "Renforcement de l'écosystème créatif avec des profils seniors en branding, développement web, UI/UX et motion design. Début des productions immersives et narratives.",
-  },
-  {
-    y: "2024",
-    t: "Positionnement premium",
-    d: "ID9_AGENCY devient un studio digital de référence pour les fondateurs ambitieux, les marques premium et les entreprises en phase de croissance stratégique.",
-  },
-  {
-    y: "2025",
-    t: "Déploiement international",
-    d: "L'agence pilote des projets sur plusieurs continents et construit des écosystèmes numériques scalables orientés visibilité, crédibilité et croissance.",
-  },
+  { y: "2015", t: "Début de l’activité créative indépendante", d: "Wensly commence à travailler comme designer indépendant et développe une expérience pratique en communication visuelle et production créative." },
+  { y: "2018", t: "Fondation d’Impact Digital 9", d: "Le 1er mai 2018, Wensly fonde Impact Digital 9 afin de réunir des services créatifs et digitaux sous une même identité d’agence." },
+  { y: "2021", t: "Formation et transmission", d: "Wensly développe également son activité de formateur et partage des connaissances pratiques ainsi que des méthodes créatives." },
 ];
 
 export default function AboutPage() {
@@ -90,7 +46,7 @@ export default function AboutPage() {
             <div className="relative aspect-[4/5] rounded-3xl overflow-hidden group">
               <img
                 src="/wensly-founder.jpg"
-                alt="Wensly Ferdinand — Founder & Creative Director"
+                alt="Wensly Ferdinand — Founder, Graphic Designer and Creative & Digital Manager"
                 className="w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-ink-900 via-ink-900/20 to-transparent" />
@@ -119,6 +75,21 @@ export default function AboutPage() {
             </blockquote>
             <p className="mt-8 font-inter text-white/70 leading-relaxed">{t("ap.founderBio")}</p>
           </div>
+        </div>
+      </section>
+
+      <section className="px-4 md:px-8 py-16 border-y border-white/[0.07]" aria-label="Experience indicators">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8">
+          {[
+            { value: "15+", label: lang === "fr" ? "Identités de marque" : "Brand identities" },
+            { value: "5+", label: lang === "fr" ? "Campagnes marketing" : "Marketing campaigns" },
+            { value: "25+", label: lang === "fr" ? "Clients accompagnés" : "Clients served" },
+          ].map((item) => (
+            <div key={item.label} className="border-l-2 border-orange_impact pl-5">
+              <p className="font-display text-4xl md:text-5xl font-black tracking-tight text-gradient-gold">{item.value}</p>
+              <p className="mt-2 text-sm uppercase tracking-[0.18em] text-white/55">{item.label}</p>
+            </div>
+          ))}
         </div>
       </section>
 

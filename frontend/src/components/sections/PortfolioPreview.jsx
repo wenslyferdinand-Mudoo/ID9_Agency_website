@@ -6,30 +6,33 @@ import api, { safeArray } from "@/lib/api";
 import { fetchPortfolioList } from "@/lib/portfolio";
 import RevealText from "@/components/site/RevealText";
 import { useI18n } from "@/lib/i18n";
+import { getFounderProjects } from "@/lib/founder-projects";
 
 const SPANS = ["md:col-span-8", "md:col-span-4", "md:col-span-4", "md:col-span-8", "md:col-span-6", "md:col-span-6"];
 
 export default function PortfolioPreview() {
   const [items, setItems] = useState([]);
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
 
   useEffect(() => {
-    // 1) Sanity CMS first
+    const founderProjects = getFounderProjects(lang);
     fetchPortfolioList()
       .then((sanityItems) => {
         const list = safeArray(sanityItems);
         if (list.length) {
-          setItems(list.slice(0, 6));
+          setItems([...founderProjects, ...list.filter((item) => !founderProjects.some((project) => project.slug === item.slug))].slice(0, 6));
           return;
         }
-        // 2) Fallback to FastAPI/MongoDB (legacy data)
         api
           .get("/portfolio")
-          .then((r) => setItems(safeArray(r?.data).slice(0, 6)))
-          .catch(() => setItems([]));
+          .then((r) => {
+            const legacy = safeArray(r?.data);
+            setItems([...founderProjects, ...legacy.filter((item) => !founderProjects.some((project) => project.slug === item.slug))].slice(0, 6));
+          })
+          .catch(() => setItems(founderProjects));
       })
-      .catch(() => setItems([]));
-  }, []);
+      .catch(() => setItems(founderProjects));
+  }, [lang]);
 
   return (
     <section className="relative py-28 md:py-40 px-4 md:px-8 bg-ink-800/60" data-testid="portfolio-preview">
@@ -89,11 +92,17 @@ export default function PortfolioPreview() {
             >
               <Link to={`/portfolio/${p.slug}`} className="block">
                 <div className="aspect-[16/10] overflow-hidden">
-                  <img
-                    src={p.cover_image}
-                    alt={p.title}
-                    className="w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
-                  />
+                  {p.cover_image ? (
+                    <img
+                      src={p.cover_image}
+                      alt={p.title}
+                      className="w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+                    />
+                  ) : (
+                    <div className="w-full h-full grid place-items-center bg-[radial-gradient(circle_at_25%_20%,rgba(255,135,22,0.28),transparent_38%),radial-gradient(circle_at_80%_80%,rgba(111,29,157,0.4),transparent_42%),linear-gradient(135deg,#17131f,#09090d)] group-hover:scale-105 transition-transform duration-700">
+                      <span className="font-display text-7xl md:text-8xl font-black tracking-tighter text-white/90">{p.monogram || p.title.slice(0, 2)}</span>
+                    </div>
+                  )}
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-ink-900 via-ink-900/20 to-transparent opacity-90" />
                 <div className="absolute bottom-0 inset-x-0 p-6 md:p-8 flex items-end justify-between gap-4">
@@ -101,6 +110,7 @@ export default function PortfolioPreview() {
                     <p className="text-orange_impact font-ui text-[10px] uppercase tracking-[0.25em] mb-2">
                       {p.category} · {p.year}
                     </p>
+                    {p.status && <span className="inline-flex mb-2 rounded-full border border-white/20 bg-black/30 px-3 py-1 text-[10px] uppercase tracking-[0.15em] text-white/75">{p.status}</span>}
                     <h3 className="font-display text-2xl md:text-3xl font-bold tracking-tight">{p.title}</h3>
                     <p className="text-white/60 text-sm font-inter mt-1 hidden md:block max-w-lg">
                       {p.summary}

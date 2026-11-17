@@ -9,6 +9,7 @@ export const BRAND = {
   whatsappDisplay: "+509 31 63 4848",
   instagramHandle: "@id9_agency",
   instagramUrl: "https://www.instagram.com/id9_agency",
+  catalogUrl: "https://wa.me/p/8721011224668261/50931634848",
   tiktokHandle: "@id9_agency",
   tiktokUrl: "https://vm.tiktok.com/ZS9F3FmSnqJ6c-m9Pph/",
   facebookHandle: "ID9_AGENCY",
