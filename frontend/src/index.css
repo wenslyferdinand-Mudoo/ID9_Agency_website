@@ -278,3 +278,24 @@ body.menu-open {
     transform: none !important;
   }
 }
+
+/* Site-wide responsive consistency: preserve the same information on every viewport. */
+@media (max-width: 640px) {
+  main h1 {
+    max-width: 100%;
+    font-size: clamp(2.25rem, 9.5vw, 3.5rem) !important;
+    line-height: 1.02 !important;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
+  }
+  main p { overflow-wrap: anywhere; }
+  main img, main video, main iframe { max-width: 100%; }
+  .marquee-mask {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+  }
+}
+@media (min-width: 641px) and (max-width: 1023px) {
+  main h1 { font-size: clamp(3rem, 6.5vw, 5rem); line-height: 1.02; }
+}
+main [id] { scroll-margin-top: 7rem; }
