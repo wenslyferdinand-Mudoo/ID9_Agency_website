@@ -162,10 +162,10 @@ export default function Navigation() {
                 <Logo className="w-9 h-9" />
                 <div className="flex flex-col leading-none">
                   <span className="font-display font-black tracking-tight text-base">
-                    Wensly Ferdinand
+                    ID9_AGENCY
                   </span>
                   <span className="font-ui text-[9px] uppercase tracking-[0.22em] text-white/55 mt-0.5">
-                    Founder × Impact Digital 9
+                    Impact Digital 9
                   </span>
                 </div>
               </Link>
