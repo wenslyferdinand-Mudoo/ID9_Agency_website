@@ -74,12 +74,12 @@ export default function ContactPage() {
           <RevealText
             as="h1"
             text={t("co.h1")}
-            className="font-display text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.98]"
+            className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[1.04] md:leading-[0.98] text-balance"
           />
           <RevealText
             as="h1"
             text={t("co.h2")}
-            className="font-display text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.98] text-gradient-gold"
+            className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[1.04] md:leading-[0.98] text-gradient-gold text-balance"
             delay={0.1}
           />
 
@@ -149,7 +149,7 @@ export default function ContactPage() {
               </div>
             </aside>
 
-            <div className="md:col-span-8 glass-strong rounded-3xl p-7 md:p-10 noise-overlay relative overflow-hidden">
+            <div className="md:col-span-8 glass-strong rounded-3xl p-5 sm:p-7 md:p-10 noise-overlay relative overflow-hidden">
               {sent ? (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
