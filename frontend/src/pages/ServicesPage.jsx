@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import * as Icons from "lucide-react";
+import { SERVICE_CATALOGUE, SERVICE_ICONS, mergeServices } from "@/lib/services-catalogue";
 import api, { safeArray } from "@/lib/api";
 import RevealText from "@/components/site/RevealText";
 import FinalCTA from "@/components/sections/FinalCTA";
@@ -8,13 +8,23 @@ import LeadMagnet from "@/components/sections/LeadMagnet";
 import { useI18n } from "@/lib/i18n";
 
 export default function ServicesPage() {
-  const [services, setServices] = useState([]);
+  const [services, setServices] = useState(SERVICE_CATALOGUE);
   const { t, lang } = useI18n();
+
   useEffect(() => {
+    let active = true;
     api
-      .get("/services")
-      .then((r) => setServices(safeArray(r?.data)))
-      .catch(() => setServices([]));
+      .get("/services", { timeout: 3500 })
+      .then((response) => {
+        if (active) setServices(mergeServices(safeArray(response?.data)));
+      })
+      .catch(() => {
+        // The local catalogue is the reliable fallback.
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   return (
@@ -35,30 +45,35 @@ export default function ServicesPage() {
             className="font-display text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.98] text-gradient-gold"
             delay={0.1}
           />
-          <p className="mt-10 max-w-2xl font-inter text-lg text-white/70 leading-relaxed">{t("sp.sub")}</p>
+          <p className="mt-10 max-w-2xl font-inter text-lg text-white/70 leading-relaxed">
+            {t("sp.sub")}
+          </p>
         </div>
       </section>
 
       <section className="px-4 md:px-8 pb-24">
         <div className="max-w-7xl mx-auto space-y-3">
-          {services.map((s, i) => {
-            const Icon = Icons[s.icon] || Icons.Sparkles;
-            const title = lang === "fr" && s.title_fr ? s.title_fr : s.title;
-            const desc = lang === "fr" && s.desc_fr ? s.desc_fr : s.desc;
+          {services.map((service, index) => {
+            const Icon = SERVICE_ICONS[service.icon] || SERVICE_ICONS.Sparkles;
+            const title = lang === "fr" && service.title_fr ? service.title_fr : service.title;
+            const desc = lang === "fr" && service.desc_fr ? service.desc_fr : service.desc;
             const deliverables =
-              lang === "fr" && Array.isArray(s.deliverables_fr) ? s.deliverables_fr : safeArray(s.deliverables);
+              lang === "fr" && Array.isArray(service.deliverables_fr)
+                ? service.deliverables_fr
+                : safeArray(service.deliverables);
+
             return (
               <motion.div
-                key={s.slug}
-                initial={{ opacity: 0, y: 20 }}
+                key={service.slug}
+                initial={{ opacity: 0, y: 14 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.7, delay: (i % 6) * 0.03, ease: [0.16, 1, 0.3, 1] }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.42, delay: (index % 6) * 0.02, ease: [0.16, 1, 0.3, 1] }}
                 className="group relative grid grid-cols-12 gap-4 md:gap-8 items-start border-t border-white/10 py-8 md:py-10 hover:border-orange_impact/40 transition-colors"
-                data-testid={`service-row-${s.slug}`}
+                data-testid={"service-row-" + service.slug}
               >
                 <p className="col-span-2 md:col-span-1 font-display text-white/30 font-black tabular-nums text-lg md:text-xl">
-                  {String(i + 1).padStart(2, "0")}
+                  {String(index + 1).padStart(2, "0")}
                 </p>
                 <div className="col-span-10 md:col-span-4">
                   <div className="flex items-center gap-3 mb-2">
@@ -74,13 +89,13 @@ export default function ServicesPage() {
                   {desc}
                 </p>
                 <ul className="col-span-12 md:col-span-3 flex md:block flex-wrap gap-2 md:gap-1.5">
-                  {deliverables.map((d) => (
+                  {deliverables.map((deliverable) => (
                     <li
-                      key={d}
+                      key={deliverable}
                       className="text-xs font-ui text-white/55 inline-flex items-center gap-2 md:before:content-['—'] md:before:text-orange_impact md:before:mr-1.5"
                     >
                       <span className="md:hidden text-orange_impact">•</span>
-                      {d}
+                      {deliverable}
                     </li>
                   ))}
                 </ul>

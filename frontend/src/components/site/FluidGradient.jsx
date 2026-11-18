@@ -13,7 +13,7 @@ export default function FluidGradient({ intensity = 1, className = "" }) {
     >
       {/* base conic — extremely subtle, gives iridescent direction */}
       <div
-        className="absolute -inset-[20%] opacity-[0.18]"
+        className="fluid-gradient-base absolute -inset-[20%] opacity-[0.18]"
         style={{
           background:
             "conic-gradient(from 90deg at 50% 50%, #743089, #FFA500, #FFCB60, #743089, #9D4BB8, #FFA500, #743089)",
@@ -24,7 +24,7 @@ export default function FluidGradient({ intensity = 1, className = "" }) {
 
       {/* animated blob 1 — violet */}
       <motion.div
-        className="absolute rounded-full"
+        className="fluid-gradient-blob absolute rounded-full"
         style={{
           width: 900,
           height: 900,
@@ -45,7 +45,7 @@ export default function FluidGradient({ intensity = 1, className = "" }) {
 
       {/* animated blob 2 — orange */}
       <motion.div
-        className="absolute rounded-full"
+        className="fluid-gradient-blob absolute rounded-full"
         style={{
           width: 700,
           height: 700,

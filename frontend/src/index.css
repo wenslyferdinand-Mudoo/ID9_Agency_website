@@ -247,3 +247,34 @@ body.menu-open {
   opacity: 0 !important;
   pointer-events: none !important;
 }
+
+
+/* Respect reduced-motion preferences and reduce decorative GPU work on small screens. */
+@media (max-width: 768px) {
+  .fluid-gradient-base {
+    filter: blur(72px) !important;
+  }
+
+  .fluid-gradient-blob {
+    filter: blur(42px) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html,
+  body {
+    scroll-behavior: auto !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .fluid-gradient-blob {
+    transform: none !important;
+  }
+}

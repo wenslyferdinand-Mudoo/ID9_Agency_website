@@ -13,11 +13,10 @@ const SplineScene = lazy(() => import("@splinetool/react-spline"));
  */
 export default function Hero3D({ className = "" }) {
   const mountRef = useRef(null);
-  const [reduced, setReduced] = useState(false);
+  const [reduced, setReduced] = useState(() => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReduced(mq.matches);
     const onChange = (e) => setReduced(e.matches);
     mq.addEventListener?.("change", onChange);
     return () => mq.removeEventListener?.("change", onChange);
@@ -42,7 +41,7 @@ export default function Hero3D({ className = "" }) {
       alpha: true,
       powerPreference: "high-performance",
     });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 1 : 1.5));
     renderer.setSize(w, h);
     renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
@@ -51,7 +50,7 @@ export default function Hero3D({ className = "" }) {
     renderer.domElement.style.pointerEvents = "none";
 
     // Distorted signature sphere
-    const sphereGeo = new THREE.IcosahedronGeometry(1.75, isMobile ? 4 : 6);
+    const sphereGeo = new THREE.IcosahedronGeometry(1.75, isMobile ? 3 : 5);
     const sphereMat = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
@@ -100,7 +99,7 @@ export default function Hero3D({ className = "" }) {
     scene.add(sphere);
 
     // Ambient particles
-    const pCount = isMobile ? 160 : 360;
+    const pCount = isMobile ? 80 : 220;
     const pGeo = new THREE.BufferGeometry();
     const positions = new Float32Array(pCount * 3);
     const speeds = new Float32Array(pCount);
@@ -150,40 +149,77 @@ export default function Hero3D({ className = "" }) {
     window.addEventListener("resize", onResize);
 
     const clock = new THREE.Clock();
-    let raf;
-    const tick = () => {
-      const t = clock.getElapsedTime();
-      sphereMat.uniforms.uTime.value = t;
-      current.x += (target.x - current.x) * 0.04;
-      current.y += (target.y - current.y) * 0.04;
-      sphere.rotation.y = t * 0.12 + current.x;
-      sphere.rotation.x = Math.sin(t * 0.18) * 0.15 + current.y;
-      sphere.position.x = current.x * 0.4;
-      sphere.position.y = current.y * 0.3;
-      const pos = pGeo.attributes.position.array;
-      for (let i = 0; i < pCount; i++) {
-        pos[i * 3 + 1] += speeds[i] * 0.005;
-        if (pos[i * 3 + 1] > 4.5) pos[i * 3 + 1] = -4.5;
+    let raf = null;
+    let lastFrame = 0;
+    let isInView = false;
+    let isPageVisible = !document.hidden;
+
+    const stopLoop = () => {
+      if (raf !== null) {
+        cancelAnimationFrame(raf);
+        raf = null;
       }
-      pGeo.attributes.position.needsUpdate = true;
-      points.rotation.y = t * 0.02 + current.x * 0.3;
-      renderer.render(scene, camera);
+    };
+
+    const tick = (now) => {
+      if (!isInView || !isPageVisible) {
+        raf = null;
+        return;
+      }
+
+      // Cap the decorative scene at 45fps; the foreground UI remains unaffected.
+      if (now - lastFrame >= 1000 / 45) {
+        lastFrame = now;
+        const t = clock.getElapsedTime();
+        sphereMat.uniforms.uTime.value = t;
+        current.x += (target.x - current.x) * 0.04;
+        current.y += (target.y - current.y) * 0.04;
+        sphere.rotation.y = t * 0.12 + current.x;
+        sphere.rotation.x = Math.sin(t * 0.18) * 0.15 + current.y;
+        sphere.position.x = current.x * 0.4;
+        sphere.position.y = current.y * 0.3;
+        const pos = pGeo.attributes.position.array;
+        for (let i = 0; i < pCount; i++) {
+          pos[i * 3 + 1] += speeds[i] * 0.005;
+          if (pos[i * 3 + 1] > 4.5) pos[i * 3 + 1] = -4.5;
+        }
+        pGeo.attributes.position.needsUpdate = true;
+        points.rotation.y = t * 0.02 + current.x * 0.3;
+        renderer.render(scene, camera);
+      }
       raf = requestAnimationFrame(tick);
     };
-    raf = requestAnimationFrame(tick);
 
-    const onVisibility = () => {
-      if (document.hidden) {
-        cancelAnimationFrame(raf);
-      } else {
+    const startLoop = () => {
+      if (raf === null && isInView && isPageVisible) {
         clock.start();
         raf = requestAnimationFrame(tick);
       }
     };
+
+    let observer;
+    if ("IntersectionObserver" in window) {
+      observer = new IntersectionObserver((entries) => {
+        isInView = Boolean(entries[0] && entries[0].isIntersecting);
+        if (isInView) startLoop();
+        else stopLoop();
+      }, { threshold: 0.01 });
+      observer.observe(container);
+    } else {
+      isInView = true;
+      startLoop();
+    }
+
+    const onVisibility = () => {
+      isPageVisible = !document.hidden;
+      if (isPageVisible) startLoop();
+      else stopLoop();
+    };
     document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
-      cancelAnimationFrame(raf);
+      stopLoop();
+      observer?.disconnect();
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("resize", onResize);
       document.removeEventListener("visibilitychange", onVisibility);

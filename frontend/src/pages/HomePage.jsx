@@ -13,9 +13,6 @@ import MarqueeDivider from "@/components/site/MarqueeDivider";
 import KineticTypography from "@/components/site/KineticTypography";
 
 export default function HomePage() {
-  console.log("HOME LOADED ON VERCEL");
-  console.log("HeroSection:", typeof HeroSection);
-  console.log("PortfolioPreview:", typeof PortfolioPreview);
 
   return (
     <main data-testid="home-page">
