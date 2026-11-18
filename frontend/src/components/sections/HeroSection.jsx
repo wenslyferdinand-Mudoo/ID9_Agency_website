@@ -20,12 +20,17 @@ export default function HeroSection() {
   // Mount 3D after first paint to keep LCP fast
   const [show3D, setShow3D] = useState(false);
   useEffect(() => {
+    const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const saveData = Boolean(navigator.connection && navigator.connection.saveData);
+    if (!isDesktop || reducedMotion || saveData) return undefined;
+
     const id = window.requestIdleCallback
-      ? window.requestIdleCallback(() => setShow3D(true), { timeout: 1200 })
-      : window.setTimeout(() => setShow3D(true), 400);
+      ? window.requestIdleCallback(() => setShow3D(true), { timeout: 1800 })
+      : window.setTimeout(() => setShow3D(true), 900);
     return () => {
       if (window.cancelIdleCallback) window.cancelIdleCallback(id);
-      else clearTimeout(id);
+      else window.clearTimeout(id);
     };
   }, []);
 
