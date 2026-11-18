@@ -42,6 +42,7 @@ export default function HomePage() {
       />
       <ProcessTimeline />
       <FounderAuthority />
+      <TrainingSection />
       <MarqueeDivider
         items={[
           "Discover",
