@@ -21,8 +21,8 @@ const DICT = {
   "hero.h1.line3": { en: "Digital Agency", fr: "et digitale" },
   "hero.h1.line4": { en: "Strategy · Design · Digital experiences.", fr: "Stratégie · Design · Expériences digitales." },
   "hero.sub": {
-    en: "Impact Digital 9 is a creative and digital agency based in Haiti. We connect brand strategy, graphic design, digital experiences, marketing, photography and content production to help businesses communicate clearly and grow with impact.",
-    fr: "Impact Digital 9 est une agence créative et digitale basée en Haïti. Nous réunissons stratégie de marque, design graphique, expériences numériques, marketing, photographie et production de contenus pour aider les entreprises à communiquer clairement et à développer leur impact.",
+    en: "Impact Digital 9 Agency is an independent creative and digital partner based in Haiti. We bring brand strategy, visual design, digital experiences, marketing, photography and content production into one coherent practice—helping organizations clarify their positioning, strengthen their presence and communicate with purpose.",
+    fr: "Impact Digital 9 Agency est un partenaire indépendant en création et en transformation digitale, basé en Haïti. Nous réunissons stratégie de marque, design visuel, expériences numériques, marketing, photographie et production de contenus au sein d’une approche cohérente. Nous aidons les organisations à clarifier leur positionnement, renforcer leur présence et communiquer avec justesse.",
   },
   "hero.cta.quote": { en: "Free Quote", fr: "Devis gratuit" },
   "hero.cta.whatsapp": { en: "Message Us on WhatsApp", fr: "Nous écrire sur WhatsApp" },
@@ -31,12 +31,12 @@ const DICT = {
   // About preview
   "about.tag": { en: "(01) — About", fr: "(01) — À propos" },
   "about.h2": {
-    en: "A creative and digital agency connecting brands, design and technology.",
-    fr: "Une agence créative et digitale qui relie les marques, le design et la technologie.",
+    en: "A creative and digital partner bringing brand strategy, design and technology into focus.",
+    fr: "Un partenaire créatif et digital qui fait converger stratégie de marque, design et technologie.",
   },
   "about.body": {
-    en: "Founded on 1 May 2018, Impact Digital 9 brings together creative direction, graphic design, brand identity, marketing campaigns, photography, content creation and digital services. Based in Haiti and operating online, the agency combines multidisciplinary expertise with AI-assisted creative workflows.",
-    fr: "Fondée le 1er mai 2018, Impact Digital 9 réunit direction créative, design graphique, identité de marque, campagnes marketing, photographie, création de contenus et services digitaux. Basée en Haïti et opérant en ligne, l’agence associe expertise multidisciplinaire et outils d’IA au service de la création.",
+    en: "Founded on 1 May 2018, Impact Digital 9 Agency brings together creative direction, graphic design, brand identity, marketing campaigns, photography, content creation and digital services. Based in Haiti and working with clients through digital channels, the agency connects these disciplines to deliver clear, consistent brand experiences. AI-assisted tools support selected creative and production workflows.",
+    fr: "Fondée le 1er mai 2018, Impact Digital 9 Agency réunit direction créative, design graphique, identité de marque, campagnes marketing, photographie, création de contenus et services digitaux. Basée en Haïti et active auprès de ses clients à travers les canaux numériques, l’agence relie ces disciplines pour construire des expériences de marque cohérentes. Des outils assistés par l’IA soutiennent certains processus créatifs et de production.",
   },
   "about.vision.k": { en: "Vision", fr: "Vision" },
   "about.vision.v": {
@@ -57,11 +57,11 @@ const DICT = {
 
   // Services
   "svc.tag": { en: "(02) — Services", fr: "(02) — Services" },
-  "svc.h1": { en: "Twelve disciplines.", fr: "Douze disciplines." },
-  "svc.h2": { en: "One unified system.", fr: "Un seul système." },
+  "svc.h1": { en: "Connected expertise.", fr: "Des expertises complémentaires." },
+  "svc.h2": { en: "One coherent approach.", fr: "Une approche cohérente." },
   "svc.sub": {
-    en: "We operate as an integrated agency: strategy, design, development, motion, and growth within one connected workflow. Every discipline is connected. Every decision serves the overall coherence of the brand. We do not create visible brands. We create unavoidable brands.",
-    fr: "Nous opérons comme une agence intégrée : stratégie, design, développement, motion et croissance dans un flux unifié. Chaque discipline est connectée. Chaque décision sert la cohérence globale de la marque. Nous ne créons pas des marques visibles. Nous créons des marques inévitables.",
+    en: "From brand strategy and design to digital experiences, motion and marketing, our services are designed to work together. We align each deliverable with the brief, the audience and the role it must play—so every touchpoint contributes to a more consistent brand experience.",
+    fr: "De la stratégie de marque au design, en passant par les expériences numériques, le motion design et le marketing, nos services sont conçus pour fonctionner ensemble. Chaque livrable répond au brief, au public visé et à un objectif précis afin de renforcer la cohérence de l’expérience de marque.",
   },
   "svc.explore": { en: "Explore", fr: "Découvrir" },
 
@@ -70,11 +70,11 @@ const DICT = {
   "wk.instagram": { en: "View Instagram", fr: "Voir Instagram" },
   "wk.catalog": { en: "WhatsApp catalogue", fr: "Catalogue WhatsApp" },
   "wk.tag": { en: "(03) — Selected Projects", fr: "(03) — Projets sélectionnés" },
-  "wk.h1": { en: "Impactful brands made", fr: "Des marques impactantes rendues" },
+  "wk.h1": { en: "Ideas shaped into", fr: "Des idées transformées en" },
   "wk.h1.pre": { en: "", fr: "Des marques" },
-  "wk.h1.hl": { en: "Impactful", fr: "impactantes" },
-  "wk.h1.post": { en: "brands made", fr: "rendues" },
-  "wk.h2": { en: "undeniable.", fr: "indéniables." },
+  "wk.h1.hl": { en: "distinctive", fr: "marques distinctives" },
+  "wk.h1.post": { en: "brand experiences", fr: "et expériences de marque" },
+  "wk.h2": { en: "with purpose.", fr: "cohérentes et mémorables." },
   "wk.viewAll": { en: "View all Projects", fr: "Voir tous les projets" },
   "wk.filters.all": { en: "All", fr: "Tous" },
   "wk.filters.branding": { en: "Branding", fr: "Branding" },
@@ -82,7 +82,7 @@ const DICT = {
   "wk.filters.app": { en: "App", fr: "App" },
   "wk.filters.marketing": { en: "Marketing", fr: "Marketing" },
   "wk.filters.motion": { en: "Motion", fr: "Motion" },
-  "wk.empty": { en: "No projects in this category yet — more coming soon.", fr: "Pas encore de projets dans cette catégorie — d'autres arrivent." },
+  "wk.empty": { en: "No projects are published in this category yet.", fr: "Aucun projet n’est encore publié dans cette catégorie." },
   "wk.client": { en: "Client", fr: "Client" },
   "wk.year": { en: "Year", fr: "Année" },
   "wk.servicesL": { en: "Services", fr: "Services" },
@@ -101,8 +101,8 @@ const DICT = {
   "pr.h1": { en: "Six layers.", fr: "Six couches." },
   "pr.h2": { en: "One system.", fr: "Un seul système." },
   "pr.sub": {
-    en: "Not a process. An engineered production architecture that converts intent into measurable digital infrastructure — without friction, improvisation, or the \u201Cagency effect.\u201D",
-    fr: "Pas un processus. Une architecture de production conçue qui convertit l'intention en infrastructure digitale mesurable — sans friction, sans improvisation, sans «\u00A0effet agence\u00A0».",
+    en: "A structured six-stage approach that moves a project from discovery to strategy, design, development, launch and continuous improvement. Each stage creates the clarity and inputs needed for the next.",
+    fr: "Une approche structurée en six étapes : découverte, stratégie, design, développement, lancement et amélioration continue. Chaque étape apporte la clarté et les éléments nécessaires à la suivante.",
   },
   "pr.discover": { en: "Input Layer", fr: "Couche d'Entrée" },
   "pr.strategy": { en: "Strategy Layer", fr: "Couche Stratégie" },
@@ -154,11 +154,11 @@ const DICT = {
   "why.r1.k": { en: "International standards", fr: "Standards internationaux" },
   "why.r1.v": { en: "Editorial craft and engineering rigor matched to global agencies.", fr: "Artisanat éditorial et rigueur d'ingénierie alignés sur les agences globales." },
   "why.r2.k": { en: "Result-oriented", fr: "Orienté résultats" },
-  "why.r2.v": { en: "Every engagement starts with a number we are accountable to.", fr: "Chaque mission commence par un chiffre dont nous sommes responsables." },
+  "why.r2.v": { en: "We define clear objectives and agree on how progress will be evaluated.", fr: "Nous définissons des objectifs clairs et convenons de la manière d’évaluer les progrès." },
   "why.r3.k": { en: "Fast delivery", fr: "Livraison rapide" },
-  "why.r3.v": { en: "Senior team, no junior buffer, ships in weeks not quarters.", fr: "Équipe senior, sans intermédiaire, livraison en semaines pas en trimestres." },
+  "why.r3.v": { en: "A direct, considered workflow with clear communication at every stage.", fr: "Un processus direct et structuré, avec une communication claire à chaque étape." },
   "why.r4.k": { en: "Transparent communication", fr: "Communication transparente" },
-  "why.r4.v": { en: "One Slack/WhatsApp channel. Weekly updates. No silos.", fr: "Un seul canal Slack/WhatsApp. Updates hebdomadaires. Aucun silo." },
+  "why.r4.v": { en: "Defined points of contact, documented decisions and regular progress updates.", fr: "Des interlocuteurs identifiés, des décisions documentées et des points d’avancement réguliers." },
   "why.r5.k": { en: "Scalable solutions", fr: "Solutions évolutives" },
   "why.r5.v": { en: "Built so your next 10x stage doesn't require rebuilding everything.", fr: "Conçu pour que votre prochain palier 10x ne demande pas de tout reconstruire." },
   "why.r6.k": { en: "Premium creativity", fr: "Créativité premium" },
@@ -166,17 +166,17 @@ const DICT = {
 
   // Testimonials
   "ts.tag": { en: "(06) — Testimonials", fr: "(06) — Témoignages" },
-  "ts.h1": { en: "Founders we've helped.", fr: "Les fondateurs accompagnés." },
+  "ts.h1": { en: "Perspectives from our collaborations.", fr: "Les retours de nos collaborations." },
 
   // Founder Authority (editorial section)
-  "fa.tag": { en: "The founder · Impact Digital 9", fr: "Le fondateur · Impact Digital 9" },
+  "fa.tag": { en: "The founder · ID9 Agency", fr: "Le fondateur · ID9 Agency" },
   "fa.eyebrow": { en: "Leadership & creative direction", fr: "Leadership & direction créative" },
   "fa.h1": { en: "Creative thinking.", fr: "La pensée créative." },
   "fa.h2": { en: "Disciplined execution.", fr: "L’exécution disciplinée." },
   "fa.h3": { en: "Digital impact.", fr: "L’impact digital." },
   "fa.body1": {
-    en: "Wensly Ferdinand founded Impact Digital 9 in 2018 and leads its creative vision. His multidisciplinary background in graphic design, brand identity, marketing, photography and content production informs the agency’s integrated approach.",
-    fr: "Wensly Ferdinand a fondé Impact Digital 9 en 2018 et en dirige la vision créative. Son expérience multidisciplinaire en design graphique, identité de marque, marketing, photographie et production de contenus nourrit l’approche intégrée de l’agence.",
+    en: "Wensly Ferdinand founded Impact Digital 9 Agency in 2018 and leads its creative vision. His multidisciplinary background in graphic design, brand identity, marketing, photography and content production informs the agency’s integrated approach.",
+    fr: "Wensly Ferdinand a fondé Impact Digital 9 Agency en 2018 et en dirige la vision créative. Son expérience multidisciplinaire en design graphique, identité de marque, marketing, photographie et production de contenus nourrit l’approche intégrée de l’agence.",
   },
   "fa.body2": {
     en: "Since 2021, he has also shared his expertise through professional training. At ID9, he applies structured creative methods and AI-assisted workflows to support content production and help brands build a coherent digital presence.",
@@ -214,12 +214,12 @@ const DICT = {
   "lm.badge": { en: "Free · 15 minutes · No pitch", fr: "Gratuit · 15 minutes · Sans argumentaire" },
   "lm.h2": { en: "Book a free strategy session.", fr: "Réservez une session stratégie gratuite." },
   "lm.body": {
-    en: "A 15-minute call with a senior strategist. Walk away with three concrete moves to sharpen your positioning, accelerate growth or unblock your launch — no strings, no slides.",
-    fr: "Un appel de 15 minutes avec un stratège senior. Repartez avec trois actions concrètes pour affiner votre positionnement, accélérer votre croissance ou débloquer votre lancement — sans engagement, sans slides.",
+    en: "A focused 15-minute conversation to understand your priorities and identify practical next steps for your brand, digital presence or upcoming launch. If the project is a fit, we can discuss a clear path forward.",
+    fr: "Un échange ciblé de 15 minutes pour comprendre vos priorités et identifier des pistes d’action concrètes pour votre marque, votre présence digitale ou votre prochain lancement. Si le projet correspond à notre champ d’intervention, nous pourrons définir ensemble la suite.",
   },
   "lm.b1": { en: "Free digital audit of your current brand & site", fr: "Audit digital gratuit de votre marque et site actuels" },
   "lm.b2": { en: "3 concrete growth recommendations", fr: "3 recommandations concrètes de croissance" },
-  "lm.b3": { en: "No pitch — call only converts if it's a fit", fr: "Aucun pitch — l'appel ne convertit que si c'est aligné" },
+  "lm.b3": { en: "A practical conversation, with no obligation to proceed", fr: "Un échange concret, sans obligation de poursuivre" },
   "lm.book": { en: "Book my session", fr: "Réserver ma session" },
   "lm.wa": { en: "WhatsApp now", fr: "WhatsApp maintenant" },
 
@@ -228,14 +228,14 @@ const DICT = {
   "fc.h1.b": { en: "a brand that", fr: "une marque qui" },
   "fc.h1.c": { en: "redefines its market?", fr: "redéfinit son marché ?" },
   "fc.sub": {
-    en: "One call. One studio. One system. From blurred ambition to controlled execution — without friction, dilution, or randomness. \u201CWe transform intentions into dominant brands.\u201D",
-    fr: "Un appel. Un studio. Un système. De l'ambition floue à une exécution maîtrisée — sans friction, sans dilution, sans hasard. «\u00A0Nous transformons les intentions en marques dominantes.\u00A0»",
+    en: "A clear brief deserves thoughtful strategy and disciplined execution. Tell us what you are building; we will help you identify the right creative and digital priorities for the next stage.",
+    fr: "Un brief clair mérite une stratégie réfléchie et une exécution rigoureuse. Présentez-nous votre projet : nous vous aiderons à identifier les priorités créatives et digitales les plus pertinentes pour la prochaine étape.",
   },
   "fc.launch": { en: "Launch My Project", fr: "Lancer mon projet" },
   "fc.wa": { en: "WhatsApp ID9", fr: "WhatsApp ID9" },
 
   // Footer
-  "ft.h2": { en: "Let's build something undeniable.", fr: "Bâtissons quelque chose d'indéniable." },
+  "ft.h2": { en: "Let’s make your next move count.", fr: "Donnons de la portée à votre prochain projet." },
   "ft.pages": { en: "Pages", fr: "Pages" },
   "ft.svc": { en: "Services", fr: "Services" },
   "ft.contact": { en: "Contact", fr: "Contact" },
@@ -282,8 +282,8 @@ const DICT = {
     fr: "Une agence. Des expertises créatives et digitales réunies.",
   },
   "ap.body": {
-    en: "Impact Digital 9 Agency was founded on 1 May 2018 to bring creative and digital disciplines together under one agency. Based in Haiti and operating online, ID9 supports brands through graphic design, brand identity, marketing, photography, content creation and digital experiences.",
-    fr: "Impact Digital 9 Agency a été fondée le 1er mai 2018 afin de réunir plusieurs disciplines créatives et digitales au sein d’une même agence. Basée en Haïti et opérant en ligne, ID9 accompagne les marques en design graphique, identité de marque, marketing, photographie, création de contenus et expériences numériques.",
+    en: "Founded on 1 May 2018, Impact Digital 9 Agency brings creative and digital disciplines together to help organizations build clear identities and communicate consistently. Based in Haiti, ID9 Agency works across graphic design, brand identity, marketing, photography, content creation and digital experiences.",
+    fr: "Fondée le 1er mai 2018, Impact Digital 9 Agency réunit des expertises créatives et digitales pour aider les organisations à construire une identité claire et à communiquer avec cohérence. Basée en Haïti, ID9 Agency intervient en design graphique, identité de marque, marketing, photographie, création de contenus et expériences numériques.",
   },
   "ap.founderRole": { en: "Founder · Graphic Designer · Creative & Digital Manager", fr: "Fondateur · Graphiste · Creative & Digital Manager" },
   "ap.founderNote": { en: "Meet the founder", fr: "Rencontrer le fondateur" },
@@ -292,19 +292,19 @@ const DICT = {
     fr: "Une pratique créative multidisciplinaire fondée sur le design, la curiosité et une exécution disciplinée.",
   },
   "ap.founderBio": {
-    en: "Wensly has worked as an independent designer since 2015 and has been a trainer since 2021. His work spans graphic design, brand identity, marketing campaigns, photography, content creation and creative/digital management. He also uses AI tools to support content production and streamline creative workflows. He founded Impact Digital 9 on 1 May 2018.",
-    fr: "Wensly exerce comme designer indépendant depuis 2015 et comme formateur depuis 2021. Son travail couvre le design graphique, l’identité de marque, les campagnes marketing, la photographie, la création de contenus et la gestion créative et digitale. Il utilise également des outils d’IA pour soutenir la production de contenus et optimiser les processus créatifs. Il a fondé Impact Digital 9 le 1er mai 2018.",
+    en: "Wensly has worked as an independent designer since 2015 and has been a trainer since 2021. His work spans graphic design, brand identity, marketing campaigns, photography, content creation and creative/digital management. He also uses AI tools to support content production and streamline creative workflows. He founded Impact Digital 9 Agency on 1 May 2018.",
+    fr: "Wensly exerce comme designer indépendant depuis 2015 et comme formateur depuis 2021. Son travail couvre le design graphique, l’identité de marque, les campagnes marketing, la photographie, la création de contenus et la gestion créative et digitale. Il utilise également des outils d’IA pour soutenir la production de contenus et optimiser les processus créatifs. Il a fondé Impact Digital 9 Agency le 1er mai 2018.",
   },
   "ap.timeline": { en: "Timeline", fr: "Chronologie" },
   "ap.timelineH": { en: "A path shaped by practice, teaching and entrepreneurship.", fr: "Un parcours façonné par la pratique, la formation et l’entrepreneuriat." },
   "ap.workWithUs": { en: "Work with us", fr: "Travailler avec nous" },
 
   // Services page
-  "sp.h1": { en: "Twelve disciplines.", fr: "Douze disciplines." },
-  "sp.h2": { en: "One integrated studio.", fr: "Un studio intégré." },
+  "sp.h1": { en: "Connected expertise.", fr: "Des expertises complémentaires." },
+  "sp.h2": { en: "One coherent approach.", fr: "Une approche cohérente." },
   "sp.sub": {
-    en: "We don't do hand-offs. Every engagement at ID9 is led by senior practitioners across strategy, design, engineering and growth — together, from day one.",
-    fr: "Pas de relais entre équipes. Chaque mission ID9 est menée par des praticiens seniors — stratégie, design, ingénierie, croissance — ensemble, dès le premier jour.",
+    en: "Our services are designed to work as a connected system. We bring the right creative and digital disciplines around each brief, maintain a clear line of communication and keep decisions aligned with the project’s objectives.",
+    fr: "Nos services sont conçus pour fonctionner comme un ensemble cohérent. Nous mobilisons les expertises créatives et digitales adaptées à chaque brief, assurons une communication claire et veillons à aligner les décisions sur les objectifs du projet.",
   },
 
   // Blog page

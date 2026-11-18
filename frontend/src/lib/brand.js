@@ -1,7 +1,7 @@
 // Brand constants — official ID9_AGENCY details
 export const BRAND = {
-  name: "ID9_AGENCY",
-  fullName: "Impact Digital 9",
+  name: "ID9 Agency",
+  fullName: "Impact Digital 9 Agency",
   tagline: "Be Impactful. Build Powerful Digital Brands.",
   email: "Contact.id9agency@gmail.com",
   whatsappNumber: "50931634848",
@@ -18,5 +18,5 @@ export const BRAND = {
   founded: 2018,
 };
 
-export const whatsappLink = (text = "Hello ID9_AGENCY, I'd like to discuss a project.") =>
+export const whatsappLink = (text = "Hello Impact Digital 9 Agency, I'd like to discuss a project.") =>
   `${BRAND.whatsappUrl}?text=${encodeURIComponent(text)}`;
