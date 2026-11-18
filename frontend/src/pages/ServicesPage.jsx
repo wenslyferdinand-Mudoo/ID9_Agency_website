@@ -119,15 +119,28 @@ export default function ServicesPage() {
     };
   }, []);
 
-  const groupedServices = useMemo(
-    () => SERVICE_FAMILIES
-      .map((family) => ({
-        ...family,
-        services: services.filter((service) => service.family === family.id),
-      }))
-      .filter((family) => family.services.length > 0),
-    [services]
-  );
+  const groupedServices = useMemo(() => {
+    const knownFamilies = SERVICE_FAMILIES.map((family) => ({
+      ...family,
+      services: services.filter((service) => service.family === family.id),
+    })).filter((family) => family.services.length > 0);
+
+    const knownSlugs = new Set(knownFamilies.flatMap((family) => family.services.map((service) => service.slug)));
+    const additionalServices = services.filter((service) => !knownSlugs.has(service.slug));
+
+    if (additionalServices.length > 0) {
+      knownFamilies.push({
+        id: "additional",
+        title: "Additional Services",
+        title_fr: "Autres services",
+        intro: "Additional capabilities available through the agency's wider creative and digital network.",
+        intro_fr: "Des compétences complémentaires mobilisables au sein de l’écosystème créatif et digital de l’agence.",
+        services: additionalServices,
+      });
+    }
+
+    return knownFamilies;
+  }, [services]);
 
   const totalLabel = lang === "fr" ? "expertises structurées" : "structured capabilities";
   const familyLabel = lang === "fr" ? "domaines d’intervention" : "practice areas";
@@ -156,11 +169,11 @@ export default function ServicesPage() {
             </p>
             <div className="flex shrink-0 gap-8 text-xs uppercase tracking-[0.14em] text-white/40">
               <div>
-                <span className="mb-1 block font-display text-2xl font-bold tracking-normal text-white">18</span>
+                <span className="mb-1 block font-display text-2xl font-bold tracking-normal text-white">{services.length}</span>
                 {totalLabel}
               </div>
               <div>
-                <span className="mb-1 block font-display text-2xl font-bold tracking-normal text-white">04</span>
+                <span className="mb-1 block font-display text-2xl font-bold tracking-normal text-white">{groupedServices.length.toString().padStart(2, "0")}</span>
                 {familyLabel}
               </div>
             </div>
