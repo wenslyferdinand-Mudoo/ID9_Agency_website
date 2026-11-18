@@ -1,6 +1,6 @@
 import "@/index.css";
 import { lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { MotionConfig } from "framer-motion";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -26,6 +26,7 @@ const PortfolioDetailPage = lazy(() => import("@/pages/PortfolioDetailPage"));
 const BlogPage = lazy(() => import("@/pages/BlogPage"));
 const BlogDetailPage = lazy(() => import("@/pages/BlogDetailPage"));
 const ContactPage = lazy(() => import("@/pages/ContactPage"));
+const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
 
 const AdminLoginPage = lazy(() => import("@/pages/admin/AdminLoginPage"));
 const AdminLayout = lazy(() => import("@/pages/admin/AdminLayout"));
@@ -36,9 +37,9 @@ const AdminContacts = lazy(() => import("@/pages/admin/AdminContacts"));
 
 function RouteFallback() {
   return (
-    <main className="min-h-[55vh] grid place-items-center bg-ink-900" aria-busy="true">
+    <main className="min-h-[55vh] grid place-items-center bg-ink-900" aria-busy="true" aria-live="polite">
       <div className="flex items-center gap-3 text-white/55 font-ui text-sm">
-        <span className="w-2 h-2 rounded-full bg-orange_impact animate-pulse" />
+        <span className="w-2 h-2 rounded-full bg-orange_impact animate-pulse" aria-hidden="true" />
         <span>Loading page…</span>
       </div>
     </main>
@@ -68,6 +69,7 @@ function App() {
                     <Route path="/portfolio/:slug" element={<PortfolioDetailPage />} />
                     <Route path="/blog" element={<BlogPage />} />
                     <Route path="/blog/:slug" element={<BlogDetailPage />} />
+                    <Route path="/journal" element={<Navigate to="/blog" replace />} />
                     <Route path="/contact" element={<ContactPage />} />
 
                     <Route path="/admin/login" element={<AdminLoginPage />} />
@@ -84,6 +86,7 @@ function App() {
                       <Route path="blog" element={<AdminBlog />} />
                       <Route path="contacts" element={<AdminContacts />} />
                     </Route>
+                    <Route path="*" element={<NotFoundPage />} />
                   </Routes>
                 </Suspense>
                 <Footer />
