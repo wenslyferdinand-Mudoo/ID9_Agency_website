@@ -91,7 +91,7 @@ export default function PortfolioPreview() {
               data-testid={`portfolio-card-${p.slug}`}
             >
               <Link to={`/portfolio/${p.slug}`} className="block">
-                <div className="aspect-[16/10] overflow-hidden">
+                <div className="aspect-[4/3] sm:aspect-[16/10] overflow-hidden">
                   {p.cover_image ? (
                     <img
                       src={p.cover_image}
@@ -112,9 +112,11 @@ export default function PortfolioPreview() {
                     </p>
                     {p.status && <span className="inline-flex mb-2 rounded-full border border-white/20 bg-black/30 px-3 py-1 text-[10px] uppercase tracking-[0.15em] text-white/75">{p.status}</span>}
                     <h3 className="font-display text-2xl md:text-3xl font-bold tracking-tight">{p.title}</h3>
-                    <p className="text-white/60 text-sm font-inter mt-1 hidden md:block max-w-lg">
-                      {p.summary}
-                    </p>
+                    {p.summary && (
+                      <p className="mt-2 max-w-lg text-xs leading-relaxed text-white/70 font-inter sm:text-sm">
+                        {p.summary}
+                      </p>
+                    )}
                   </div>
                   <div className="w-12 h-12 rounded-full bg-white/10 border border-white/20 grid place-items-center group-hover:bg-orange_impact group-hover:text-ink-900 group-hover:border-orange_impact transition-colors shrink-0">
                     <ArrowUpRight className="w-4 h-4" />

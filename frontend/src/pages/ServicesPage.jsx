@@ -155,12 +155,12 @@ export default function ServicesPage() {
           <RevealText
             as="h1"
             text={t("sp.h1")}
-            className="font-display text-5xl font-black leading-[0.98] tracking-tighter md:text-7xl lg:text-8xl"
+            className="font-display text-4xl sm:text-5xl font-black leading-[1.04] tracking-tighter md:text-7xl md:leading-[0.98] lg:text-8xl"
           />
           <RevealText
             as="h2"
             text={t("sp.h2")}
-            className="font-display text-5xl font-black leading-[0.98] tracking-tighter text-gradient-gold md:text-7xl lg:text-8xl"
+            className="font-display text-4xl sm:text-5xl font-black leading-[1.04] tracking-tighter text-gradient-gold md:text-7xl md:leading-[0.98] lg:text-8xl"
             delay={0.1}
           />
           <div className="mt-9 flex flex-col gap-8 border-t border-white/10 pt-7 md:mt-10 md:flex-row md:items-end md:justify-between">

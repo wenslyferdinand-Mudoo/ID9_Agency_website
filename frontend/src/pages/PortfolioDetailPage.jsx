@@ -55,7 +55,7 @@ export default function PortfolioDetailPage() {
 
   if (notFound)
     return (
-      <main className="min-h-screen pt-40 px-6 max-w-4xl mx-auto">
+      <main className="min-h-screen pt-32 md:pt-40 px-4 sm:px-6 max-w-4xl mx-auto">
         <p className="text-white/60">{lang === "fr" ? "Projet introuvable." : "Project not found."}</p>
         <Link to="/portfolio" className="text-orange_impact underline mt-4 inline-block">
           ← {lang === "fr" ? "Retour aux projets" : "Back to work"}
@@ -130,7 +130,7 @@ export default function PortfolioDetailPage() {
                 </>
               )}
             </motion.p>
-            <h1 className="font-display text-5xl md:text-7xl lg:text-[6.5rem] font-black tracking-[-0.04em] leading-[0.92] text-balance">
+            <h1 className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-[6.5rem] font-black tracking-[-0.04em] leading-[1.02] md:leading-[0.92] text-balance">
               <RevealText as="span" text={item.title} stagger={0.04} />
             </h1>
             <motion.p
@@ -146,7 +146,7 @@ export default function PortfolioDetailPage() {
 
         {/* scroll hint */}
         <motion.div
-          className="absolute bottom-8 right-8 hidden md:flex items-center gap-2 text-white/40 font-ui text-[11px] uppercase tracking-[0.3em]"
+          className="absolute bottom-8 right-8 hidden lg:flex items-center gap-2 text-white/40 font-ui text-[11px] uppercase tracking-[0.3em]"
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         >

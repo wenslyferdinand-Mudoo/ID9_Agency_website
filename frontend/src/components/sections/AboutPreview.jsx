@@ -40,7 +40,7 @@ export default function AboutPreview() {
             {t("about.body")}
           </p>
 
-          <div className="grid grid-cols-3 gap-6 pt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6 pt-4">
             {[
               { k: t("about.vision.k"), v: t("about.vision.v") },
               { k: t("about.mission.k"), v: t("about.mission.v") },
