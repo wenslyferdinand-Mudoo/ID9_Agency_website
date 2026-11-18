@@ -9,7 +9,6 @@ import { useI18n } from "@/lib/i18n";
 const TIMELINE_EN = [
   { y: "2015", t: "Independent creative practice", d: "Wensly begins working independently in design, building practical experience across visual communication and creative production." },
   { y: "2018", t: "Impact Digital 9 is founded", d: "On 1 May 2018, Wensly establishes Impact Digital 9 to bring creative and digital services together under one agency identity." },
-  { y: "2021", t: "Training and knowledge sharing", d: "Wensly expands his work into training, sharing practical knowledge and creative methods with learners." },
 ];
 
 const TIMELINE_FR = [
