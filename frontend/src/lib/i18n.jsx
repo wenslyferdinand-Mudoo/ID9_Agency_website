@@ -21,8 +21,8 @@ const DICT = {
   "hero.h1.line3": { en: "Digital Agency", fr: "et digitale" },
   "hero.h1.line4": { en: "Strategy · Design · Digital experiences.", fr: "Stratégie · Design · Expériences digitales." },
   "hero.sub": {
-    en: "Impact Digital 9 Agency is an independent creative and digital partner based in Haiti. We bring brand strategy, visual design, digital experiences, marketing, photography and content production into one coherent practice—helping organizations clarify their positioning, strengthen their presence and communicate with purpose.",
-    fr: "Impact Digital 9 Agency est un partenaire indépendant en création et en transformation digitale, basé en Haïti. Nous réunissons stratégie de marque, design visuel, expériences numériques, marketing, photographie et production de contenus au sein d’une approche cohérente. Nous aidons les organisations à clarifier leur positionnement, renforcer leur présence et communiquer avec justesse.",
+    en: "Impact Digital 9 Agency is an independent creative and digital agency based in Haiti. We connect brand strategy, visual identity, design, digital experiences and media production to help organizations communicate with clarity and build a consistent presence.",
+    fr: "Impact Digital 9 Agency est une agence créative et digitale indépendante basée en Haïti. Nous relions stratégie de marque, identité visuelle, design, expériences numériques et production média pour aider les organisations à communiquer avec clarté et à construire une présence cohérente.",
   },
   "hero.cta.quote": { en: "Free Quote", fr: "Devis gratuit" },
   "hero.cta.whatsapp": { en: "Message Us on WhatsApp", fr: "Nous écrire sur WhatsApp" },
@@ -35,8 +35,8 @@ const DICT = {
     fr: "Un partenaire créatif et digital qui fait converger stratégie de marque, design et technologie.",
   },
   "about.body": {
-    en: "Founded on 1 May 2018, Impact Digital 9 Agency brings together creative direction, graphic design, brand identity, marketing campaigns, photography, content creation and digital services. Based in Haiti and working with clients through digital channels, the agency connects these disciplines to deliver clear, consistent brand experiences. AI-assisted tools support selected creative and production workflows.",
-    fr: "Fondée le 1er mai 2018, Impact Digital 9 Agency réunit direction créative, design graphique, identité de marque, campagnes marketing, photographie, création de contenus et services digitaux. Basée en Haïti et active auprès de ses clients à travers les canaux numériques, l’agence relie ces disciplines pour construire des expériences de marque cohérentes. Des outils assistés par l’IA soutiennent certains processus créatifs et de production.",
+    en: "Founded on 1 May 2018, Impact Digital 9 Agency brings strategy, creative direction and digital production together. Based in Haiti, the agency supports organizations with brand identity, graphic design, marketing communication, photography, content production and digital experiences—aligning each deliverable with a clear purpose.",
+    fr: "Fondée le 1er mai 2018, Impact Digital 9 Agency réunit stratégie, direction créative et production digitale. Basée en Haïti, l’agence accompagne les organisations en identité de marque, design graphique, communication marketing, photographie, production de contenus et expériences numériques, en donnant à chaque livrable un objectif clair.",
   },
   "about.vision.k": { en: "Vision", fr: "Vision" },
   "about.vision.v": {
@@ -179,8 +179,8 @@ const DICT = {
     fr: "Wensly Ferdinand a fondé Impact Digital 9 Agency en 2018 et en dirige la vision créative. Son expérience multidisciplinaire en design graphique, identité de marque, marketing, photographie et production de contenus nourrit l’approche intégrée de l’agence.",
   },
   "fa.body2": {
-    en: "Since 2021, he has also shared his expertise through professional training. At ID9, he applies structured creative methods and AI-assisted workflows to support content production and help brands build a coherent digital presence.",
-    fr: "Depuis 2021, il partage également son expertise à travers la formation professionnelle. Chez ID9, il mobilise des méthodes créatives structurées et des processus assistés par l’IA pour soutenir la production de contenus et aider les marques à construire une présence digitale cohérente.",
+    en: "He brings a multidisciplinary perspective to the agency’s creative direction, combining structured design methods, visual storytelling and carefully selected AI-assisted workflows to support purposeful content and coherent digital experiences.",
+    fr: "Il apporte à la direction créative de l’agence une approche multidisciplinaire qui associe méthodes de design structurées, narration visuelle et processus assistés par l’IA, afin de produire des contenus pertinents et des expériences numériques cohérentes.",
   },
   "fa.pillar1.k": { en: "Belief", fr: "Conviction" },
   "fa.pillar1.v": {
@@ -223,6 +223,15 @@ const DICT = {
   "lm.book": { en: "Book my session", fr: "Réserver ma session" },
   "lm.wa": { en: "WhatsApp now", fr: "WhatsApp maintenant" },
 
+  // Training community
+  "tr.tag": { en: "Learning · Community", fr: "Apprentissage · Communauté" },
+  "tr.h2": { en: "Learn. Create. Move forward.", fr: "Apprendre. Créer. Progresser." },
+  "tr.body": {
+    en: "Develop your skills and explore new opportunities in the digital and creative fields. Join our community to discover training initiatives, exchange ideas and keep learning alongside other creatives.",
+    fr: "Développez vos compétences et explorez de nouvelles opportunités dans les univers du numérique et de la création. Rejoignez notre communauté pour découvrir les initiatives de formation, échanger des idées et continuer à apprendre avec d’autres passionnés.",
+  },
+  "tr.cta": { en: "Join the WhatsApp group", fr: "Rejoindre le groupe WhatsApp" },
+
   // Final CTA
   "fc.h1.a": { en: "Ready to build", fr: "Prêt à bâtir" },
   "fc.h1.b": { en: "a brand that", fr: "une marque qui" },
@@ -237,6 +246,10 @@ const DICT = {
   // Footer
   "ft.h2": { en: "Let’s make your next move count.", fr: "Donnons de la portée à votre prochain projet." },
   "ft.pages": { en: "Pages", fr: "Pages" },
+  "ft.about": {
+    en: "Impact Digital 9 Agency connects strategy, brand identity, design, marketing communication, photography and digital production to create coherent brand experiences.",
+    fr: "Impact Digital 9 Agency relie stratégie, identité de marque, design, communication marketing, photographie et production digitale pour créer des expériences de marque cohérentes.",
+  },
   "ft.svc": { en: "Services", fr: "Services" },
   "ft.contact": { en: "Contact", fr: "Contact" },
   "ft.rights": { en: "All rights reserved.", fr: "Tous droits réservés." },
@@ -292,11 +305,11 @@ const DICT = {
     fr: "Une pratique créative multidisciplinaire fondée sur le design, la curiosité et une exécution disciplinée.",
   },
   "ap.founderBio": {
-    en: "Wensly has worked as an independent designer since 2015 and has been a trainer since 2021. His work spans graphic design, brand identity, marketing campaigns, photography, content creation and creative/digital management. He also uses AI tools to support content production and streamline creative workflows. He founded Impact Digital 9 Agency on 1 May 2018.",
-    fr: "Wensly exerce comme designer indépendant depuis 2015 et comme formateur depuis 2021. Son travail couvre le design graphique, l’identité de marque, les campagnes marketing, la photographie, la création de contenus et la gestion créative et digitale. Il utilise également des outils d’IA pour soutenir la production de contenus et optimiser les processus créatifs. Il a fondé Impact Digital 9 Agency le 1er mai 2018.",
+    en: "Working independently in design since 2015, Wensly brings experience in graphic design, brand identity, marketing campaigns, photography, content creation and creative/digital management. He founded Impact Digital 9 Agency on 1 May 2018 and guides its creative direction, using AI tools selectively to support production workflows.",
+    fr: "Actif comme designer indépendant depuis 2015, Wensly possède une expérience en design graphique, identité de marque, campagnes marketing, photographie, création de contenus et gestion créative et digitale. Il a fondé Impact Digital 9 Agency le 1er mai 2018 et en guide la direction créative, en utilisant certains outils d’IA pour soutenir les processus de production.",
   },
   "ap.timeline": { en: "Timeline", fr: "Chronologie" },
-  "ap.timelineH": { en: "A path shaped by practice, teaching and entrepreneurship.", fr: "Un parcours façonné par la pratique, la formation et l’entrepreneuriat." },
+  "ap.timelineH": { en: "A path shaped by creative practice and entrepreneurship.", fr: "Un parcours façonné par la pratique créative et l’entrepreneuriat." },
   "ap.workWithUs": { en: "Work with us", fr: "Travailler avec nous" },
 
   // Services page

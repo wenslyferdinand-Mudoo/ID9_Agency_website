@@ -9,13 +9,11 @@ import { useI18n } from "@/lib/i18n";
 const TIMELINE_EN = [
   { y: "2015", t: "Independent creative practice", d: "Wensly begins working independently in design, building practical experience across visual communication and creative production." },
   { y: "2018", t: "Impact Digital 9 is founded", d: "On 1 May 2018, Wensly establishes Impact Digital 9 to bring creative and digital services together under one agency identity." },
-  { y: "2021", t: "Training and knowledge sharing", d: "Wensly expands his work into training, sharing practical knowledge and creative methods with learners." },
 ];
 
 const TIMELINE_FR = [
   { y: "2015", t: "Début de l’activité créative indépendante", d: "Wensly commence à travailler comme designer indépendant et développe une expérience pratique en communication visuelle et production créative." },
   { y: "2018", t: "Fondation d’Impact Digital 9", d: "Le 1er mai 2018, Wensly fonde Impact Digital 9 afin de réunir des services créatifs et digitaux sous une même identité d’agence." },
-  { y: "2021", t: "Formation et transmission", d: "Wensly développe également son activité de formateur et partage des connaissances pratiques ainsi que des méthodes créatives." },
 ];
 
 export default function AboutPage() {
