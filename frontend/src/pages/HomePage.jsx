@@ -4,6 +4,7 @@ import ServicesGrid from "@/components/sections/ServicesGrid";
 import PortfolioPreview from "@/components/sections/PortfolioPreview";
 import ProcessTimeline from "@/components/sections/ProcessTimeline";
 import FounderAuthority from "@/components/sections/FounderAuthority";
+import TrainingSection from "@/components/sections/TrainingSection";
 import WhyUs from "@/components/sections/WhyUs";
 import Testimonials from "@/components/sections/Testimonials";
 import LeadMagnet from "@/components/sections/LeadMagnet";
