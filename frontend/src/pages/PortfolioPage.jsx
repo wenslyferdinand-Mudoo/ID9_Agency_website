@@ -83,7 +83,7 @@ export default function PortfolioPage() {
       <section className="px-4 md:px-8 pb-12">
         <div className="max-w-7xl mx-auto">
           <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.3em] mb-6">{t("nav.portfolio")}</p>
-          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.98]">
+          <h1 className="max-w-6xl font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[1.04] md:leading-[0.98] text-balance">
             {t("wk.h1.pre") && (
               <RevealText as="span" text={t("wk.h1.pre")} className="inline" />
             )}
