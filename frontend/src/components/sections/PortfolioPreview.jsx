@@ -42,7 +42,7 @@ export default function PortfolioPreview() {
             <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.3em] mb-6">
               {t("wk.tag")}
             </p>
-            <h2 className="font-display text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-[1.02]">
+            <h2 className="max-w-5xl font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-[1.04] md:leading-[1.02] text-balance">
               {t("wk.h1.pre") && (
                 <RevealText as="span" text={t("wk.h1.pre")} className="inline" />
               )}
@@ -64,7 +64,7 @@ export default function PortfolioPreview() {
             <RevealText
               as="h2"
               text={t("wk.h2")}
-              className="font-display text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-[1.02] italic"
+              className="max-w-5xl font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-[1.04] md:leading-[1.02] italic text-balance"
               delay={0.1}
             />
           </div>
