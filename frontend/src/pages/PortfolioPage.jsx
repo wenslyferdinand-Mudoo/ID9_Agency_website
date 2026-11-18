@@ -127,11 +127,12 @@ export default function PortfolioPage() {
                   data-testid={`portfolio-grid-card-${p.slug}`}
                 >
                   <Link to={`/portfolio/${p.slug}`} className="block">
-                    <div className="aspect-[4/3] overflow-hidden">
+                    <div className="aspect-[4/3] overflow-hidden bg-ink-800 flex items-center justify-center">
                       {p.cover_image ? (
                         <img
                           src={p.cover_image}
                           alt={p.title}
+                          loading="lazy"
                           className="w-full h-full object-contain transition-opacity duration-500 group-hover:opacity-90"
                         />
                       ) : (
