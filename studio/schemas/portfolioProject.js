@@ -42,6 +42,7 @@ export default defineType({
       options: {
         list: [
           {title: 'Branding', value: 'branding'},
+          {title: 'Graphic Design', value: 'graphic-design'},
           {title: 'Web', value: 'web'},
           {title: 'App', value: 'app'},
           {title: 'Marketing', value: 'marketing'},
