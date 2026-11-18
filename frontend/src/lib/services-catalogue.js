@@ -1,18 +1,18 @@
 import {
   Sparkles, Globe, Smartphone, Layers, Target, Search, Zap, Video, Camera,
-  Music, GitBranch, Brain, PenTool, Package, Printer, Box, Share2, GraduationCap,
+  Music, GitBranch, Brain, PenTool, Package, Printer, Box, Share2, GraduationCap, Fingerprint,
 } from "lucide-react";
 
 export const SERVICE_ICONS = {
   Sparkles, Globe, Smartphone, Layers, Target, Search, Zap, Video, Camera,
-  Music, GitBranch, Brain, PenTool, Package, Printer, Box, Share2, GraduationCap,
+  Music, GitBranch, Brain, PenTool, Package, Printer, Box, Share2, GraduationCap, Fingerprint,
 };
 
 export const SERVICE_CATALOGUE = [
   {
     slug: "branding", family: "brand", family_fr: "Marque & communication",
     title: "Brand Strategy & Visual Identity", title_fr: "Stratégie de marque & identité visuelle",
-    icon: "Sparkles",
+    icon: "Fingerprint",
     desc: "Build a distinctive brand foundation, from positioning and visual direction to a coherent identity system that stays consistent across every touchpoint.",
     desc_fr: "Construire une base de marque distinctive : positionnement, direction artistique et système visuel cohérent sur l’ensemble des points de contact.",
     scope: ["Brand positioning", "Creative direction", "Logo architecture", "Identity guidelines"],
