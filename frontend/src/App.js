@@ -1,5 +1,7 @@
 import "@/index.css";
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { MotionConfig } from "framer-motion";
 import { Toaster } from "@/components/ui/sonner";
 
 import { AuthProvider } from "@/lib/auth";
@@ -16,68 +18,83 @@ import TopContactBar from "@/components/site/TopContactBar";
 import MobileBottomBar from "@/components/site/MobileBottomBar";
 import ErrorBoundary from "@/components/site/ErrorBoundary";
 
-import HomePage from "@/pages/HomePage";
-import AboutPage from "@/pages/AboutPage";
-import ServicesPage from "@/pages/ServicesPage";
-import PortfolioPage from "@/pages/PortfolioPage";
-import PortfolioDetailPage from "@/pages/PortfolioDetailPage";
-import BlogPage from "@/pages/BlogPage";
-import BlogDetailPage from "@/pages/BlogDetailPage";
-import ContactPage from "@/pages/ContactPage";
+const HomePage = lazy(() => import("@/pages/HomePage"));
+const AboutPage = lazy(() => import("@/pages/AboutPage"));
+const ServicesPage = lazy(() => import("@/pages/ServicesPage"));
+const PortfolioPage = lazy(() => import("@/pages/PortfolioPage"));
+const PortfolioDetailPage = lazy(() => import("@/pages/PortfolioDetailPage"));
+const BlogPage = lazy(() => import("@/pages/BlogPage"));
+const BlogDetailPage = lazy(() => import("@/pages/BlogDetailPage"));
+const ContactPage = lazy(() => import("@/pages/ContactPage"));
 
-import AdminLoginPage from "@/pages/admin/AdminLoginPage";
-import AdminLayout from "@/pages/admin/AdminLayout";
-import AdminOverview from "@/pages/admin/AdminOverview";
-import AdminPortfolio from "@/pages/admin/AdminPortfolio";
-import AdminBlog from "@/pages/admin/AdminBlog";
-import AdminContacts from "@/pages/admin/AdminContacts";
+const AdminLoginPage = lazy(() => import("@/pages/admin/AdminLoginPage"));
+const AdminLayout = lazy(() => import("@/pages/admin/AdminLayout"));
+const AdminOverview = lazy(() => import("@/pages/admin/AdminOverview"));
+const AdminPortfolio = lazy(() => import("@/pages/admin/AdminPortfolio"));
+const AdminBlog = lazy(() => import("@/pages/admin/AdminBlog"));
+const AdminContacts = lazy(() => import("@/pages/admin/AdminContacts"));
+
+function RouteFallback() {
+  return (
+    <main className="min-h-[55vh] grid place-items-center bg-ink-900" aria-busy="true">
+      <div className="flex items-center gap-3 text-white/55 font-ui text-sm">
+        <span className="w-2 h-2 rounded-full bg-orange_impact animate-pulse" />
+        <span>Loading page…</span>
+      </div>
+    </main>
+  );
+}
 
 function App() {
   return (
-    <BrowserRouter>
-      <ErrorBoundary>
-        <I18nProvider>
-          <AuthProvider>
-            <LenisProvider>
-              <Preloader />
-              <ScrollProgress />
-              <ScrollToTop />
-              <RouteSeo />
-              <TopContactBar />
-              <Navigation />
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/services" element={<ServicesPage />} />
-                <Route path="/portfolio" element={<PortfolioPage />} />
-                <Route path="/portfolio/:slug" element={<PortfolioDetailPage />} />
-                <Route path="/blog" element={<BlogPage />} />
-                <Route path="/blog/:slug" element={<BlogDetailPage />} />
-                <Route path="/contact" element={<ContactPage />} />
+    <MotionConfig reducedMotion="user">
+      <BrowserRouter>
+        <ErrorBoundary>
+          <I18nProvider>
+            <AuthProvider>
+              <LenisProvider>
+                <Preloader />
+                <ScrollProgress />
+                <ScrollToTop />
+                <RouteSeo />
+                <TopContactBar />
+                <Navigation />
+                <Suspense fallback={<RouteFallback />}>
+                  <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/about" element={<AboutPage />} />
+                    <Route path="/services" element={<ServicesPage />} />
+                    <Route path="/portfolio" element={<PortfolioPage />} />
+                    <Route path="/portfolio/:slug" element={<PortfolioDetailPage />} />
+                    <Route path="/blog" element={<BlogPage />} />
+                    <Route path="/blog/:slug" element={<BlogDetailPage />} />
+                    <Route path="/contact" element={<ContactPage />} />
 
-                <Route path="/admin/login" element={<AdminLoginPage />} />
-                <Route
-                  path="/admin"
-                  element={
-                    <ProtectedRoute>
-                      <AdminLayout />
-                    </ProtectedRoute>
-                  }
-                >
-                  <Route index element={<AdminOverview />} />
-                  <Route path="portfolio" element={<AdminPortfolio />} />
-                  <Route path="blog" element={<AdminBlog />} />
-                  <Route path="contacts" element={<AdminContacts />} />
-                </Route>
-              </Routes>
-              <Footer />
-              <MobileBottomBar />
-              <Toaster theme="dark" position="bottom-right" />
-            </LenisProvider>
-          </AuthProvider>
-        </I18nProvider>
-      </ErrorBoundary>
-    </BrowserRouter>
+                    <Route path="/admin/login" element={<AdminLoginPage />} />
+                    <Route
+                      path="/admin"
+                      element={
+                        <ProtectedRoute>
+                          <AdminLayout />
+                        </ProtectedRoute>
+                      }
+                    >
+                      <Route index element={<AdminOverview />} />
+                      <Route path="portfolio" element={<AdminPortfolio />} />
+                      <Route path="blog" element={<AdminBlog />} />
+                      <Route path="contacts" element={<AdminContacts />} />
+                    </Route>
+                  </Routes>
+                </Suspense>
+                <Footer />
+                <MobileBottomBar />
+                <Toaster theme="dark" position="bottom-right" />
+              </LenisProvider>
+            </AuthProvider>
+          </I18nProvider>
+        </ErrorBoundary>
+      </BrowserRouter>
+    </MotionConfig>
   );
 }
 
