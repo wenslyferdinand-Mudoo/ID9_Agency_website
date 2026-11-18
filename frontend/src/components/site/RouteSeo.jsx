@@ -7,20 +7,20 @@ const SITE_URL = "https://id9agency.com";
 
 const META = {
   "/": {
-    en: ["Wensly Ferdinand × Impact Digital 9 — Creative & Digital Portfolio", "Wensly Ferdinand, founder of Impact Digital 9. Graphic design, brand identity, marketing campaigns, photography, content creation and digital services."],
-    fr: ["Wensly Ferdinand × Impact Digital 9 — Portfolio créatif et digital", "Wensly Ferdinand, fondateur d’Impact Digital 9. Design graphique, identité de marque, campagnes marketing, photographie, création de contenus et services digitaux."],
+    en: ["Impact Digital 9 Agency (ID9) — Creative & Digital Agency", "Impact Digital 9 Agency is a creative and digital agency delivering brand identity, graphic design, web experiences, marketing, photography and digital solutions."],
+    fr: ["Impact Digital 9 Agency (ID9) — Agence créative et digitale", "Impact Digital 9 Agency est une agence créative et digitale spécialisée en identité de marque, design graphique, expériences web, marketing, photographie et solutions numériques."],
   },
   "/about": {
-    en: ["About Wensly Ferdinand & Impact Digital 9", "Meet Wensly Ferdinand, independent designer since 2015 and founder of Impact Digital 9."],
-    fr: ["À propos de Wensly Ferdinand & Impact Digital 9", "Découvrez Wensly Ferdinand, designer indépendant depuis 2015 et fondateur d’Impact Digital 9."],
+    en: ["About Impact Digital 9 Agency — Our Story", "Discover Impact Digital 9 Agency, its creative vision, integrated services and the founder behind the studio."],
+    fr: ["À propos d’Impact Digital 9 Agency — Notre histoire", "Découvrez Impact Digital 9 Agency, sa vision créative, ses services intégrés et le fondateur du studio."],
   },
   "/services": {
     en: ["Services — ID9_AGENCY", "Branding, web & app development, marketing, content and media production. 12 integrated capabilities."],
     fr: ["Services — ID9_AGENCY", "Branding, développement web & app, marketing, contenu et production média. 12 expertises intégrées."],
   },
   "/portfolio": {
-    en: ["Portfolio — Wensly Ferdinand × Impact Digital 9", "Selected creative projects from Wensly Ferdinand and Impact Digital 9, with links to Instagram and the WhatsApp catalogue."],
-    fr: ["Portfolio — Wensly Ferdinand × Impact Digital 9", "Projets créatifs sélectionnés de Wensly Ferdinand et Impact Digital 9, avec accès à Instagram et au catalogue WhatsApp."],
+    en: ["Projects & Case Studies — Impact Digital 9 Agency", "Explore selected client work, brand identities, campaigns and digital projects created by Impact Digital 9 Agency."],
+    fr: ["Projets & réalisations — Impact Digital 9 Agency", "Découvrez une sélection de projets clients, identités de marque, campagnes et réalisations digitales d’Impact Digital 9 Agency."],
   },
   "/blog": {
     en: ["Journal — ID9_AGENCY", "Insights on branding, digital strategy and growth from the ID9 team."],
