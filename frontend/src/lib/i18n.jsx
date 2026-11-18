@@ -101,8 +101,8 @@ const DICT = {
   "pr.h1": { en: "Six layers.", fr: "Six couches." },
   "pr.h2": { en: "One system.", fr: "Un seul système." },
   "pr.sub": {
-    en: "Not a process. An engineered production architecture that converts intent into measurable digital infrastructure — without friction, improvisation, or the \u201Cagency effect.\u201D",
-    fr: "Pas un processus. Une architecture de production conçue qui convertit l'intention en infrastructure digitale mesurable — sans friction, sans improvisation, sans «\u00A0effet agence\u00A0».",
+    en: "A structured six-stage approach that moves a project from discovery to strategy, design, development, launch and continuous improvement. Each stage creates the clarity and inputs needed for the next.",
+    fr: "Une approche structurée en six étapes : découverte, stratégie, design, développement, lancement et amélioration continue. Chaque étape apporte la clarté et les éléments nécessaires à la suivante.",
   },
   "pr.discover": { en: "Input Layer", fr: "Couche d'Entrée" },
   "pr.strategy": { en: "Strategy Layer", fr: "Couche Stratégie" },
@@ -169,14 +169,14 @@ const DICT = {
   "ts.h1": { en: "Perspectives from our collaborations.", fr: "Les retours de nos collaborations." },
 
   // Founder Authority (editorial section)
-  "fa.tag": { en: "The founder · Impact Digital 9", fr: "Le fondateur · Impact Digital 9" },
+  "fa.tag": { en: "The founder · ID9 Agency", fr: "Le fondateur · ID9 Agency" },
   "fa.eyebrow": { en: "Leadership & creative direction", fr: "Leadership & direction créative" },
   "fa.h1": { en: "Creative thinking.", fr: "La pensée créative." },
   "fa.h2": { en: "Disciplined execution.", fr: "L’exécution disciplinée." },
   "fa.h3": { en: "Digital impact.", fr: "L’impact digital." },
   "fa.body1": {
-    en: "Wensly Ferdinand founded Impact Digital 9 in 2018 and leads its creative vision. His multidisciplinary background in graphic design, brand identity, marketing, photography and content production informs the agency’s integrated approach.",
-    fr: "Wensly Ferdinand a fondé Impact Digital 9 en 2018 et en dirige la vision créative. Son expérience multidisciplinaire en design graphique, identité de marque, marketing, photographie et production de contenus nourrit l’approche intégrée de l’agence.",
+    en: "Wensly Ferdinand founded Impact Digital 9 Agency in 2018 and leads its creative vision. His multidisciplinary background in graphic design, brand identity, marketing, photography and content production informs the agency’s integrated approach.",
+    fr: "Wensly Ferdinand a fondé Impact Digital 9 Agency en 2018 et en dirige la vision créative. Son expérience multidisciplinaire en design graphique, identité de marque, marketing, photographie et production de contenus nourrit l’approche intégrée de l’agence.",
   },
   "fa.body2": {
     en: "Since 2021, he has also shared his expertise through professional training. At ID9, he applies structured creative methods and AI-assisted workflows to support content production and help brands build a coherent digital presence.",
@@ -228,8 +228,8 @@ const DICT = {
   "fc.h1.b": { en: "a brand that", fr: "une marque qui" },
   "fc.h1.c": { en: "redefines its market?", fr: "redéfinit son marché ?" },
   "fc.sub": {
-    en: "One call. One studio. One system. From blurred ambition to controlled execution — without friction, dilution, or randomness. \u201CWe transform intentions into dominant brands.\u201D",
-    fr: "Un appel. Un studio. Un système. De l'ambition floue à une exécution maîtrisée — sans friction, sans dilution, sans hasard. «\u00A0Nous transformons les intentions en marques dominantes.\u00A0»",
+    en: "A clear brief deserves thoughtful strategy and disciplined execution. Tell us what you are building; we will help you identify the right creative and digital priorities for the next stage.",
+    fr: "Un brief clair mérite une stratégie réfléchie et une exécution rigoureuse. Présentez-nous votre projet : nous vous aiderons à identifier les priorités créatives et digitales les plus pertinentes pour la prochaine étape.",
   },
   "fc.launch": { en: "Launch My Project", fr: "Lancer mon projet" },
   "fc.wa": { en: "WhatsApp ID9", fr: "WhatsApp ID9" },
@@ -292,8 +292,8 @@ const DICT = {
     fr: "Une pratique créative multidisciplinaire fondée sur le design, la curiosité et une exécution disciplinée.",
   },
   "ap.founderBio": {
-    en: "Wensly has worked as an independent designer since 2015 and has been a trainer since 2021. His work spans graphic design, brand identity, marketing campaigns, photography, content creation and creative/digital management. He also uses AI tools to support content production and streamline creative workflows. He founded Impact Digital 9 on 1 May 2018.",
-    fr: "Wensly exerce comme designer indépendant depuis 2015 et comme formateur depuis 2021. Son travail couvre le design graphique, l’identité de marque, les campagnes marketing, la photographie, la création de contenus et la gestion créative et digitale. Il utilise également des outils d’IA pour soutenir la production de contenus et optimiser les processus créatifs. Il a fondé Impact Digital 9 le 1er mai 2018.",
+    en: "Wensly has worked as an independent designer since 2015 and has been a trainer since 2021. His work spans graphic design, brand identity, marketing campaigns, photography, content creation and creative/digital management. He also uses AI tools to support content production and streamline creative workflows. He founded Impact Digital 9 Agency on 1 May 2018.",
+    fr: "Wensly exerce comme designer indépendant depuis 2015 et comme formateur depuis 2021. Son travail couvre le design graphique, l’identité de marque, les campagnes marketing, la photographie, la création de contenus et la gestion créative et digitale. Il utilise également des outils d’IA pour soutenir la production de contenus et optimiser les processus créatifs. Il a fondé Impact Digital 9 Agency le 1er mai 2018.",
   },
   "ap.timeline": { en: "Timeline", fr: "Chronologie" },
   "ap.timelineH": { en: "A path shaped by practice, teaching and entrepreneurship.", fr: "Un parcours façonné par la pratique, la formation et l’entrepreneuriat." },
