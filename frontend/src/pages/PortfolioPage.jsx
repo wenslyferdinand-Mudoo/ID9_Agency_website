@@ -18,31 +18,59 @@ export default function PortfolioPage() {
   const FILTERS = [
     { k: "all", l: t("wk.filters.all") },
     { k: "branding", l: t("wk.filters.branding") },
+    { k: "graphic-design", l: lang === "fr" ? "Design graphique" : "Graphic Design" },
     { k: "web", l: t("wk.filters.web") },
     { k: "app", l: t("wk.filters.app") },
     { k: "marketing", l: t("wk.filters.marketing") },
     { k: "motion", l: t("wk.filters.motion") },
+    { k: "photo", l: lang === "fr" ? "Photographie" : "Photography" },
   ];
 
   useEffect(() => {
-    // Founder products are always visible alongside CMS case studies.
-    const founderProjects = getFounderProjects(lang);
-    fetchPortfolioList()
-      .then((sanityItems) => {
-        const list = safeArray(sanityItems);
-        if (list.length) {
-          setItems([...founderProjects, ...list.filter((item) => !founderProjects.some((project) => project.slug === item.slug))]);
-          return;
-        }
-        api
-          .get("/portfolio")
-          .then((r) => {
-            const legacy = safeArray(r?.data);
-            setItems([...founderProjects, ...legacy.filter((item) => !founderProjects.some((project) => project.slug === item.slug))]);
-          })
-          .catch(() => setItems(founderProjects));
-      })
-      .catch(() => setItems(founderProjects));
+    let cancelled = false;
+
+    async function loadPortfolio() {
+      const founderProjects = safeArray(getFounderProjects(lang));
+
+      // Sanity and the legacy API are complementary sources. Previously, the
+      // presence of even one Sanity document caused every legacy project
+      // (including the existing Akya case study) to disappear from the list.
+      const [sanityResult, legacyResult] = await Promise.allSettled([
+        fetchPortfolioList(),
+        api.get("/portfolio"),
+      ]);
+
+      const sanityItems =
+        sanityResult.status === "fulfilled" ? safeArray(sanityResult.value) : [];
+      const legacyItems =
+        legacyResult.status === "fulfilled"
+          ? safeArray(legacyResult.value?.data)
+          : [];
+
+      // Prefer CMS records when a project exists in both sources, then retain
+      // legacy and founder records that have not yet been migrated to Sanity.
+      const merged = [...sanityItems, ...legacyItems, ...founderProjects];
+      const seen = new Set();
+      const unique = merged.filter((project) => {
+        if (!project || typeof project !== "object") return false;
+        const key = project.slug
+          ? String(project.slug).trim().toLowerCase()
+          : `${String(project.client || "").trim().toLowerCase()}::${String(project.title || "").trim().toLowerCase()}`;
+        if (!key || seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+
+      if (!cancelled) setItems(unique);
+    }
+
+    loadPortfolio().catch(() => {
+      if (!cancelled) setItems(safeArray(getFounderProjects(lang)));
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [lang]);
 
   const filtered = useMemo(() => {
@@ -118,7 +146,7 @@ export default function PortfolioPage() {
               {filtered.map((p, i) => (
                 <motion.div
                   layout
-                  key={p.id}
+                  key={p.id || p.slug}
                   initial={{ opacity: 0, y: 40 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 20 }}
