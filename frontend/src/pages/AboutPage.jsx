@@ -30,9 +30,9 @@ export default function AboutPage() {
           <RevealText
             as="h1"
             text={t("ap.h1")}
-            className="font-display text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.98] text-balance max-w-5xl"
+            className="max-w-5xl font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[1.04] md:leading-[0.98] text-balance"
           />
-          <p className="mt-10 max-w-3xl font-inter text-lg md:text-xl text-white/70 leading-relaxed">
+          <p className="mt-7 md:mt-10 max-w-3xl font-inter text-base sm:text-lg md:text-xl text-white/70 leading-relaxed">
             {t("ap.body")}
           </p>
         </div>
@@ -109,7 +109,7 @@ export default function AboutPage() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.06 }}
-                className="grid grid-cols-12 gap-6 border-t border-white/10 pt-8"
+                className="grid grid-cols-12 gap-4 sm:gap-6 border-t border-white/10 pt-8"
               >
                 <p className="col-span-3 md:col-span-2 font-display font-black text-2xl md:text-3xl tabular-nums text-orange_impact">
                   {it.y}
