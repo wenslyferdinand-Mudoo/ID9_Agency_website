@@ -246,6 +246,10 @@ const DICT = {
   // Footer
   "ft.h2": { en: "Let’s make your next move count.", fr: "Donnons de la portée à votre prochain projet." },
   "ft.pages": { en: "Pages", fr: "Pages" },
+  "ft.about": {
+    en: "Impact Digital 9 Agency connects strategy, brand identity, design, marketing communication, photography and digital production to create coherent brand experiences.",
+    fr: "Impact Digital 9 Agency relie stratégie, identité de marque, design, communication marketing, photographie et production digitale pour créer des expériences de marque cohérentes.",
+  },
   "ft.svc": { en: "Services", fr: "Services" },
   "ft.contact": { en: "Contact", fr: "Contact" },
   "ft.rights": { en: "All rights reserved.", fr: "Tous droits réservés." },
