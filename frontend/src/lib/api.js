@@ -1,7 +1,19 @@
 import axios from "axios";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-export const API_BASE = `${BACKEND_URL}/api`;
+// Support both environment variable names used by the project over time.
+// Vercel currently defines REACT_APP_API_URL; older local setups use
+// REACT_APP_BACKEND_URL. Keep the API path stable and avoid a duplicated
+// "/api" suffix when the configured URL already includes it.
+const configuredBackendUrl =
+  process.env.REACT_APP_BACKEND_URL || process.env.REACT_APP_API_URL || "";
+const normalizedBackendUrl = configuredBackendUrl
+  .trim()
+  .replace(/\/+$/, "")
+  .replace(/\/api$/i, "");
+
+export const API_BASE = normalizedBackendUrl
+  ? `${normalizedBackendUrl}/api`
+  : "/api";
 
 const api = axios.create({ baseURL: API_BASE });
 
