@@ -288,6 +288,14 @@ body.menu-open {
     letter-spacing: -0.045em;
     text-wrap: balance;
   }
+  /* Section headings use one responsive scale across every public page. */
+  main h2 {
+    max-width: 100%;
+    font-size: clamp(2rem, 8vw, 3.15rem) !important;
+    line-height: 1.05 !important;
+    letter-spacing: -0.04em;
+    text-wrap: balance;
+  }
   main p { overflow-wrap: anywhere; }
   main img, main video, main iframe { max-width: 100%; }
   .marquee-mask {
