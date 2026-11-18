@@ -412,41 +412,34 @@ function StoryBlock({ icon: Icon, label, number, text }) {
 }
 
 function BentoGallery({ images, title }) {
-  // Bento span pattern — feels editorial, breaks the grid
-  const spans = [
-    "md:col-span-8 md:row-span-2 aspect-[4/3] md:aspect-auto",
-    "md:col-span-4 aspect-square",
-    "md:col-span-4 aspect-square",
-    "md:col-span-6 aspect-[4/3]",
-    "md:col-span-6 aspect-[4/3]",
-  ];
   const list = Array.isArray(images) ? images : [];
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
       {list.map((src, i) => (
         <motion.figure
           key={src + i}
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.9, delay: (i % 3) * 0.1, ease: [0.16, 1, 0.3, 1] }}
-          className={`relative rounded-2xl md:rounded-3xl overflow-hidden bg-ink-800 group ${
-            spans[i % spans.length]
-          }`}
+          transition={{
+            duration: 0.8,
+            delay: (i % 3) * 0.1,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+          className="relative rounded-2xl md:rounded-3xl overflow-hidden bg-ink-800"
           data-testid={`case-gallery-${i}`}
         >
           <motion.img
             src={src}
             alt={`${title} — ${i + 1}`}
             loading="lazy"
-            className="w-full h-full object-cover"
-            initial={{ scale: 1.05 }}
-            whileInView={{ scale: 1 }}
+            className="block w-full h-auto object-contain"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-            whileHover={{ scale: 1.04 }}
+            transition={{ duration: 0.8 }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink-900/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
         </motion.figure>
       ))}
     </div>

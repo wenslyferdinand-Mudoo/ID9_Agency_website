@@ -69,7 +69,7 @@ export default function Footer() {
                 </span>
               </div>
               <p className="font-inter text-white/55 max-w-md leading-relaxed text-sm">
-                Wensly Ferdinand — founder of {BRAND.fullName}. Creative direction, graphic design, brand identity, photography, content creation and digital services.
+                {BRAND.fullName} is a creative and digital agency connecting brand strategy, graphic design, web experiences, marketing, photography and digital production.
               </p>
               <p className="text-white/40 font-ui text-xs uppercase tracking-[0.2em] mt-8 mb-3">
                 Social
