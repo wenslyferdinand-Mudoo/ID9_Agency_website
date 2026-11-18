@@ -33,11 +33,11 @@ const META = {
 
 function ensureMeta(selector, attribute, value) {
   let element = document.querySelector(selector);
-  if (!element && selector.startsWith('meta[')) {
-    const name = selector.match(/meta\[(name|property)="([^"]+)"\]/);
-    if (name) {
+  if (!element && selector.startsWith("meta[")) {
+    const match = selector.match(/meta\[(name|property)="([^"]+)"\]/);
+    if (match) {
       element = document.createElement("meta");
-      element.setAttribute(name[1], name[2]);
+      element.setAttribute(match[1], match[2]);
       document.head.appendChild(element);
     }
   }
@@ -54,6 +54,10 @@ function setCanonical(pathname) {
   canonical.setAttribute("href", SITE_URL + pathname);
 }
 
+function removeCanonical() {
+  document.querySelector('link[rel="canonical"]')?.remove();
+}
+
 export default function RouteSeo() {
   const { pathname } = useLocation();
   const { lang } = useI18n();
@@ -61,16 +65,16 @@ export default function RouteSeo() {
   useEffect(() => {
     const normalizedPath = pathname.length > 1 ? pathname.replace(/\/+$/, "") : "/";
     const isAdmin = normalizedPath === "/admin" || normalizedPath.startsWith("/admin/");
-    const isKnownRoute =
-      Boolean(META[normalizedPath]) ||
-      normalizedPath.startsWith("/portfolio/") ||
-      normalizedPath.startsWith("/blog/");
+    const isProjectDetail = /^\/portfolio\/[^/]+$/.test(normalizedPath);
+    const isArticleDetail = /^\/blog\/[^/]+$/.test(normalizedPath);
+    const isKnownRoute = Boolean(META[normalizedPath]) || isProjectDetail || isArticleDetail;
 
     document.documentElement.lang = lang === "fr" ? "fr" : "en";
 
     if (isAdmin) {
       document.title = "Administration — Impact Digital 9 Agency";
       ensureMeta('meta[name="robots"]', "content", "noindex, nofollow");
+      removeCanonical();
       return;
     }
 
@@ -78,6 +82,7 @@ export default function RouteSeo() {
       document.title = lang === "fr" ? "Page introuvable — Impact Digital 9 Agency" : "Page not found — Impact Digital 9 Agency";
       ensureMeta('meta[name="description"]', "content", lang === "fr" ? "La page demandée est introuvable." : "The requested page could not be found.");
       ensureMeta('meta[name="robots"]', "content", "noindex, follow");
+      removeCanonical();
       return;
     }
 
@@ -91,7 +96,7 @@ export default function RouteSeo() {
     ensureMeta('meta[property="og:site_name"]', "content", "Impact Digital 9 Agency");
     ensureMeta('meta[property="og:title"]', "content", title);
     ensureMeta('meta[property="og:description"]', "content", description);
-    ensureMeta('meta[property="og:type"]', "content", normalizedPath.startsWith("/blog/") ? "article" : "website");
+    ensureMeta('meta[property="og:type"]', "content", isArticleDetail ? "article" : "website");
     ensureMeta('meta[property="og:url"]', "content", SITE_URL + normalizedPath);
     ensureMeta('meta[property="og:locale"]', "content", lang === "fr" ? "fr_FR" : "en_US");
     ensureMeta('meta[name="twitter:title"]', "content", title);
