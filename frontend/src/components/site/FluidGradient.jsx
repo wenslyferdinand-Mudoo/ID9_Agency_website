@@ -24,7 +24,7 @@ export default function FluidGradient({ intensity = 1, className = "" }) {
 
       {/* animated blob 1 — violet */}
       <motion.div
-        className="absolute rounded-full"
+        className="fluid-gradient-blob absolute rounded-full"
         style={{
           width: 900,
           height: 900,
