@@ -164,8 +164,8 @@ export default function Navigation() {
                   <span className="font-display font-black tracking-tight text-base">
                     ID9_AGENCY
                   </span>
-                  <span className="font-ui text-[9px] uppercase tracking-[0.22em] text-white/55 mt-0.5">
-                    Impact Digital 9
+                  <span className="font-ui text-[8px] uppercase tracking-[0.16em] text-white/55 mt-1">
+                    Impact Digital 9 Agency
                   </span>
                 </div>
               </Link>
@@ -179,7 +179,7 @@ export default function Navigation() {
             </div>
 
             {/* Main menu items — staggered cinematic reveal */}
-            <nav className="relative px-6 md:px-12 lg:px-20 mt-12 overflow-y-auto" style={{ maxHeight: "calc(100vh - 240px)" }}>
+            <nav className="relative px-5 sm:px-6 md:px-12 lg:px-20 mt-8 sm:mt-12 overflow-y-auto overscroll-contain" style={{ maxHeight: "calc(100dvh - 320px)" }}>
               <ul className="flex flex-col gap-0 max-w-5xl">
                 {links.map((l, i) => (
                   <motion.li
@@ -225,7 +225,7 @@ export default function Navigation() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.65, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute bottom-0 inset-x-0 px-6 md:px-12 lg:px-20 pb-10 safe-bottom"
+              className="absolute bottom-0 inset-x-0 px-5 sm:px-6 md:px-12 lg:px-20 pb-5 sm:pb-8 safe-bottom"
             >
               <div className="flex flex-col gap-4 max-w-5xl">
                 {/* Row 1: status (left) + language toggle (right) */}
@@ -247,7 +247,7 @@ export default function Navigation() {
                 </div>
 
                 {/* Row 2: socials (left) + CTA (right) */}
-                <div className="flex items-center gap-3">
+                <div className="grid grid-cols-4 gap-2 sm:flex sm:items-center sm:gap-3">
                   <a
                     href={whatsappLink()}
                     target="_blank"
@@ -287,7 +287,7 @@ export default function Navigation() {
                   <Link
                     to="/contact"
                     onClick={() => setOpen(false)}
-                    className="touch-target flex-1 md:flex-none md:px-10 inline-flex items-center justify-center gap-2 bg-orange_impact text-ink-900 font-ui font-semibold px-6 py-3 rounded-full active:scale-95 hover:bg-gold_light transition-all ml-auto"
+                    className="touch-target col-span-4 w-full sm:col-span-1 sm:flex-1 md:flex-none md:px-10 inline-flex items-center justify-center gap-2 bg-orange_impact text-ink-900 font-ui font-semibold px-6 py-3 rounded-full active:scale-95 hover:bg-gold_light transition-all sm:ml-auto"
                     data-testid="nav-mobile-cta"
                   >
                     {t("nav.cta")} <ArrowUpRight className="w-4 h-4" />
