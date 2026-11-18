@@ -78,14 +78,14 @@ export default function BlogDetailPage() {
 
   if (notFound)
     return (
-      <main className="min-h-screen pt-40 px-6 max-w-4xl mx-auto">
+      <main className="min-h-screen pt-32 md:pt-40 px-4 sm:px-6 max-w-4xl mx-auto">
         <p className="text-white/60">Post not found.</p>
         <Link to="/blog" className="text-orange_impact underline mt-4 inline-block">
           ← Back to journal
         </Link>
       </main>
     );
-  if (!post) return <main className="min-h-screen pt-40 text-center text-white/50">Loading…</main>;
+  if (!post) return <main className="min-h-screen pt-32 md:pt-40 px-4 text-center text-white/50">Loading…</main>;
 
   return (
     <main data-testid="blog-detail" className="pt-32 md:pt-40">
@@ -97,7 +97,7 @@ export default function BlogDetailPage() {
           <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.3em] mb-4">
             {post.category}
           </p>
-          <h1 className="font-display text-4xl md:text-6xl font-black tracking-tighter leading-[1.02] text-balance">
+          <h1 className="font-display text-3xl sm:text-4xl md:text-6xl font-black tracking-tighter leading-[1.06] md:leading-[1.02] text-balance">
             {post.title}
           </h1>
           <p className="mt-6 text-white/50 font-ui text-sm">
