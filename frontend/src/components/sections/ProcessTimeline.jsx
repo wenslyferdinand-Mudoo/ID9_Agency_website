@@ -110,7 +110,7 @@ export default function ProcessTimeline() {
           </div>
         </div>
 
-        <div className="md:col-span-8 relative pl-8 md:pl-16">
+        <div className="md:col-span-8 relative min-w-0 pl-8 md:pl-16">
           <div className="absolute left-2 md:left-6 top-2 bottom-2 w-px bg-white/[0.08]" />
           <motion.div
             style={{ height: lineH }}

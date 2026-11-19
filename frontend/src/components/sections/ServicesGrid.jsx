@@ -39,7 +39,7 @@ function ServiceCard({ s, idx, exploreLabel, lang }) {
       <p className="mb-6 line-clamp-4 font-inter text-sm leading-7 text-white/60">{desc}</p>
       <Link
         to="/services"
-        className="inline-flex items-center gap-2 text-[10px] font-ui uppercase tracking-[0.2em] text-white/50 transition-colors group-hover:text-orange_impact"
+        className="inline-flex min-h-11 items-center gap-2 py-2 text-[10px] font-ui uppercase tracking-[0.2em] text-white/50 transition-colors group-hover:text-orange_impact"
       >
         {exploreLabel} <span aria-hidden="true">↗</span>
       </Link>

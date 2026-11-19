@@ -50,11 +50,11 @@ export default function MobileBottomBar() {
             <Link
               to="/"
               aria-label={lang === "fr" ? "Accueil" : "Home"}
-              className="touch-target flex flex-col items-center justify-center gap-0.5 px-3 py-2 rounded-full active:bg-white/5 transition-colors"
+              className="touch-target min-w-0 flex-1 flex flex-col items-center justify-center gap-0.5 px-1 py-2 rounded-full active:bg-white/5 transition-colors"
               data-testid="mbar-home"
             >
               <Home className="w-5 h-5 text-white/80" />
-              <span className="font-ui text-[9px] uppercase tracking-wider text-white/55">
+              <span className="font-ui text-[8px] sm:text-[9px] uppercase tracking-[0.04em] text-white/55">
                 {lang === "fr" ? "Accueil" : "Home"}
               </span>
             </Link>
@@ -62,11 +62,11 @@ export default function MobileBottomBar() {
             <a
               href={`tel:+${BRAND.whatsappNumber}`}
               aria-label={lang === "fr" ? "Appeler" : "Call"}
-              className="touch-target flex flex-col items-center justify-center gap-0.5 px-3 py-2 rounded-full active:bg-white/5 transition-colors"
+              className="touch-target min-w-0 flex-1 flex flex-col items-center justify-center gap-0.5 px-1 py-2 rounded-full active:bg-white/5 transition-colors"
               data-testid="mbar-call"
             >
               <Phone className="w-5 h-5 text-white/80" />
-              <span className="font-ui text-[9px] uppercase tracking-wider text-white/55">
+              <span className="font-ui text-[8px] sm:text-[9px] uppercase tracking-[0.04em] text-white/55">
                 {lang === "fr" ? "Appeler" : "Call"}
               </span>
             </a>
@@ -77,7 +77,7 @@ export default function MobileBottomBar() {
               target="_blank"
               rel="noreferrer"
               aria-label="WhatsApp"
-              className="touch-target -mt-7 w-14 h-14 grid place-items-center rounded-full bg-orange_impact text-ink-900 shadow-lg shadow-orange-500/40 active:scale-95 transition-transform"
+              className="touch-target -mt-7 h-14 w-14 shrink-0 grid place-items-center rounded-full bg-orange_impact text-ink-900 shadow-lg shadow-orange-500/40 active:scale-95 transition-transform"
               data-testid="mbar-whatsapp"
             >
               <MessageCircle className="w-6 h-6" strokeWidth={2.5} />
@@ -86,11 +86,11 @@ export default function MobileBottomBar() {
             <Link
               to="/contact"
               aria-label={lang === "fr" ? "Devis" : "Quote"}
-              className="touch-target flex flex-col items-center justify-center gap-0.5 px-3 py-2 rounded-full active:bg-white/5 transition-colors"
+              className="touch-target min-w-0 flex-1 flex flex-col items-center justify-center gap-0.5 px-1 py-2 rounded-full active:bg-white/5 transition-colors"
               data-testid="mbar-quote"
             >
               <FileText className="w-5 h-5 text-white/80" />
-              <span className="font-ui text-[9px] uppercase tracking-wider text-white/55">
+              <span className="font-ui text-[8px] sm:text-[9px] uppercase tracking-[0.04em] text-white/55">
                 {lang === "fr" ? "Devis" : "Quote"}
               </span>
             </Link>
@@ -98,7 +98,7 @@ export default function MobileBottomBar() {
             <Link
               to="/portfolio"
               aria-label={t("nav.portfolio")}
-              className="touch-target flex flex-col items-center justify-center gap-0.5 px-3 py-2 rounded-full active:bg-white/5 transition-colors"
+              className="touch-target min-w-0 flex-1 flex flex-col items-center justify-center gap-0.5 px-1 py-2 rounded-full active:bg-white/5 transition-colors"
               data-testid="mbar-projects"
             >
               <svg viewBox="0 0 24 24" className="w-5 h-5 text-white/80" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -107,7 +107,7 @@ export default function MobileBottomBar() {
                 <rect x="3" y="14" width="7" height="7" rx="1" />
                 <rect x="14" y="14" width="7" height="7" rx="1" />
               </svg>
-              <span className="font-ui text-[9px] uppercase tracking-wider text-white/55">
+              <span className="font-ui text-[8px] sm:text-[9px] uppercase tracking-[0.04em] text-white/55">
                 {lang === "fr" ? "Projets" : "Work"}
               </span>
             </Link>

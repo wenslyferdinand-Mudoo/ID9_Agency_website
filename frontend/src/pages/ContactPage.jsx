@@ -83,11 +83,11 @@ export default function ContactPage() {
             delay={0.1}
           />
 
-          <div className="mt-16 grid md:grid-cols-12 gap-10">
-            <aside className="md:col-span-4 space-y-8">
+          <div className="mt-12 sm:mt-16 grid md:grid-cols-12 gap-8 sm:gap-10">
+            <aside className="md:col-span-4 space-y-6 sm:space-y-8">
               <div>
                 <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.25em] mb-2">Email</p>
-                <a href={`mailto:${BRAND.email}`} className="font-display text-xl md:text-2xl hover:text-orange_impact break-all">
+                <a href={`mailto:${BRAND.email}`} className="inline-flex min-h-11 items-center font-display text-lg sm:text-xl md:text-2xl hover:text-orange_impact break-all">
                   {BRAND.email}
                 </a>
               </div>
@@ -97,7 +97,7 @@ export default function ContactPage() {
                   href={whatsappLink()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-display text-2xl hover:text-orange_impact inline-flex items-center gap-2"
+                  className="inline-flex min-h-11 max-w-full flex-wrap items-center gap-2 font-display text-xl sm:text-2xl hover:text-orange_impact break-words"
                   data-testid="contact-whatsapp-link"
                 >
                   {BRAND.whatsappDisplay} <MessageCircle className="w-5 h-5" />
@@ -110,7 +110,7 @@ export default function ContactPage() {
                     href={BRAND.instagramUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-white/85 hover:text-orange_impact"
+                    className="inline-flex min-h-11 items-center gap-2 py-2 text-white/85 hover:text-orange_impact"
                   >
                     <Instagram className="w-4 h-4" /> Instagram · {BRAND.instagramHandle}
                   </a>
@@ -118,7 +118,7 @@ export default function ContactPage() {
                     href={BRAND.tiktokUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-white/85 hover:text-orange_impact"
+                    className="inline-flex min-h-11 items-center gap-2 py-2 text-white/85 hover:text-orange_impact"
                   >
                     <Music2 className="w-4 h-4" /> TikTok · {BRAND.tiktokHandle}
                   </a>
@@ -126,7 +126,7 @@ export default function ContactPage() {
                     href={BRAND.facebookUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-white/85 hover:text-orange_impact"
+                    className="inline-flex min-h-11 items-center gap-2 py-2 text-white/85 hover:text-orange_impact"
                   >
                     <Facebook className="w-4 h-4" /> Facebook · {BRAND.facebookHandle}
                   </a>
@@ -149,7 +149,7 @@ export default function ContactPage() {
               </div>
             </aside>
 
-            <div className="md:col-span-8 glass-strong rounded-3xl p-5 sm:p-7 md:p-10 noise-overlay relative overflow-hidden">
+            <div className="md:col-span-8 glass-strong relative overflow-hidden rounded-2xl p-4 sm:rounded-3xl sm:p-7 md:p-10 noise-overlay">
               {sent ? (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
@@ -178,7 +178,7 @@ export default function ContactPage() {
                 </motion.div>
               ) : (
                 <form onSubmit={submit} className="space-y-6" data-testid="contact-form" aria-busy={submitting}>
-                  <div className="grid md:grid-cols-2 gap-6">
+                  <div className="grid gap-5 sm:gap-6 md:grid-cols-2">
                     <Field label={t("co.field.name")} value={form.name} onChange={onChange("name")} testid="contact-input-name" required autoComplete="name" />
                     <Field
                       label={t("co.field.email")}
@@ -209,7 +209,7 @@ export default function ContactPage() {
                       </label>
                       <Select value={form.budget} onValueChange={onChange("budget")}>
                         <SelectTrigger
-                          className="bg-transparent border-0 border-b border-white/15 rounded-none px-0 h-11 focus:ring-0 focus:border-orange_impact font-inter"
+                          className="bg-transparent border-0 border-b border-white/15 rounded-none px-0 h-12 focus:ring-0 focus:border-orange_impact font-inter"
                           id="contact-select-budget"
                           data-testid="contact-select-budget"
                         >
@@ -230,7 +230,7 @@ export default function ContactPage() {
                       </label>
                       <Select value={form.service} onValueChange={onChange("service")}>
                         <SelectTrigger
-                          className="bg-transparent border-0 border-b border-white/15 rounded-none px-0 h-11 focus:ring-0 focus:border-orange_impact font-inter"
+                          className="bg-transparent border-0 border-b border-white/15 rounded-none px-0 h-12 focus:ring-0 focus:border-orange_impact font-inter"
                           id="contact-select-service"
                           data-testid="contact-select-service"
                         >
@@ -257,7 +257,7 @@ export default function ContactPage() {
                       value={form.message}
                       onChange={onChange("message")}
                       placeholder={t("co.field.messagePh")}
-                      className="w-full bg-transparent border-b border-white/15 focus:border-orange_impact py-3 outline-none font-inter resize-none text-white placeholder-white/30"
+                      className="w-full min-h-32 bg-transparent border-b border-white/15 focus:border-orange_impact py-3 outline-none font-inter text-base resize-y text-white placeholder-white/30"
                       data-testid="contact-input-message"
                     />
                   </div>
@@ -265,7 +265,7 @@ export default function ContactPage() {
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="inline-flex items-center gap-2 bg-orange_impact text-ink-900 font-ui font-semibold px-7 py-3.5 rounded-full disabled:opacity-60 hover:bg-gold_light transition-colors"
+                      className="inline-flex min-h-12 w-full sm:w-auto items-center justify-center gap-2 bg-orange_impact text-ink-900 font-ui font-semibold px-7 py-3.5 rounded-full disabled:opacity-60 hover:bg-gold_light transition-colors"
                       data-testid="contact-submit"
                     >
                       <Mail className="w-4 h-4" />
@@ -275,7 +275,7 @@ export default function ContactPage() {
                       href={whatsappLink(waText)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 glass text-white px-7 py-3.5 rounded-full font-ui font-semibold hover:bg-white/10 transition-colors"
+                      className="inline-flex min-h-12 w-full sm:w-auto items-center justify-center gap-2 glass text-white px-7 py-3.5 rounded-full font-ui font-semibold hover:bg-white/10 transition-colors"
                       data-testid="contact-whatsapp-button"
                     >
                       <MessageCircle className="w-4 h-4" /> {t("co.wa")}
@@ -303,7 +303,7 @@ function Field({ label, value, onChange, type = "text", placeholder = "", testid
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className="w-full bg-transparent border-b border-white/15 focus:border-orange_impact py-3 outline-none font-inter text-white placeholder-white/30 transition-colors"
+        className="w-full min-h-12 bg-transparent border-b border-white/15 focus:border-orange_impact py-3 outline-none font-inter text-base text-white placeholder-white/30 transition-colors"
         data-testid={testid}
       />
     </div>

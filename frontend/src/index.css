@@ -158,6 +158,10 @@ html.lenis body {
   background-size: 80px 80px;
 }
 
+/* Hide scrollbars without disabling native horizontal touch scrolling. */
+.scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }
+
 /* Marquee fade mask */
 .marquee-mask {
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);

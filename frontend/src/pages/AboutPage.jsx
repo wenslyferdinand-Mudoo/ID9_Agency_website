@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowUpRight, Sparkles } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import RevealText from "@/components/site/RevealText";
 import GlowOrb from "@/components/site/GlowOrb";
@@ -21,27 +21,27 @@ export default function AboutPage() {
   const TIMELINE = lang === "fr" ? TIMELINE_FR : TIMELINE_EN;
   return (
     <main data-testid="about-page" className="pt-32 md:pt-40 pb-0">
-      <section className="relative px-4 md:px-8 pb-24 overflow-hidden">
+      <section className="relative px-4 sm:px-6 md:px-8 pb-16 sm:pb-24 overflow-hidden">
         <GlowOrb color="#743089" size={760} intensity={0.45} className="-top-20 -left-40" />
         <div className="relative max-w-7xl mx-auto">
-          <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.3em] mb-6 inline-flex items-center gap-2">
-            <Sparkles className="w-3 h-3" /> {t("ap.tag")}
+          <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.24em] mb-5 sm:mb-6">
+            {t("ap.tag")}
           </p>
           <RevealText
             as="h1"
             text={t("ap.h1")}
             className="max-w-5xl font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[1.04] md:leading-[0.98] text-balance"
           />
-          <p className="mt-7 md:mt-10 max-w-3xl font-inter text-base sm:text-lg md:text-xl text-white/70 leading-relaxed">
+          <p className="mt-6 sm:mt-8 md:mt-10 max-w-3xl font-inter text-base sm:text-lg md:text-xl text-white/70 leading-relaxed">
             {t("ap.body")}
           </p>
         </div>
       </section>
 
-      <section className="px-4 md:px-8 py-20 bg-ink-800/60">
+      <section className="px-4 sm:px-6 md:px-8 py-16 sm:py-20 bg-ink-800/60">
         <div className="max-w-7xl mx-auto grid md:grid-cols-12 gap-10 items-center">
           <div className="md:col-span-6">
-            <div className="relative aspect-[4/5] rounded-3xl overflow-hidden group">
+            <div className="relative aspect-[4/5] rounded-2xl sm:rounded-3xl overflow-hidden group">
               <img
                 src="/wensly-founder.jpg"
                 alt="Wensly Ferdinand — Founder and Creative Director of Impact Digital 9 Agency"
@@ -56,7 +56,7 @@ export default function AboutPage() {
                     "radial-gradient(circle at 50% 35%, rgba(255,40,80,0.35), transparent 55%)",
                 }}
               />
-              <div className="absolute bottom-8 left-8 right-8">
+              <div className="absolute bottom-5 left-5 right-5 sm:bottom-8 sm:left-8 sm:right-8">
                 <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.25em] mb-2">
                   {t("ap.founderRole")}
                 </p>
@@ -109,13 +109,13 @@ export default function AboutPage() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.06 }}
-                className="grid grid-cols-12 gap-4 sm:gap-6 border-t border-white/10 pt-8"
+                className="grid grid-cols-[4.25rem_minmax(0,1fr)] sm:grid-cols-12 gap-4 sm:gap-6 border-t border-white/10 pt-7 sm:pt-8"
               >
-                <p className="col-span-3 md:col-span-2 font-display font-black text-2xl md:text-3xl tabular-nums text-orange_impact">
+                <p className="font-display font-black text-2xl md:text-3xl tabular-nums text-orange_impact sm:col-span-2">
                   {it.y}
                 </p>
-                <div className="col-span-9 md:col-span-10">
-                  <h3 className="font-display text-2xl md:text-3xl font-bold tracking-tight">
+                <div className="min-w-0 sm:col-span-10">
+                  <h3 className="font-display text-xl sm:text-2xl md:text-3xl font-bold tracking-tight break-words">
                     {it.t}
                   </h3>
                   <p className="text-white/65 mt-2 font-inter leading-relaxed">{it.d}</p>
@@ -125,7 +125,7 @@ export default function AboutPage() {
           </ul>
           <Link
             to="/contact"
-            className="mt-16 inline-flex items-center gap-2 bg-orange_impact text-ink-900 font-ui font-semibold px-7 py-3.5 rounded-full hover:bg-gold_light transition-colors"
+            className="mt-12 sm:mt-16 min-h-12 inline-flex items-center justify-center gap-2 bg-orange_impact text-ink-900 font-ui font-semibold px-7 py-3.5 rounded-full hover:bg-gold_light transition-colors"
           >
             {t("ap.workWithUs")} <ArrowUpRight className="w-4 h-4" />
           </Link>
