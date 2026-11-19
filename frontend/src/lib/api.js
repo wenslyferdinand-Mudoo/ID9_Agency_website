@@ -8,11 +8,19 @@ export const API_BASE = BACKEND_URL
   ? BACKEND_URL.endsWith("/api")
     ? BACKEND_URL
     : `${BACKEND_URL}/api`
-  : "/api";
+  : null;
 
 const api = axios.create({ baseURL: API_BASE });
 
 api.interceptors.request.use((config) => {
+  if (!BACKEND_URL) {
+    return Promise.reject(
+      new Error(
+        "Backend URL is not configured. Set REACT_APP_API_URL or REACT_APP_BACKEND_URL."
+      )
+    );
+  }
+
   const token = localStorage.getItem("id9_token");
   if (token) {
     config.headers = config.headers || {};
