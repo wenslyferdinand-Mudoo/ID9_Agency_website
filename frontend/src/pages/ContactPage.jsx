@@ -110,7 +110,7 @@ export default function ContactPage() {
                     href={BRAND.instagramUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-white/85 hover:text-orange_impact"
+                    className="inline-flex min-h-11 items-center gap-2 py-2 text-white/85 hover:text-orange_impact"
                   >
                     <Instagram className="w-4 h-4" /> Instagram · {BRAND.instagramHandle}
                   </a>
@@ -118,7 +118,7 @@ export default function ContactPage() {
                     href={BRAND.tiktokUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-white/85 hover:text-orange_impact"
+                    className="inline-flex min-h-11 items-center gap-2 py-2 text-white/85 hover:text-orange_impact"
                   >
                     <Music2 className="w-4 h-4" /> TikTok · {BRAND.tiktokHandle}
                   </a>
@@ -126,7 +126,7 @@ export default function ContactPage() {
                     href={BRAND.facebookUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-white/85 hover:text-orange_impact"
+                    className="inline-flex min-h-11 items-center gap-2 py-2 text-white/85 hover:text-orange_impact"
                   >
                     <Facebook className="w-4 h-4" /> Facebook · {BRAND.facebookHandle}
                   </a>
