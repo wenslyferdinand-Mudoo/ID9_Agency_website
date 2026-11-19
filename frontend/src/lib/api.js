@@ -1,7 +1,14 @@
 import axios from "axios";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-export const API_BASE = `${BACKEND_URL}/api`;
+// Support both the documented legacy variable and the Vercel project variable.
+const configuredBackendUrl =
+  process.env.REACT_APP_BACKEND_URL || process.env.REACT_APP_API_URL || "";
+const BACKEND_URL = configuredBackendUrl.replace(/\/+$/, "");
+export const API_BASE = BACKEND_URL
+  ? BACKEND_URL.endsWith("/api")
+    ? BACKEND_URL
+    : `${BACKEND_URL}/api`
+  : "/api";
 
 const api = axios.create({ baseURL: API_BASE });
 
