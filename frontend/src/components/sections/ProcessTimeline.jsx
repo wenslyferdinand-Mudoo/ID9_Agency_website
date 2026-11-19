@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
-import { ArrowDown, Sparkles, Target, Palette, Code2, Rocket, TrendingUp } from "lucide-react";
+import { ArrowDown, ScanSearch, Target, Palette, Code2, Rocket, TrendingUp } from "lucide-react";
 import RevealText from "@/components/site/RevealText";
 import { useI18n } from "@/lib/i18n";
 
@@ -17,7 +17,7 @@ export default function ProcessTimeline() {
   const LAYERS = [
     {
       n: "01",
-      icon: Sparkles,
+      icon: ScanSearch,
       k: t("pr.discover"),
       v: t("pr.discoverV"),
       impact: t("pr.impact01"),
