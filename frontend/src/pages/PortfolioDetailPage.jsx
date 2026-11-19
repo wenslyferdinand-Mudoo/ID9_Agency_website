@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useLocation, Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, Quote, Wrench, Target, Lightbulb, Rocket, TrendingUp } from "lucide-react";
 import api from "@/lib/api";
@@ -11,6 +11,7 @@ import { getFounderProjectBySlug } from "@/lib/founder-projects";
 
 export default function PortfolioDetailPage() {
   const { slug } = useParams();
+  const { pathname } = useLocation();
   const [item, setItem] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const { lang } = useI18n();
@@ -65,6 +66,42 @@ export default function PortfolioDetailPage() {
       cancelled = true;
     };
   }, [slug, lang]);
+
+  useEffect(() => {
+    if (!item || typeof document === "undefined") return;
+
+    const origin = window.location.origin;
+    const canonicalUrl = `${origin}${pathname}`;
+    const title =
+      (typeof item.seoTitle === "string" && item.seoTitle.trim()) ||
+      `${item.title || "Project"} | Impact Digital 9`;
+    const description =
+      (typeof item.seoDescription === "string" && item.seoDescription.trim()) ||
+      (typeof item.summary === "string" ? item.summary.trim() : "");
+    const image =
+      typeof item.cover_image === "string" && item.cover_image.startsWith("https://")
+        ? item.cover_image
+        : "";
+
+    document.title = title;
+    setDocumentMeta('meta[name="description"]', "content", description);
+    setDocumentMeta('meta[property="og:title"]', "content", title);
+    setDocumentMeta('meta[property="og:description"]', "content", description);
+    setDocumentMeta('meta[property="og:url"]', "content", canonicalUrl);
+    setDocumentMeta('meta[property="og:type"]', "content", "website");
+    setDocumentMeta('meta[property="og:image"]', "content", image);
+    setDocumentMeta('meta[name="twitter:title"]', "content", title);
+    setDocumentMeta('meta[name="twitter:description"]', "content", description);
+    setDocumentMeta('meta[name="twitter:image"]', "content", image);
+
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.setAttribute("rel", "canonical");
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute("href", canonicalUrl);
+  }, [item, pathname, lang]);
 
   if (notFound)
     return (
@@ -386,6 +423,12 @@ export default function PortfolioDetailPage() {
 }
 
 /* ---------- helpers ---------- */
+function setDocumentMeta(selector, attribute, value) {
+  if (typeof value !== "string" || !value.trim()) return;
+  const element = document.querySelector(selector);
+  if (element) element.setAttribute(attribute, value);
+}
+
 function MetaBlock({ label, value }) {
   if (!value) return null;
   return (
