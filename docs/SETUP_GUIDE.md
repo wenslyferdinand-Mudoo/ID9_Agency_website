@@ -77,7 +77,7 @@ MONGO_URL="mongodb://localhost:27017"
 DB_NAME="id9_local"
 CORS_ORIGINS="http://localhost:3000"
 JWT_SECRET="REMPLACER_PAR_UN_SECRET_ALEATOIRE_UNIQUE"
-ADMIN_EMAIL="votre-adresse-administrateur"
+ADMIN_EMAIL="admin@votre-domaine.com"
 ADMIN_PASSWORD="REMPLACER_PAR_UN_MOT_DE_PASSE_UNIQUE_ET_LONG"
 ```
 
