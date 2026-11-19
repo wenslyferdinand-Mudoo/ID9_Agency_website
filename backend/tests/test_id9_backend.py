@@ -163,10 +163,10 @@ def test_contact_crud_flow(admin, allow_mutations):
     assert created.status_code == 200, created.text
     contact = created.json()
     contact_id = contact["id"]
-    assert contact["name"] == payload["name"]
-    assert contact["read"] is False
 
     try:
+        assert contact["name"] == payload["name"]
+        assert contact["read"] is False
         listed = admin.get(f"{BASE_URL}/api/contact")
         assert listed.status_code == 200
         assert any(item["id"] == contact_id for item in listed.json())
