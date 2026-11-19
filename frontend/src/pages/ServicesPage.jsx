@@ -34,7 +34,7 @@ function ServiceCard({ service, index, lang }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-48px" }}
       transition={{ duration: 0.4, delay: (index % 3) * 0.035, ease: [0.16, 1, 0.3, 1] }}
-      className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.09] bg-[#101012] p-6 md:p-7 transition-colors duration-300 hover:border-orange_impact/35 hover:bg-[#141416]"
+      className="group relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-white/[0.09] bg-[#101012] p-5 sm:p-6 md:p-7 transition-colors duration-300 hover:border-orange_impact/35 hover:bg-[#141416]"
       data-testid={"service-card-" + service.slug}
     >
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange_impact/35 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
@@ -51,7 +51,7 @@ function ServiceCard({ service, index, lang }) {
       <h3 className="mb-3 max-w-xl font-display text-xl font-bold leading-snug tracking-tight text-white md:text-2xl">
         {title}
       </h3>
-      <p className="mb-7 text-sm leading-7 text-white/62">{description}</p>
+      <p className="mb-7 break-words text-sm leading-7 text-white/65">{description}</p>
 
       <div className="mb-6">
         <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-orange_impact/85">
@@ -146,8 +146,8 @@ export default function ServicesPage() {
   const familyLabel = lang === "fr" ? "domaines d’intervention" : "practice areas";
 
   return (
-    <main data-testid="services-page" className="pt-32 md:pt-40">
-      <section className="relative px-4 pb-16 md:px-8 md:pb-20">
+    <main data-testid="services-page" className="pt-28 sm:pt-32 md:pt-40">
+      <section className="relative px-4 pb-14 sm:px-6 sm:pb-16 md:px-8 md:pb-20">
         <div className="mx-auto max-w-7xl">
           <p className="mb-6 font-ui text-xs uppercase tracking-[0.3em] text-orange_impact">
             {t("nav.services")}
@@ -181,7 +181,7 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      <section className="px-4 pb-24 md:px-8 md:pb-32">
+      <section className="px-4 pb-20 sm:px-6 sm:pb-24 md:px-8 md:pb-32">
         <div className="mx-auto max-w-7xl space-y-20 md:space-y-28">
           {groupedServices.map((family, familyIndex) => (
             <section key={family.id} aria-labelledby={"service-family-" + family.id}>
@@ -219,7 +219,7 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      <section className="px-4 pb-20 md:px-8 md:pb-28">
+      <section className="px-4 pb-16 sm:px-6 sm:pb-20 md:px-8 md:pb-28">
         <div className="mx-auto flex max-w-7xl flex-col gap-5 rounded-2xl border border-white/10 bg-white/[0.025] p-7 md:flex-row md:items-center md:justify-between md:p-10">
           <div>
             <p className="mb-2 font-ui text-[10px] uppercase tracking-[0.22em] text-orange_impact">
@@ -236,7 +236,7 @@ export default function ServicesPage() {
           </div>
           <a
             href="/contact"
-            className="inline-flex min-h-12 shrink-0 items-center justify-center gap-3 rounded-full bg-orange_impact px-6 py-3 text-sm font-semibold text-ink-900 transition-transform hover:-translate-y-0.5"
+            className="inline-flex min-h-12 w-full shrink-0 items-center justify-center gap-3 rounded-full bg-orange_impact px-6 py-3 text-sm font-semibold text-ink-900 transition-transform hover:-translate-y-0.5 sm:w-auto"
           >
             {lang === "fr" ? "Parler de votre projet" : "Discuss your project"}
             <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
