@@ -176,7 +176,7 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="mt-16 pt-6 pb-24 md:pb-0 border-t border-white/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs font-ui text-white/40">
+          <div className="mt-12 sm:mt-16 pt-6 pb-24 md:pb-0 border-t border-white/5 flex flex-col items-center text-center sm:flex-row sm:items-center sm:justify-between sm:text-left gap-3 text-xs font-ui text-white/40">
             <p>
               © {BRAND.founded}–{new Date().getFullYear()} {BRAND.fullName}. {t("ft.rights")}
             </p>
