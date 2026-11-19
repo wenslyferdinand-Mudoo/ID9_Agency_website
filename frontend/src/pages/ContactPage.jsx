@@ -215,9 +215,9 @@ export default function ContactPage() {
                         >
                           <SelectValue placeholder={t("co.field.budgetPh")} />
                         </SelectTrigger>
-                        <SelectContent className="bg-ink-700 border-white/10">
+                        <SelectContent className="w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)] bg-ink-700 border-white/10">
                           {BUDGETS.map((b) => (
-                            <SelectItem key={b} value={b}>
+                            <SelectItem key={b} value={b} className="min-h-11 whitespace-normal py-2.5 text-sm">
                               {b}
                             </SelectItem>
                           ))}
@@ -238,7 +238,7 @@ export default function ContactPage() {
                         </SelectTrigger>
                         <SelectContent className="bg-ink-700 border-white/10">
                           {SERVICES.map((s) => (
-                            <SelectItem key={s} value={s}>
+                            <SelectItem key={s} value={s} className="min-h-11 whitespace-normal py-2.5 text-sm">
                               {s}
                             </SelectItem>
                           ))}
