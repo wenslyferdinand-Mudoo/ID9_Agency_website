@@ -283,6 +283,7 @@ export default function ContactPage() {
                     </label>
                     <textarea
                       id="contact-input-message"
+                      name="message"
                       rows={5}
                       required
                       value={form.message}
