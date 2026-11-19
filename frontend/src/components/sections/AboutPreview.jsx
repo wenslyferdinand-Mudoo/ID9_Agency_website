@@ -57,7 +57,7 @@ export default function AboutPreview() {
 
           <Link
             to="/about"
-            className="inline-flex items-center gap-2 text-white hover:text-orange_impact transition-colors font-ui group"
+            className="inline-flex min-h-11 items-center gap-2 py-2 text-white hover:text-orange_impact transition-colors font-ui group"
             data-testid="about-preview-cta"
           >
             <span className="border-b border-white/30 group-hover:border-orange_impact transition-colors pb-0.5">
