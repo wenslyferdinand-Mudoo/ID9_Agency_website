@@ -79,6 +79,7 @@ export default function PortfolioDetailPage() {
     return <main className="min-h-screen pt-40 text-center text-white/50">Loading…</main>;
 
   const L = (fr, en) => (lang === "fr" ? fr : en);
+  const externalLinks = getProjectExternalLinks(item);
 
   return (
     <main data-testid="portfolio-detail" className="pb-0 bg-ink-900">
@@ -273,6 +274,64 @@ export default function PortfolioDetailPage() {
         </section>
       )}
 
+      {/* ============ PROJECT EXTERNAL LINKS ============ */}
+      {externalLinks.length > 0 && (
+        <section
+          className="border-y border-white/[0.06] bg-ink-800/25 px-6 py-20 md:px-12 md:py-24"
+          data-testid="case-external-links"
+        >
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-10 max-w-2xl">
+              <p className="mb-4 font-ui text-xs uppercase tracking-[0.3em] text-orange_impact">
+                {L("Ressources", "Resources")}
+              </p>
+              <h2 className="font-display text-3xl font-black tracking-tight md:text-5xl">
+                {L("Explorer le projet.", "Explore this project.")}
+              </h2>
+              <p className="mt-4 text-sm leading-relaxed text-white/55 md:text-base">
+                {L(
+                  "Retrouvez les sites officiels, profils sociaux et ressources publiques associés à ce projet.",
+                  "Visit the official websites, social profiles and public resources related to this project."
+                )}
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {externalLinks.map((link, index) => (
+                <a
+                  key={link._key || link.url}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={L(
+                    "Ouvrir " + link.label + " dans un nouvel onglet",
+                    "Open " + link.label + " in a new tab"
+                  )}
+                  className="group flex min-h-20 items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.035] px-5 py-4 transition-colors hover:border-orange_impact/50 hover:bg-white/[0.07]"
+                  data-testid={"case-external-link-" + index}
+                >
+                  <span className="min-w-0">
+                    {link.platform && (
+                      <span className="mb-1 block font-ui text-[10px] uppercase tracking-[0.2em] text-white/40">
+                        {link.platform.replace(/-/g, " ")}
+                      </span>
+                    )}
+                    <span className="block truncate font-ui text-sm font-semibold text-white/85 transition-colors group-hover:text-white">
+                      {link.label}
+                    </span>
+                    {link.description && (
+                      <span className="mt-1 block text-xs leading-relaxed text-white/45">
+                        {link.description}
+                      </span>
+                    )}
+                  </span>
+                  <ArrowUpRight className="h-5 w-5 shrink-0 text-orange_impact transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ============ KPIS / RESULTS ============ */}
       {(item.kpis?.length > 0 || item.outcome) && (
         <section className="relative px-6 md:px-12 lg:px-20 py-24 md:py-36 overflow-hidden">
@@ -386,6 +445,40 @@ export default function PortfolioDetailPage() {
 }
 
 /* ---------- helpers ---------- */
+function getProjectExternalLinks(item) {
+  const entries = Array.isArray(item?.externalLinks)
+    ? item.externalLinks
+    : Array.isArray(item?.external_links)
+      ? item.external_links
+      : [];
+
+  return entries
+    .map((entry) => {
+      const rawUrl = typeof entry?.url === "string" ? entry.url.trim() : "";
+      let url = "";
+      try {
+        const parsed = new URL(rawUrl);
+        if (["http:", "https:"].includes(parsed.protocol)) url = parsed.href;
+      } catch {
+        // Do not render malformed or unsafe external destinations.
+      }
+
+      return {
+        _key: entry?._key,
+        label:
+          typeof entry?.label === "string" && entry.label.trim()
+            ? entry.label.trim()
+            : typeof entry?.platform === "string"
+              ? entry.platform
+              : "",
+        platform: typeof entry?.platform === "string" ? entry.platform : "",
+        url,
+        description: typeof entry?.description === "string" ? entry.description.trim() : "",
+      };
+    })
+    .filter((entry) => entry.label && entry.url);
+}
+
 function MetaBlock({ label, value }) {
   if (!value) return null;
   return (
