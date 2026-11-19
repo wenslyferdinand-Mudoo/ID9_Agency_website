@@ -178,7 +178,7 @@ def test_contact_list_requires_auth(api):
     assert r.status_code == 401
 
 
-def test_contact_list_with_auth(admin):
+def test_contact_list_with_auth(admin, allow_mutations):
     r = admin.get(f"{BASE_URL}/api/contact")
     assert r.status_code == 200
     items = r.json()
