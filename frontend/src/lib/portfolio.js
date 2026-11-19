@@ -1,4 +1,8 @@
-import {sanityClient, imageUrl} from './sanity'
+import {createClient} from '@sanity/client'
+import {SANITY_CONFIG, sanityClient, imageUrl} from './sanity'
+
+// Retry detail lookup without the CDN if a newly published document is missing from cache.
+const uncachedSanityClient = createClient({...SANITY_CONFIG, useCdn: false})
 
 /** GROQ queries */
 const PROJECTION = `{
@@ -79,11 +83,21 @@ export async function fetchPortfolioList() {
 }
 
 export async function fetchPortfolioBySlug(slug) {
+  if (!slug || typeof slug !== 'string') return null
   try {
     const data = await sanityClient.fetch(DETAIL_QUERY, {slug})
+    if (data) return normalizePortfolio(data)
+  } catch (e) {
+    console.warn('[Sanity] CDN fetchPortfolioBySlug failed:', e?.message)
+  }
+
+  // The CDN may briefly serve a stale empty result after publication. Retry the
+  // same query against Sanity's API directly before falling back to legacy data.
+  try {
+    const data = await uncachedSanityClient.fetch(DETAIL_QUERY, {slug})
     return normalizePortfolio(data)
   } catch (e) {
-    console.warn('[Sanity] fetchPortfolioBySlug failed:', e?.message)
+    console.warn('[Sanity] uncached fetchPortfolioBySlug failed:', e?.message)
     return null
   }
 }
