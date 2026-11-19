@@ -7,8 +7,8 @@ import { useI18n } from "@/lib/i18n";
 export default function AboutPreview() {
   const { t } = useI18n();
   return (
-    <section className="relative py-28 md:py-40 px-4 md:px-8 overflow-hidden" data-testid="about-preview">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16 items-start">
+    <section className="relative py-20 sm:py-28 md:py-40 px-5 sm:px-6 md:px-8 overflow-hidden" data-testid="about-preview">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-9 sm:gap-10 md:gap-16 items-start">
         <div className="md:col-span-5 md:sticky md:top-28">
           <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.3em] mb-6">
             {t("about.tag")}
@@ -16,7 +16,7 @@ export default function AboutPreview() {
           <RevealText
             as="h2"
             text={t("about.h2")}
-            className="font-display text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter leading-[1.05] text-balance"
+            className="max-w-2xl font-display text-[clamp(2rem,7.5vw,3rem)] md:text-5xl lg:text-6xl font-black tracking-tighter leading-[1.08] md:leading-[1.02] text-balance"
           />
         </div>
 
@@ -26,21 +26,21 @@ export default function AboutPreview() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-            className="relative aspect-[5/4] overflow-hidden rounded-3xl"
+            className="relative aspect-[4/3] sm:aspect-[5/4] overflow-hidden rounded-2xl sm:rounded-3xl"
           >
             <img
               src="https://images.unsplash.com/photo-1663298172343-9238ba22cd30?auto=format&fit=crop&w=1400&q=80"
-              alt="ID9 studio workspace"
+              alt="Creative workspace representing the design and digital production work of Impact Digital 9 Agency"
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-ink-900 via-ink-900/20 to-transparent" />
           </motion.div>
 
-          <p className="font-inter text-lg text-white/70 leading-relaxed font-light">
+          <p className="max-w-3xl font-inter text-base sm:text-lg text-white/70 leading-relaxed font-light">
             {t("about.body")}
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6 pt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-5 lg:gap-6 pt-2 sm:pt-4">
             {[
               { k: t("about.vision.k"), v: t("about.vision.v") },
               { k: t("about.mission.k"), v: t("about.mission.v") },
