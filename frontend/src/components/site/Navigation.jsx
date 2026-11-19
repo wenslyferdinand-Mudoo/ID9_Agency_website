@@ -104,7 +104,7 @@ export default function Navigation() {
               {lang === "en" ? "FR" : "EN"}
             </button>
             <Link
-              to="/contact"
+              to="/contact#contact-form"
               className="hidden lg:inline-flex items-center gap-1.5 bg-orange_impact text-ink-900 font-ui font-semibold text-sm px-5 py-2.5 rounded-full hover:bg-gold_light transition-colors"
               data-testid="nav-cta-contact"
             >
@@ -286,7 +286,7 @@ export default function Navigation() {
                     <Facebook className="w-5 h-5" />
                   </a>
                   <Link
-                    to="/contact"
+                    to="/contact#contact-form"
                     onClick={() => setOpen(false)}
                     className="touch-target col-span-4 w-full sm:col-span-1 sm:flex-1 md:flex-none md:px-10 inline-flex items-center justify-center gap-2 bg-orange_impact text-ink-900 font-ui font-semibold px-6 py-3 rounded-full active:scale-95 hover:bg-gold_light transition-all sm:ml-auto"
                     data-testid="nav-mobile-cta"
