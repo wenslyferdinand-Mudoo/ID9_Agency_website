@@ -4,9 +4,33 @@ import uuid
 import pytest
 import requests
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://digital-impact-19.preview.emergentagent.com').rstrip('/')
-ADMIN_EMAIL = "admin@id9agency.com"
-ADMIN_PASSWORD = "ID9_Admin_2025!"
+BASE_URL = os.environ.get("ID9_TEST_API_URL", "").strip().rstrip("/")
+ADMIN_EMAIL = os.environ.get("ID9_TEST_ADMIN_EMAIL", "").strip()
+ADMIN_PASSWORD = os.environ.get("ID9_TEST_ADMIN_PASSWORD", "")
+ALLOW_REMOTE_TARGET = os.environ.get("ID9_TEST_ALLOW_REMOTE", "").lower() == "true"
+ALLOW_MUTATIONS = os.environ.get("ID9_TEST_ALLOW_MUTATIONS", "").lower() == "true"
+
+if not BASE_URL:
+    pytest.skip("Set ID9_TEST_API_URL to run backend integration tests.", allow_module_level=True)
+
+from urllib.parse import urlparse
+
+_target = urlparse(BASE_URL)
+if _target.scheme not in {"http", "https"} or not _target.netloc:
+    raise RuntimeError("ID9_TEST_API_URL must be an absolute HTTP(S) URL.")
+
+_is_local_target = _target.hostname in {"localhost", "127.0.0.1", "::1", "host.docker.internal"}
+if not _is_local_target and not ALLOW_REMOTE_TARGET:
+    pytest.skip(
+        "Remote backend tests require explicit ID9_TEST_ALLOW_REMOTE=true.",
+        allow_module_level=True,
+    )
+
+
+@pytest.fixture
+def allow_mutations():
+    if not ALLOW_MUTATIONS:
+        pytest.skip("Set ID9_TEST_ALLOW_MUTATIONS=true only for an isolated test database.")
 
 
 @pytest.fixture(scope="session")
@@ -18,6 +42,8 @@ def api():
 
 @pytest.fixture(scope="session")
 def admin_token(api):
+    if not ADMIN_EMAIL or not ADMIN_PASSWORD:
+        pytest.skip("Set ID9_TEST_ADMIN_EMAIL and ID9_TEST_ADMIN_PASSWORD for authenticated tests.")
     r = api.post(f"{BASE_URL}/api/auth/login", json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD})
     assert r.status_code == 200, f"Login failed: {r.status_code} {r.text}"
     data = r.json()
@@ -123,7 +149,7 @@ def test_blog_detail(api):
 
 
 # ----- Contact -----
-def test_contact_submit_public(api):
+def test_contact_submit_public(api, allow_mutations):
     payload = {
         "name": "TEST_Visitor",
         "email": "test_visitor@example.com",
@@ -160,7 +186,7 @@ def test_contact_list_with_auth(admin):
     assert any(it["id"] == pytest.contact_id for it in items)
 
 
-def test_contact_mark_read(admin):
+def test_contact_mark_read(admin, allow_mutations):
     cid = pytest.contact_id
     r = admin.patch(f"{BASE_URL}/api/contact/{cid}/read")
     assert r.status_code == 200
@@ -169,7 +195,7 @@ def test_contact_mark_read(admin):
     assert target["read"] is True
 
 
-def test_contact_delete(admin):
+def test_contact_delete(admin, allow_mutations):
     cid = pytest.contact_id
     r = admin.delete(f"{BASE_URL}/api/contact/{cid}")
     assert r.status_code == 200
@@ -178,7 +204,7 @@ def test_contact_delete(admin):
 
 
 # ----- Portfolio admin CRUD -----
-def test_portfolio_admin_crud(admin):
+def test_portfolio_admin_crud(admin, allow_mutations):
     payload = {
         "title": f"TEST_Project_{uuid.uuid4().hex[:6]}",
         "category": "web",
@@ -222,7 +248,7 @@ def test_portfolio_create_requires_auth(api):
 
 
 # ----- Blog admin CRUD -----
-def test_blog_admin_crud(admin):
+def test_blog_admin_crud(admin, allow_mutations):
     payload = {
         "title": f"TEST_Post_{uuid.uuid4().hex[:6]}",
         "category": "TEST",
