@@ -416,32 +416,44 @@ function BentoGallery({ images, title }) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-      {list.map((src, i) => (
-        <motion.figure
-          key={src + i}
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{
-            duration: 0.8,
-            delay: (i % 3) * 0.1,
-            ease: [0.16, 1, 0.3, 1],
-          }}
-          className="relative rounded-2xl md:rounded-3xl overflow-hidden bg-ink-800"
-          data-testid={`case-gallery-${i}`}
-        >
-          <motion.img
-            src={src}
-            alt={`${title} — ${i + 1}`}
-            loading="lazy"
-            className="block w-full h-auto object-contain"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          />
-        </motion.figure>
-      ))}
+      {list.map((entry, i) => {
+        // Sanity gallery items carry editorial metadata; legacy API items are URL strings.
+        const image = typeof entry === "string" ? { url: entry } : entry || {};
+        const src = image.url || image.src || "";
+        if (!src) return null;
+
+        return (
+          <motion.figure
+            key={image._key || `${src}-${i}`}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{
+              duration: 0.8,
+              delay: (i % 3) * 0.1,
+              ease: [0.16, 1, 0.3, 1],
+            }}
+            className="relative rounded-2xl md:rounded-3xl overflow-hidden bg-ink-800"
+            data-testid={`case-gallery-${i}`}
+          >
+            <motion.img
+              src={src}
+              alt={image.alt || `${title} — ${i + 1}`}
+              loading="lazy"
+              className="block w-full h-auto object-contain"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            />
+            {image.caption && (
+              <figcaption className="px-4 py-3 text-sm leading-relaxed text-white/65">
+                {image.caption}
+              </figcaption>
+            )}
+          </motion.figure>
+        );
+      })}
     </div>
   );
 }
