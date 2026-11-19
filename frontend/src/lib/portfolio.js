@@ -56,7 +56,12 @@ export function normalizePortfolio(doc) {
     ...doc,
     id: doc._id,
     cover_image: doc.coverImage ? imageUrl(doc.coverImage, 1600) : '',
-    gallery: gallery.map((g) => imageUrl(g, 1600)),
+    gallery: gallery.map((g) => ({
+      _key: g?._key,
+      url: imageUrl(g, 1600),
+      alt: typeof g?.alt === 'string' ? g.alt.trim() : '',
+      caption: typeof g?.caption === 'string' ? g.caption.trim() : '',
+    })),
     services,
     tools,
     kpis,
