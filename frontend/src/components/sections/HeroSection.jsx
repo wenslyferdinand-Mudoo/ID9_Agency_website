@@ -37,7 +37,7 @@ export default function HeroSection() {
   return (
     <section
       ref={ref}
-      className="relative min-h-screen overflow-hidden pt-32 md:pt-40 pb-20 px-4 md:px-8"
+      className="relative min-h-[min(900px,100svh)] overflow-hidden pt-28 sm:pt-32 md:pt-40 pb-16 sm:pb-20 px-4 sm:px-6 md:px-8"
       data-testid="hero-section"
     >
       {/* Background layers — z order matters */}
@@ -65,7 +65,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-8"
+          className="mb-6 sm:mb-8"
         >
           <span className="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-xs font-ui uppercase tracking-[0.2em] text-white/80">
             <span className="w-1.5 h-1.5 rounded-full bg-orange_impact animate-pulse" />
@@ -105,7 +105,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.75, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="mt-10 font-inter text-base md:text-lg text-white/70 max-w-3xl leading-relaxed font-light text-balance"
+          className="mt-7 sm:mt-10 font-inter text-base md:text-lg text-white/70 max-w-3xl leading-relaxed font-light text-balance"
         >
           {t("hero.sub")}
         </motion.p>
@@ -114,7 +114,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.9, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="mt-10 flex flex-wrap items-center justify-center gap-3"
+          className="mt-8 sm:mt-10 flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center"
         >
           <MagneticButton to="/contact" variant="primary" testid="hero-cta-quote">
             {t("hero.cta.quote")}
@@ -136,7 +136,7 @@ export default function HeroSection() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.15, duration: 1 }}
-          className="mt-20 md:mt-28 w-full"
+          className="mt-16 sm:mt-20 md:mt-28 w-full"
         >
           <p className="text-white/40 text-xs uppercase tracking-[0.3em] font-ui mb-6 text-center">
             {t("hero.trust")}
