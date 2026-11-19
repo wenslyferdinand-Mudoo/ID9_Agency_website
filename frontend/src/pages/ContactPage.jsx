@@ -156,6 +156,8 @@ export default function ContactPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   className="text-center py-16"
                   data-testid="contact-success"
+                  role="status"
+                  aria-live="polite"
                 >
                   <div className="w-16 h-16 mx-auto rounded-full bg-orange_impact/15 border border-orange_impact/40 grid place-items-center mb-6">
                     <Check className="w-7 h-7 text-orange_impact" />
@@ -175,21 +177,24 @@ export default function ContactPage() {
                   </a>
                 </motion.div>
               ) : (
-                <form onSubmit={submit} className="space-y-6" data-testid="contact-form">
+                <form onSubmit={submit} className="space-y-6" data-testid="contact-form" aria-busy={submitting}>
                   <div className="grid md:grid-cols-2 gap-6">
-                    <Field label={t("co.field.name")} value={form.name} onChange={onChange("name")} testid="contact-input-name" />
+                    <Field label={t("co.field.name")} value={form.name} onChange={onChange("name")} testid="contact-input-name" required autoComplete="name" />
                     <Field
                       label={t("co.field.email")}
                       type="email"
                       value={form.email}
                       onChange={onChange("email")}
                       testid="contact-input-email"
+                      required
+                      autoComplete="email"
                     />
                     <Field
                       label={t("co.field.whatsapp")}
                       value={form.whatsapp}
                       onChange={onChange("whatsapp")}
                       testid="contact-input-whatsapp"
+                      autoComplete="tel"
                     />
                     <Field
                       label={t("co.field.deadline")}
@@ -199,12 +204,13 @@ export default function ContactPage() {
                       testid="contact-input-deadline"
                     />
                     <div>
-                      <label className="block text-white/40 font-ui text-xs uppercase tracking-[0.2em] mb-2">
+                      <label htmlFor="contact-select-budget" className="block text-white/40 font-ui text-xs uppercase tracking-[0.2em] mb-2">
                         {t("co.field.budget")}
                       </label>
                       <Select value={form.budget} onValueChange={onChange("budget")}>
                         <SelectTrigger
                           className="bg-transparent border-0 border-b border-white/15 rounded-none px-0 h-11 focus:ring-0 focus:border-orange_impact font-inter"
+                          id="contact-select-budget"
                           data-testid="contact-select-budget"
                         >
                           <SelectValue placeholder={t("co.field.budgetPh")} />
@@ -219,12 +225,13 @@ export default function ContactPage() {
                       </Select>
                     </div>
                     <div>
-                      <label className="block text-white/40 font-ui text-xs uppercase tracking-[0.2em] mb-2">
+                      <label htmlFor="contact-select-service" className="block text-white/40 font-ui text-xs uppercase tracking-[0.2em] mb-2">
                         {t("co.field.service")}
                       </label>
                       <Select value={form.service} onValueChange={onChange("service")}>
                         <SelectTrigger
                           className="bg-transparent border-0 border-b border-white/15 rounded-none px-0 h-11 focus:ring-0 focus:border-orange_impact font-inter"
+                          id="contact-select-service"
                           data-testid="contact-select-service"
                         >
                           <SelectValue placeholder={t("co.field.servicePh")} />
@@ -240,11 +247,13 @@ export default function ContactPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-white/40 font-ui text-xs uppercase tracking-[0.2em] mb-2">
+                    <label htmlFor="contact-input-message" className="block text-white/40 font-ui text-xs uppercase tracking-[0.2em] mb-2">
                       {t("co.field.message")}
                     </label>
                     <textarea
+                      id="contact-input-message"
                       rows={5}
+                      required
                       value={form.message}
                       onChange={onChange("message")}
                       placeholder={t("co.field.messagePh")}
@@ -282,12 +291,15 @@ export default function ContactPage() {
   );
 }
 
-function Field({ label, value, onChange, type = "text", placeholder = "", testid }) {
+function Field({ label, value, onChange, type = "text", placeholder = "", testid, required = false, autoComplete }) {
   return (
     <div>
-      <label className="block text-white/40 font-ui text-xs uppercase tracking-[0.2em] mb-2">{label}</label>
+      <label htmlFor={testid} className="block text-white/40 font-ui text-xs uppercase tracking-[0.2em] mb-2">{label}</label>
       <input
+        id={testid}
         type={type}
+        required={required}
+        autoComplete={autoComplete}
         value={value}
         onChange={onChange}
         placeholder={placeholder}
