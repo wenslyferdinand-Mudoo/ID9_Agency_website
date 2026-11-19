@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Mail, MessageCircle, MapPin, Instagram, Facebook, Music2, Check, ArrowUpRight } from "lucide-react";
 import { toast } from "sonner";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import api, { formatApiError } from "@/lib/api";
 import { BRAND, whatsappLink } from "@/lib/brand";
 import GlowOrb from "@/components/site/GlowOrb";
@@ -23,9 +23,35 @@ const SERVICES = [
   "AI Solutions",
   "Other",
 ];
+const SERVICE_LABELS = {
+  "Branding": { en: "Branding", fr: "Identité de marque" },
+  "Web Development": { en: "Web Development", fr: "Développement Web" },
+  "App Development": { en: "App Development", fr: "Développement d’applications" },
+  "UI/UX Design": { en: "UI/UX Design", fr: "Design UI/UX" },
+  "Digital Marketing": { en: "Digital Marketing", fr: "Marketing digital" },
+  "SEO": { en: "SEO", fr: "Référencement SEO" },
+  "Motion Design": { en: "Motion Design", fr: "Motion design" },
+  "Video Production": { en: "Video Production", fr: "Production vidéo" },
+  "Photography": { en: "Photography", fr: "Photographie" },
+  "AI Solutions": { en: "AI Solutions", fr: "Solutions IA" },
+  "Other": { en: "Other", fr: "Autre" },
+};
+const SELECT_CLASS =
+  "w-full min-h-12 bg-transparent border-0 border-b border-white/15 focus:border-orange_impact py-3 pr-8 outline-none font-inter text-base text-white transition-colors appearance-none cursor-pointer";
 
 export default function ContactPage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.pathname !== "/contact" || location.hash !== "#contact-form") return;
+    const timer = window.setTimeout(() => {
+      const form = document.getElementById("contact-form");
+      form?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+      document.getElementById("contact-input-name")?.focus({ preventScroll: true });
+    }, 120);
+    return () => window.clearTimeout(timer);
+  }, [location.pathname, location.hash]);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -43,13 +69,16 @@ export default function ContactPage() {
 
   const submit = async (e) => {
     e?.preventDefault?.();
-    if (!form.name || !form.email || !form.message) {
+    if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
       toast.error(t("co.requiredErr"));
       return;
     }
     setSubmitting(true);
     try {
-      await api.post("/contact", form);
+      const payload = Object.fromEntries(
+        Object.entries(form).map(([key, value]) => [key, typeof value === "string" ? value.trim() : value])
+      );
+      await api.post("/contact", payload);
       setSent(true);
       toast.success(t("co.received"));
     } catch (e) {
@@ -177,11 +206,12 @@ export default function ContactPage() {
                   </a>
                 </motion.div>
               ) : (
-                <form onSubmit={submit} className="space-y-6" data-testid="contact-form" aria-busy={submitting}>
+                <form id="contact-form" tabIndex="-1" autoComplete="on" onSubmit={submit} className="space-y-6 scroll-mt-28 focus:outline-none" data-testid="contact-form" aria-busy={submitting}>
                   <div className="grid gap-5 sm:gap-6 md:grid-cols-2">
-                    <Field label={t("co.field.name")} value={form.name} onChange={onChange("name")} testid="contact-input-name" required autoComplete="name" />
+                    <Field label={t("co.field.name")} name="name" value={form.name} onChange={onChange("name")} testid="contact-input-name" required autoComplete="name" />
                     <Field
                       label={t("co.field.email")}
+                      name="email"
                       type="email"
                       value={form.email}
                       onChange={onChange("email")}
@@ -191,6 +221,8 @@ export default function ContactPage() {
                     />
                     <Field
                       label={t("co.field.whatsapp")}
+                      name="whatsapp"
+                      type="tel"
                       value={form.whatsapp}
                       onChange={onChange("whatsapp")}
                       testid="contact-input-whatsapp"
@@ -198,6 +230,7 @@ export default function ContactPage() {
                     />
                     <Field
                       label={t("co.field.deadline")}
+                      name="deadline"
                       value={form.deadline}
                       onChange={onChange("deadline")}
                       placeholder={t("co.field.deadlinePh")}
@@ -207,43 +240,41 @@ export default function ContactPage() {
                       <label htmlFor="contact-select-budget" className="block text-white/40 font-ui text-xs uppercase tracking-[0.2em] mb-2">
                         {t("co.field.budget")}
                       </label>
-                      <Select value={form.budget} onValueChange={onChange("budget")}>
-                        <SelectTrigger
-                          className="bg-transparent border-0 border-b border-white/15 rounded-none px-0 h-12 focus:ring-0 focus:border-orange_impact font-inter"
-                          id="contact-select-budget"
-                          data-testid="contact-select-budget"
-                        >
-                          <SelectValue placeholder={t("co.field.budgetPh")} />
-                        </SelectTrigger>
-                        <SelectContent className="w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)] bg-ink-700 border-white/10">
-                          {BUDGETS.map((b) => (
-                            <SelectItem key={b} value={b} className="min-h-11 whitespace-normal py-2.5 text-sm">
-                              {b}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <select
+                        id="contact-select-budget"
+                        name="budget"
+                        value={form.budget}
+                        onChange={onChange("budget")}
+                        className={SELECT_CLASS}
+                        data-testid="contact-select-budget"
+                      >
+                        <option value="" disabled>{t("co.field.budgetPh")}</option>
+                        {BUDGETS.map((budget) => (
+                          <option key={budget} value={budget} className="bg-ink-700 text-white">
+                            {budget}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <label htmlFor="contact-select-service" className="block text-white/40 font-ui text-xs uppercase tracking-[0.2em] mb-2">
                         {t("co.field.service")}
                       </label>
-                      <Select value={form.service} onValueChange={onChange("service")}>
-                        <SelectTrigger
-                          className="bg-transparent border-0 border-b border-white/15 rounded-none px-0 h-12 focus:ring-0 focus:border-orange_impact font-inter"
-                          id="contact-select-service"
-                          data-testid="contact-select-service"
-                        >
-                          <SelectValue placeholder={t("co.field.servicePh")} />
-                        </SelectTrigger>
-                        <SelectContent className="bg-ink-700 border-white/10">
-                          {SERVICES.map((s) => (
-                            <SelectItem key={s} value={s} className="min-h-11 whitespace-normal py-2.5 text-sm">
-                              {s}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <select
+                        id="contact-select-service"
+                        name="service"
+                        value={form.service}
+                        onChange={onChange("service")}
+                        className={SELECT_CLASS}
+                        data-testid="contact-select-service"
+                      >
+                        <option value="" disabled>{t("co.field.servicePh")}</option>
+                        {SERVICES.map((service) => (
+                          <option key={service} value={service} className="bg-ink-700 text-white">
+                            {SERVICE_LABELS[service][lang] || SERVICE_LABELS[service].en}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                   <div>
@@ -291,15 +322,17 @@ export default function ContactPage() {
   );
 }
 
-function Field({ label, value, onChange, type = "text", placeholder = "", testid, required = false, autoComplete }) {
+function Field({ label, name, value, onChange, type = "text", placeholder = "", testid, required = false, autoComplete }) {
   return (
     <div>
       <label htmlFor={testid} className="block text-white/40 font-ui text-xs uppercase tracking-[0.2em] mb-2">{label}</label>
       <input
         id={testid}
+        name={name}
         type={type}
         required={required}
         autoComplete={autoComplete}
+        inputMode={type === "tel" ? "tel" : undefined}
         value={value}
         onChange={onChange}
         placeholder={placeholder}
