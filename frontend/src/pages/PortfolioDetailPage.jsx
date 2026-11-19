@@ -25,32 +25,45 @@ export default function PortfolioDetailPage() {
   const titleY = useTransform(scrollYProgress, [0, 1], [0, 120]);
 
   useEffect(() => {
-    // Founder products have local case-study content; CMS projects remain unchanged.
-    fetchPortfolioBySlug(slug)
-      .then((doc) => {
+    let cancelled = false;
+
+    // Clear the previous route's state and ignore responses from stale requests.
+    setItem(null);
+    setNotFound(false);
+
+    async function loadProject() {
+      try {
+        // Founder products have local case-study content; CMS projects remain unchanged.
+        const doc = await fetchPortfolioBySlug(slug);
+        if (cancelled) return;
         if (doc && typeof doc === "object") {
           setItem(doc);
           return;
         }
+
         const founderProject = getFounderProjectBySlug(slug, lang);
         if (founderProject) {
           setItem(founderProject);
-          setNotFound(false);
           return;
         }
-        api
-          .get(`/portfolio/${slug}`)
-          .then((r) => {
-            if (r?.data && typeof r.data === "object") setItem(r.data);
-            else setNotFound(true);
-          })
-          .catch(() => setNotFound(true));
-      })
-      .catch(() => {
-        const founderProject = getFounderProjectBySlug(slug, lang);
-        if (founderProject) setItem(founderProject);
-        else setNotFound(true);
-      });
+
+        const response = await api.get(`/portfolio/${slug}`);
+        if (cancelled) return;
+        if (response?.data && typeof response.data === "object") {
+          setItem(response.data);
+        } else {
+          setNotFound(true);
+        }
+      } catch {
+        if (!cancelled) setNotFound(true);
+      }
+    }
+
+    loadProject();
+
+    return () => {
+      cancelled = true;
+    };
   }, [slug, lang]);
 
   if (notFound)
