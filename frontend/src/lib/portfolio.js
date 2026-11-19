@@ -29,7 +29,8 @@ const PROJECTION = `{
   seoDescription,
   coverImage,
   gallery,
-  videos
+  videos,
+  externalLinks
 }`
 
 const LIST_QUERY = `
@@ -56,6 +57,7 @@ export function normalizePortfolio(doc) {
   const services = Array.isArray(doc.services) ? doc.services : []
   const tools = Array.isArray(doc.tools) ? doc.tools : []
   const kpis = Array.isArray(doc.kpis) ? doc.kpis : []
+  const externalLinks = Array.isArray(doc.externalLinks) ? doc.externalLinks : []
   return {
     ...doc,
     id: doc._id,
@@ -69,6 +71,25 @@ export function normalizePortfolio(doc) {
     services,
     tools,
     kpis,
+    externalLinks: externalLinks
+      .map((link) => {
+        const rawUrl = typeof link?.url === "string" ? link.url.trim() : "";
+        let url = "";
+        try {
+          const parsed = new URL(rawUrl);
+          if (["http:", "https:"].includes(parsed.protocol)) url = parsed.href;
+        } catch {
+          // Ignore malformed or non-web URLs in public project links.
+        }
+        return {
+          _key: link?._key,
+          label: typeof link?.label === "string" ? link.label.trim() : "",
+          platform: typeof link?.platform === "string" ? link.platform : "",
+          url,
+          description: typeof link?.description === "string" ? link.description.trim() : "",
+        };
+      })
+      .filter((link) => link.label && link.url),
   }
 }
 
