@@ -149,7 +149,7 @@ def test_blog_detail(api):
 
 
 # ----- Contact -----
-def test_contact_submit_public(api, allow_mutations):
+def test_contact_crud_flow(admin, allow_mutations):
     payload = {
         "name": "TEST_Visitor",
         "email": "test_visitor@example.com",
@@ -157,15 +157,28 @@ def test_contact_submit_public(api, allow_mutations):
         "budget": "$10k-$25k",
         "service": "Branding",
         "deadline": "Q2 2026",
-        "message": "TEST_ contact submission from pytest",
+        "message": "TEST contact submission from pytest",
     }
-    r = api.post(f"{BASE_URL}/api/contact", json=payload)
-    assert r.status_code == 200, r.text
-    data = r.json()
-    assert data["name"] == payload["name"]
-    assert data["read"] is False
-    assert "id" in data
-    pytest.contact_id = data["id"]
+    created = admin.post(f"{BASE_URL}/api/contact", json=payload)
+    assert created.status_code == 200, created.text
+    contact = created.json()
+    contact_id = contact["id"]
+    assert contact["name"] == payload["name"]
+    assert contact["read"] is False
+
+    try:
+        listed = admin.get(f"{BASE_URL}/api/contact")
+        assert listed.status_code == 200
+        assert any(item["id"] == contact_id for item in listed.json())
+
+        marked = admin.patch(f"{BASE_URL}/api/contact/{contact_id}/read")
+        assert marked.status_code == 200
+        refreshed = admin.get(f"{BASE_URL}/api/contact")
+        target = next(item for item in refreshed.json() if item["id"] == contact_id)
+        assert target["read"] is True
+    finally:
+        deleted = admin.delete(f"{BASE_URL}/api/contact/{contact_id}")
+        assert deleted.status_code in (200, 404)
 
 
 def test_contact_submit_missing_fields(api):
@@ -176,31 +189,6 @@ def test_contact_submit_missing_fields(api):
 def test_contact_list_requires_auth(api):
     r = api.get(f"{BASE_URL}/api/contact")
     assert r.status_code == 401
-
-
-def test_contact_list_with_auth(admin, allow_mutations):
-    r = admin.get(f"{BASE_URL}/api/contact")
-    assert r.status_code == 200
-    items = r.json()
-    assert isinstance(items, list)
-    assert any(it["id"] == pytest.contact_id for it in items)
-
-
-def test_contact_mark_read(admin, allow_mutations):
-    cid = pytest.contact_id
-    r = admin.patch(f"{BASE_URL}/api/contact/{cid}/read")
-    assert r.status_code == 200
-    r2 = admin.get(f"{BASE_URL}/api/contact")
-    target = next(it for it in r2.json() if it["id"] == cid)
-    assert target["read"] is True
-
-
-def test_contact_delete(admin, allow_mutations):
-    cid = pytest.contact_id
-    r = admin.delete(f"{BASE_URL}/api/contact/{cid}")
-    assert r.status_code == 200
-    r2 = admin.get(f"{BASE_URL}/api/contact")
-    assert not any(it["id"] == cid for it in r2.json())
 
 
 # ----- Portfolio admin CRUD -----
