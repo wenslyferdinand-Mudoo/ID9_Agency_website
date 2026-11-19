@@ -31,8 +31,8 @@ const DICT = {
   // About preview
   "about.tag": { en: "(01) — About", fr: "(01) — À propos" },
   "about.h2": {
-    en: "A creative and digital partner bringing brand strategy, design and technology into focus.",
-    fr: "Un partenaire créatif et digital qui fait converger stratégie de marque, design et technologie.",
+    en: "A creative and digital partner bringing brand strategy, design and technology together.",
+    fr: "Un partenaire créatif et numérique qui fait converger la stratégie de marque, le design et la technologie.",
   },
   "about.body": {
     en: "Founded on 1 May 2018, Impact Digital 9 Agency brings strategy, creative direction and digital production together. Based in Haiti, the agency supports organizations with brand identity, graphic design, marketing communication, photography, content production and digital experiences—aligning each deliverable with a clear purpose.",
