@@ -298,7 +298,7 @@ const DICT = {
     en: "Founded on 1 May 2018, Impact Digital 9 Agency brings creative and digital disciplines together to help organizations build clear identities and communicate consistently. Based in Haiti, ID9 Agency works across graphic design, brand identity, marketing, photography, content creation and digital experiences.",
     fr: "Fondée le 1er mai 2018, Impact Digital 9 Agency réunit des expertises créatives et digitales pour aider les organisations à construire une identité claire et à communiquer avec cohérence. Basée en Haïti, ID9 Agency intervient en design graphique, identité de marque, marketing, photographie, création de contenus et expériences numériques.",
   },
-  "ap.founderRole": { en: "Founder · Graphic Designer · Creative & Digital Manager", fr: "Fondateur · Graphiste · Creative & Digital Manager" },
+  "ap.founderRole": { en: "Founder · Graphic Designer · Creative & Digital Manager", fr: "Fondateur · Graphiste · Responsable créative et numérique" },
   "ap.founderNote": { en: "Meet the founder", fr: "Rencontrer le fondateur" },
   "ap.founderQuote": {
     en: "A multidisciplinary creative practice grounded in design, curiosity and disciplined execution.",
