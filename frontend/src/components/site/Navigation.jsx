@@ -81,7 +81,7 @@ export default function Navigation() {
             </div>
           </Link>
 
-          <ul className="hidden md:flex items-center gap-1 font-ui text-sm">
+          <ul className="hidden lg:flex items-center gap-1 font-ui text-sm">
             {links.map((l) => (
               <DesktopNavItem
                 key={l.to}
@@ -96,7 +96,7 @@ export default function Navigation() {
           <div className="flex items-center gap-2">
             <button
               onClick={toggle}
-              className="hidden md:inline-flex items-center gap-1.5 text-white/70 hover:text-white text-xs font-ui font-semibold uppercase tracking-[0.15em] px-3 py-2 rounded-full hover:bg-white/5 transition-colors"
+              className="hidden lg:inline-flex items-center gap-1.5 text-white/70 hover:text-white text-xs font-ui font-semibold uppercase tracking-[0.15em] px-3 py-2 rounded-full hover:bg-white/5 transition-colors"
               data-testid="nav-lang-toggle"
               title={lang === "en" ? "Passer en français" : "Switch to English"}
             >
@@ -105,7 +105,7 @@ export default function Navigation() {
             </button>
             <Link
               to="/contact"
-              className="hidden md:inline-flex items-center gap-1.5 bg-orange_impact text-ink-900 font-ui font-semibold text-sm px-5 py-2.5 rounded-full hover:bg-gold_light transition-colors"
+              className="hidden lg:inline-flex items-center gap-1.5 bg-orange_impact text-ink-900 font-ui font-semibold text-sm px-5 py-2.5 rounded-full hover:bg-gold_light transition-colors"
               data-testid="nav-cta-contact"
             >
               {t("nav.cta")}
@@ -116,6 +116,7 @@ export default function Navigation() {
               onClick={() => setOpen((v) => !v)}
               label={open ? (lang === "fr" ? "Fermer le menu" : "Close menu") : (lang === "fr" ? "Ouvrir le menu" : "Open menu")}
               testId="nav-mobile-toggle"
+              className="lg:hidden"
             />
           </div>
         </nav>
@@ -179,7 +180,7 @@ export default function Navigation() {
             </div>
 
             {/* Main menu items — staggered cinematic reveal */}
-            <nav className="relative px-5 sm:px-6 md:px-12 lg:px-20 mt-8 sm:mt-12 overflow-y-auto overscroll-contain" style={{ maxHeight: "calc(100dvh - 320px)" }}>
+            <nav className="absolute inset-x-0 top-24 bottom-[11.5rem] min-h-0 overflow-y-auto overscroll-contain px-5 sm:px-6 md:px-12 lg:px-20">
               <ul className="flex flex-col gap-0 max-w-5xl">
                 {links.map((l, i) => (
                   <motion.li
