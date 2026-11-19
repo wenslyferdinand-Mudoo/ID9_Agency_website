@@ -1,11 +1,26 @@
 import axios from "axios";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-export const API_BASE = `${BACKEND_URL}/api`;
+// Support both the documented legacy variable and the Vercel project variable.
+const configuredBackendUrl =
+  process.env.REACT_APP_BACKEND_URL || process.env.REACT_APP_API_URL || "";
+const BACKEND_URL = configuredBackendUrl.replace(/\/+$/, "");
+export const API_BASE = BACKEND_URL
+  ? BACKEND_URL.endsWith("/api")
+    ? BACKEND_URL
+    : `${BACKEND_URL}/api`
+  : null;
 
 const api = axios.create({ baseURL: API_BASE });
 
 api.interceptors.request.use((config) => {
+  if (!BACKEND_URL) {
+    return Promise.reject(
+      new Error(
+        "Backend URL is not configured. Set REACT_APP_API_URL or REACT_APP_BACKEND_URL."
+      )
+    );
+  }
+
   const token = localStorage.getItem("id9_token");
   if (token) {
     config.headers = config.headers || {};

@@ -131,6 +131,64 @@ export default defineType({
       of: [{type: 'url'}],
     }),
 
+    defineField({
+      name: 'externalLinks',
+      title: 'External Links',
+      description: 'Official website, social profiles, app listings, press coverage or other public resources related to this project.',
+      type: 'array',
+      group: 'media',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          fields: [
+            {
+              name: 'label',
+              title: 'Link Label',
+              type: 'string',
+              validation: (Rule) => Rule.required().min(2).max(60),
+            },
+            {
+              name: 'platform',
+              title: 'Platform / Link Type',
+              type: 'string',
+              options: {
+                list: [
+                  {title: 'Website', value: 'website'},
+                  {title: 'Instagram', value: 'instagram'},
+                  {title: 'Facebook', value: 'facebook'},
+                  {title: 'TikTok', value: 'tiktok'},
+                  {title: 'LinkedIn', value: 'linkedin'},
+                  {title: 'YouTube', value: 'youtube'},
+                  {title: 'Vimeo', value: 'vimeo'},
+                  {title: 'Behance', value: 'behance'},
+                  {title: 'Dribbble', value: 'dribbble'},
+                  {title: 'App Store', value: 'app-store'},
+                  {title: 'Google Play', value: 'google-play'},
+                  {title: 'Press / Article', value: 'press'},
+                  {title: 'Other', value: 'other'},
+                ],
+              },
+            },
+            {
+              name: 'url',
+              title: 'URL',
+              type: 'url',
+              validation: (Rule) => Rule.required().uri({scheme: ['http', 'https']}),
+            },
+            {
+              name: 'description',
+              title: 'Description (optional)',
+              type: 'string',
+              validation: (Rule) => Rule.max(120),
+            },
+          ],
+          preview: {
+            select: {title: 'label', subtitle: 'url'},
+          },
+        }),
+      ],
+    }),
+
     // --------- STORY ---------
     defineField({
       name: 'description',
