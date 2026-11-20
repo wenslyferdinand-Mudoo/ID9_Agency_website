@@ -191,3 +191,9 @@ Les changements suivants sont maintenant présents sur la branche audit, sans to
 - Les traductions ajoutées couvrent les chaînes relevées dans Footer et HomePage, pas encore l'ensemble des textes codés en dur dans toutes les pages et composants.
 
 Ces modifications constituent une première passe ciblée, pas une certification de qualité, sécurité, performance ou production.
+
+
+- BlogDetailPage.jsx : ajout des métadonnées d'article (title, description, Open Graph, Twitter Card, canonical et JSON-LD BlogPosting) après chargement de l'article, et noindex en cas d'article introuvable/erreur.
+- Ajustement du libellé français du CTA footer vers une formulation plus courte, mieux équilibrée typographiquement.
+
+**Limite SEO à conserver :** les métadonnées d'article sont actuellement injectées après hydratation React. Les crawlers et plateformes sociales qui ne rendent pas le JavaScript peuvent encore recevoir les métadonnées génériques de la page blog. Une génération statique/prérendu des articles ou un rendu serveur reste nécessaire pour une prévisualisation sociale robuste.
