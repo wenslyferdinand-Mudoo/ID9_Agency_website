@@ -370,6 +370,6 @@ Pour chaque phase :
 - Commit : 76fb3322c2238d4bc8dc05ce696c3b0e15c6adcd.
 - Fichier ajouté : backend/tests/test_startup_safety_unit.py (tests des origines CORS, refus wildcard, désactivation du seed en production et opt-in explicite en développement).
 - Fichier modifié : .github/workflows/backend-static.yml ; le test startup safety est maintenant inclus dans la commande pytest. Le workflow contient également le test_admin_provisioning_unit.py, présent dans la branche et couvrant configuration incomplète, préservation du compte existant et création initiale explicite.
-- CI déclenchée automatiquement : run 44812717913, Backend Static Validation, event push, statut **queued** au dernier contrôle. Aucun résultat de test n'est encore revendiqué.
+- CI déclenchée automatiquement : run 44812717913, Backend Static Validation, event push, statut **in_progress** au dernier contrôle. Aucun résultat de test n'est encore revendiqué.
 - Aucun merge, aucun déploiement Render, aucune modification Production ou de données.
 - Prochaine étape : vérifier le résultat complet du run 44812717913 ; corriger toute régression avant de poursuivre la consolidation PR #50/#32/#52.
