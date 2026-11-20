@@ -49,6 +49,10 @@ function setCanonical(pathname) {
   canonical.setAttribute("href", SITE_URL + pathname);
 }
 
+function removeProjectSchema() {
+  document.querySelector('script[data-route-seo="project"]')?.remove();
+}
+
 function applyMeta({ title, description, image = DEFAULT_SHARE_IMAGE, url, type = "website" }) {
   document.title = title;
   setMeta('meta[name="description"]', "content", description);
@@ -79,6 +83,21 @@ export default function RouteSeo() {
     const canonicalUrl = SITE_URL + pathname;
     document.documentElement.lang = lang;
     setCanonical(pathname);
+    // A client-side route change must not leave structured data from the
+    // previous case study attached to the new page.
+    removeProjectSchema();
+
+    if (/^\\/portfolio\\/[^/]+$/.test(pathname)) {
+      applyMeta({
+        title: lang === "fr"
+          ? "Étude de cas — Impact Digital 9 Agency"
+          : "Case study — Impact Digital 9 Agency",
+        description: lang === "fr"
+          ? "Découvrez une réalisation et l’approche créative d’Impact Digital 9 Agency."
+          : "Explore a selected case study and the creative approach of Impact Digital 9 Agency.",
+        url: canonicalUrl,
+      });
+    }
 
     if (pathname.startsWith("/portfolio/")) {
       const slug = pathname.split("/").filter(Boolean)[1];
