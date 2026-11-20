@@ -9,13 +9,35 @@ import { useI18n } from "@/lib/i18n";
 
 export default function BlogPage() {
   const [posts, setPosts] = useState([]);
-  const { t } = useI18n();
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const { t, lang } = useI18n();
+
   useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setLoadError(false);
+
     api
-      .get("/blog")
-      .then((r) => setPosts(safeArray(r?.data)))
-      .catch(() => setPosts([]));
-  }, []);
+      .get("/blog", { timeout: 8000 })
+      .then((r) => {
+        if (active) setPosts(safeArray(r?.data));
+      })
+      .catch(() => {
+        if (active) {
+          setPosts([]);
+          setLoadError(true);
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [retryCount]);
 
   const featured = posts.find((p) => p.featured) || posts[0];
   const rest = posts.filter((p) => p.id !== featured?.id);
@@ -39,7 +61,52 @@ export default function BlogPage() {
         </div>
       </section>
 
-      {featured && (
+      {loading ? (
+        <section className="px-4 md:px-8 pb-24" aria-live="polite" aria-busy="true">
+          <div className="mx-auto max-w-7xl grid gap-6 md:grid-cols-3">
+            {[0, 1, 2].map((item) => (
+              <div key={item} className="animate-pulse" aria-hidden="true">
+                <div className="aspect-[4/3] rounded-2xl bg-white/[0.06] mb-5" />
+                <div className="h-3 w-24 rounded bg-white/[0.08] mb-3" />
+                <div className="h-6 w-3/4 rounded bg-white/[0.08] mb-3" />
+                <div className="h-4 w-full rounded bg-white/[0.05]" />
+              </div>
+            ))}
+          </div>
+          <p className="sr-only">{lang === "fr" ? "Chargement des articles…" : "Loading articles…"}</p>
+        </section>
+      ) : loadError ? (
+        <section className="px-4 md:px-8 pb-24">
+          <div className="mx-auto max-w-3xl rounded-2xl border border-white/10 bg-white/[0.025] p-8 text-center">
+            <h2 className="font-display text-2xl font-bold text-white">
+              {lang === "fr" ? "Le journal est temporairement indisponible." : "The journal is temporarily unavailable."}
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-white/60">
+              {lang === "fr" ? "Le contenu n’a pas pu être chargé. Réessayez dans quelques instants." : "The content could not be loaded. Please try again in a moment."}
+            </p>
+            <button
+              type="button"
+              onClick={() => setRetryCount((count) => count + 1)}
+              className="mt-6 inline-flex min-h-11 items-center justify-center rounded-full bg-orange_impact px-6 py-3 text-sm font-semibold text-ink-900 transition-colors hover:bg-gold_light"
+            >
+              {lang === "fr" ? "Réessayer" : "Try again"}
+            </button>
+          </div>
+        </section>
+      ) : posts.length === 0 ? (
+        <section className="px-4 md:px-8 pb-24">
+          <div className="mx-auto max-w-3xl rounded-2xl border border-white/10 bg-white/[0.025] p-8 text-center">
+            <h2 className="font-display text-2xl font-bold text-white">
+              {lang === "fr" ? "Aucun article pour le moment." : "No articles yet."}
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-white/60">
+              {lang === "fr" ? "De nouveaux contenus seront publiés prochainement." : "New stories will be published soon."}
+            </p>
+          </div>
+        </section>
+      ) : null}
+
+      {!loading && !loadError && featured && (
         <section className="px-4 md:px-8 pb-16">
           <div className="max-w-7xl mx-auto">
             <Link
@@ -71,6 +138,7 @@ export default function BlogPage() {
         </section>
       )}
 
+      {!loading && !loadError && rest.length > 0 && (
       <section className="px-4 md:px-8 pb-24">
         <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-6">
           {rest.map((p, i) => (
@@ -107,6 +175,7 @@ export default function BlogPage() {
           ))}
         </div>
       </section>
+      )}
 
       <FinalCTA />
     </main>
