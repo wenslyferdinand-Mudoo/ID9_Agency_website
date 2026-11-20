@@ -22,7 +22,6 @@ const clientName = input('PROJECT_CLIENT')
 const year = input('PROJECT_YEAR')
 const coverPath = input('PROJECT_COVER_PATH')
 const galleryPath = input('PROJECT_GALLERY_PATH')
-const coverAlt = input('PROJECT_COVER_ALT')
 const galleryAlt = input('PROJECT_GALLERY_ALT')
 const galleryCaption = input('PROJECT_GALLERY_CAPTION')
 
