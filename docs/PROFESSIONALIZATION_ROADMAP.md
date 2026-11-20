@@ -362,3 +362,14 @@ Pour chaque phase :
 - Vérification source sur la tête #52 : seed_admin() applique déjà la règle de #32 (pas de compte admin par défaut, pas de changement du mot de passe existant, création initiale uniquement si les deux variables sont définies). La logique est donc présente, mais la couverture de test spécifique de #32 doit être comparée aux tests de #52 avant d'écarter le test dédié.
 - Décision : ne pas merger #50 ou #32 séparément ; cela introduirait des conflits/risques de régression. #52 est le candidat de consolidation, mais reste Draft et bloqué par P0.1/P0.2 et par la validation des tests réels. Aucune modification de code réalisée dans cette passe.
 - Prochaine étape : comparer les tests admin/startup de #32/#50 aux tests déjà présents sur #52, puis ajouter uniquement les cas manquants sur #52 et exécuter CI. Ne pas fusionner les PR.
+
+### 2026-11-20 — P0.3 — Couverture startup complétée sur la branche #52 (CI en attente)
+
+- Statut : **EN COURS — MODIFICATION COMMITÉE, CI EN ATTENTE**.
+- Branche / PR : security/backend-hardening-staging / PR #52 (Draft maintenu).
+- Commit : 76fb3322c2238d4bc8dc05ce696c3b0e15c6adcd.
+- Fichier ajouté : backend/tests/test_startup_safety_unit.py (tests des origines CORS, refus wildcard, désactivation du seed en production et opt-in explicite en développement).
+- Fichier modifié : .github/workflows/backend-static.yml ; le test startup safety est maintenant inclus dans la commande pytest. Le workflow contient également le test_admin_provisioning_unit.py, présent dans la branche et couvrant configuration incomplète, préservation du compte existant et création initiale explicite.
+- CI déclenchée automatiquement : run 44812717913, Backend Static Validation, event push, statut **queued** au dernier contrôle. Aucun résultat de test n'est encore revendiqué.
+- Aucun merge, aucun déploiement Render, aucune modification Production ou de données.
+- Prochaine étape : vérifier le résultat complet du run 44812717913 ; corriger toute régression avant de poursuivre la consolidation PR #50/#32/#52.
