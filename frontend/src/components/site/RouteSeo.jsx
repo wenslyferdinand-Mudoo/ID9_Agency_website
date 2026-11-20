@@ -5,7 +5,7 @@ import { fetchPortfolioBySlug } from "@/lib/portfolio";
 
 // Production canonical host until id9agency.com is purchased and attached to Vercel.
 const SITE_URL = "https://id9-agency-website.vercel.app";
-const DEFAULT_SHARE_IMAGE = `${SITE_URL}/og-cover.png`;
+const DEFAULT_SHARE_IMAGE = `${SITE_URL}/wensly-founder.jpg`;
 
 const META = {
   "/": {
