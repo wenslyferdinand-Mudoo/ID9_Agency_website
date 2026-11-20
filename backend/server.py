@@ -17,12 +17,13 @@ from fastapi import FastAPI, APIRouter, HTTPException, Depends, Request, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import ReturnDocument
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
 
 
 # ---------- MongoDB ----------
 mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
+client = AsyncIOMotorClient(mongo_url, serverSelectionTimeoutMS=5000)
 db = client[os.environ['DB_NAME']]
 
 
@@ -89,7 +90,7 @@ def utc_now_iso() -> str:
 # ---------- Models ----------
 class LoginRequest(BaseModel):
     email: EmailStr
-    password: str
+    password: str = Field(min_length=1, max_length=128)
 
 
 class LoginResponse(BaseModel):
@@ -99,13 +100,13 @@ class LoginResponse(BaseModel):
 
 
 class ContactCreate(BaseModel):
-    name: str
+    name: str = Field(min_length=2, max_length=120)
     email: EmailStr
-    whatsapp: Optional[str] = None
-    budget: Optional[str] = None
-    service: Optional[str] = None
-    deadline: Optional[str] = None
-    message: str
+    whatsapp: Optional[str] = Field(default=None, max_length=40)
+    budget: Optional[str] = Field(default=None, max_length=80)
+    service: Optional[str] = Field(default=None, max_length=120)
+    deadline: Optional[str] = Field(default=None, max_length=80)
+    message: str = Field(min_length=10, max_length=5000)
 
 
 class Contact(BaseModel):
@@ -123,24 +124,24 @@ class Contact(BaseModel):
 
 
 class PortfolioCreate(BaseModel):
-    title: str
-    category: str  # branding | web | app | marketing | motion | photo
-    client: Optional[str] = None
-    year: Optional[str] = None
-    sector: Optional[str] = None
-    summary: str
-    description: Optional[str] = None
-    cover_image: str
-    gallery: List[str] = Field(default_factory=list)
-    services: List[str] = Field(default_factory=list)
-    tools: List[str] = Field(default_factory=list)
-    challenge: Optional[str] = None
-    approach: Optional[str] = None
-    strategy: Optional[str] = None
-    solution: Optional[str] = None
-    outcome: Optional[str] = None
-    kpis: List[dict] = Field(default_factory=list)
-    testimonial: Optional[str] = None
+    title: str = Field(min_length=2, max_length=160)
+    category: str = Field(min_length=2, max_length=40)
+    client: Optional[str] = Field(default=None, max_length=160)
+    year: Optional[str] = Field(default=None, max_length=12)
+    sector: Optional[str] = Field(default=None, max_length=120)
+    summary: str = Field(min_length=5, max_length=2000)
+    description: Optional[str] = Field(default=None, max_length=12000)
+    cover_image: str = Field(min_length=1, max_length=2048)
+    gallery: List[str] = Field(default_factory=list, max_length=40)
+    services: List[str] = Field(default_factory=list, max_length=30)
+    tools: List[str] = Field(default_factory=list, max_length=30)
+    challenge: Optional[str] = Field(default=None, max_length=5000)
+    approach: Optional[str] = Field(default=None, max_length=5000)
+    strategy: Optional[str] = Field(default=None, max_length=5000)
+    solution: Optional[str] = Field(default=None, max_length=5000)
+    outcome: Optional[str] = Field(default=None, max_length=5000)
+    kpis: List[dict] = Field(default_factory=list, max_length=30)
+    testimonial: Optional[str] = Field(default=None, max_length=3000)
     featured: bool = False
 
 
@@ -151,13 +152,13 @@ class PortfolioItem(PortfolioCreate):
 
 
 class BlogCreate(BaseModel):
-    title: str
-    category: str
-    excerpt: str
-    content: str
-    cover_image: str
-    author: str = "ID9 Editorial"
-    read_time: str = "5 min read"
+    title: str = Field(min_length=3, max_length=180)
+    category: str = Field(min_length=2, max_length=80)
+    excerpt: str = Field(min_length=5, max_length=1200)
+    content: str = Field(min_length=1, max_length=30000)
+    cover_image: str = Field(min_length=1, max_length=2048)
+    author: str = Field(default="ID9 Editorial", max_length=120)
+    read_time: str = Field(default="5 min read", max_length=40)
     published: bool = True
     featured: bool = False
 
@@ -168,6 +169,28 @@ class BlogPost(BlogCreate):
     created_at: str
 
 
+# ---------- Abuse protection ----------
+async def enforce_rate_limit(request: Request, action: str, limit: int, window_seconds: int):
+    # MongoDB-backed fixed windows work across multiple Render instances and restarts.
+    client_host = request.client.host if request.client else "unknown"
+    now = datetime.now(timezone.utc)
+    bucket = int(now.timestamp()) // window_seconds
+    key = f"{action}:{client_host}:{bucket}"
+    expires_at = datetime.fromtimestamp((bucket + 2) * window_seconds, timezone.utc)
+    record = await db.rate_limits.find_one_and_update(
+        {"_id": key},
+        {"$inc": {"count": 1}, "$setOnInsert": {"expires_at": expires_at}},
+        upsert=True,
+        return_document=ReturnDocument.AFTER,
+    )
+    if record and record.get("count", 0) > limit:
+        raise HTTPException(
+            status_code=429,
+            detail="Too many requests. Please try again later.",
+            headers={"Retry-After": str(window_seconds)},
+        )
+
+
 # ---------- Public endpoints ----------
 @api_router.get("/")
 async def root():
@@ -175,10 +198,10 @@ async def root():
 
 
 @api_router.post("/auth/login", response_model=LoginResponse)
-async def login(data: LoginRequest):
+async def login(data: LoginRequest, request: Request):
+    await enforce_rate_limit(request, "login", limit=10, window_seconds=300)
     email = data.email.lower().strip()
-    user = await db.users.find_one({"email": email})
-    if not user:
+    user = await db.users.find_one({"email": email})    if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     if not verify_password(data.password, user["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -193,7 +216,8 @@ async def me(current=Depends(get_current_admin)):
 
 
 @api_router.post("/contact", response_model=Contact)
-async def submit_contact(data: ContactCreate):
+async def submit_contact(data: ContactCreate, request: Request):
+    await enforce_rate_limit(request, "contact", limit=5, window_seconds=600)
     doc = {
         "id": str(uuid.uuid4()),
         **data.model_dump(),
@@ -357,8 +381,7 @@ async def get_service(slug: str):
 
 
 # ---------- Seed data ----------
-PORTFOLIO_SEED = [
-    {
+PORTFOLIO_SEED = [    {
         "title": "Akya Dance Company — Cultural Identity Reborn",
         "category": "branding",
         "client": "Akya Dance Company",
@@ -498,12 +521,23 @@ async def seed_content():
 # ---------- App setup ----------
 app.include_router(api_router)
 
+def get_allowed_origins() -> list[str]:
+    raw_origins = os.environ.get(
+        "CORS_ORIGINS",
+        "https://id9-agency-website.vercel.app",
+    )
+    origins = [origin.strip().rstrip("/") for origin in raw_origins.split(",") if origin.strip()]
+    if not origins or "*" in origins:
+        raise RuntimeError("CORS_ORIGINS must contain explicit trusted origins; wildcard CORS is disabled.")
+    return origins
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=False,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=get_allowed_origins(),
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -512,14 +546,21 @@ logger = logging.getLogger(__name__)
 
 @app.on_event("startup")
 async def on_startup():
-    try:
-        await db.users.create_index("email", unique=True)
-        await db.portfolio.create_index("slug", unique=True)
-        await db.blog.create_index("slug", unique=True)
-    except Exception as e:
-        logger.warning(f"[startup] index creation: {e}")
+    # Fail fast in staging/production if MongoDB is unavailable or required indexes
+    # cannot be established. No collections or existing documents are dropped.
+    await db.command("ping")
+    await db.users.create_index("email", unique=True)
+    await db.portfolio.create_index("slug", unique=True)
+    await db.blog.create_index("slug", unique=True)
+    await db.rate_limits.create_index("expires_at", expireAfterSeconds=0)
     await seed_admin()
-    await seed_content()
+    app_env = os.environ.get("APP_ENV", "production").strip().lower()
+    seed_flag = os.environ.get("SEED_DEMO_CONTENT", "").strip().lower()
+    if app_env != "production" and seed_flag in {"1", "true", "yes"}:
+        await seed_content()
+        logger.warning("[startup] demo content seed explicitly enabled outside production.")
+    else:
+        logger.info("[startup] demo content seeding skipped; existing records are preserved.")
     logger.info("ID9 backend ready.")
 
 
