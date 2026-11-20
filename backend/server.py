@@ -698,6 +698,23 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 
+@app.get("/health/live", include_in_schema=False)
+async def health_live():
+    """Process liveness; does not depend on external services."""
+    return {"status": "ok"}
+
+
+@app.get("/health/ready", include_in_schema=False)
+async def health_ready():
+    """Readiness probe; returns 503 when the required database is unavailable."""
+    try:
+        await db.command("ping")
+    except Exception:
+        logger.warning("[health] readiness check failed: database ping unavailable")
+        raise HTTPException(status_code=503, detail="Service not ready")
+    return {"status": "ready"}
+
+
 @app.on_event("startup")
 async def on_startup():
     # Fail fast in staging/production if MongoDB is unavailable or required indexes
