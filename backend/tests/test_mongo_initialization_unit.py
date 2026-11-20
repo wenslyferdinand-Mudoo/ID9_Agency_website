@@ -121,3 +121,26 @@ def test_concurrent_rate_limit_updates_are_atomic_and_enforce_threshold(monkeypa
     assert results.count(200) == 10
     assert results.count(429) == 10
     assert sum(record["count"] for record in counters.records.values()) == 20
+
+
+
+def test_health_live_is_independent_of_database():
+    assert asyncio.run(server.health_live()) == {"status": "ok"}
+
+
+def test_health_ready_returns_ready_when_database_ping_succeeds(monkeypatch):
+    async def ping(command):
+        assert command == "ping"
+        return {"ok": 1}
+    monkeypatch.setattr(server, "db", SimpleNamespace(command=ping))
+    assert asyncio.run(server.health_ready()) == {"status": "ready"}
+
+
+def test_health_ready_returns_503_when_database_ping_fails(monkeypatch):
+    async def fail_ping(_command):
+        raise RuntimeError("database unavailable")
+    monkeypatch.setattr(server, "db", SimpleNamespace(command=fail_ping))
+    with pytest.raises(HTTPException) as error:
+        asyncio.run(server.health_ready())
+    assert error.value.status_code == 503
+    assert error.value.detail == "Service not ready"
