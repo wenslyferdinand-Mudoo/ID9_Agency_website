@@ -116,7 +116,7 @@ export default function PortfolioPreview() {
                   {p.cover_image ? (
                     <img
                       src={p.cover_image}
-                      alt={p.title || "Impact Digital 9 portfolio project"}
+                      alt={p.cover_image_alt || p.title || "Impact Digital 9 portfolio project"}
                       loading={i === 0 ? "eager" : "lazy"}
                       decoding="async"
                       data-testid={`portfolio-cover-${p.slug}`}
