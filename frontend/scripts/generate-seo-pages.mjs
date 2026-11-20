@@ -37,7 +37,7 @@ function replaceMeta(html, selector, attribute, value) {
 function applyProjectMetadata(template, project) {
   const title = (project.seoTitle || "").trim() || `${project.title || "Project"} | Impact Digital 9 Agency`;
   const description = (project.seoDescription || "").trim() || (project.summary || "").trim() || `Selected work by Impact Digital 9 Agency: ${project.title || "project"}.`;
-  const image = project.image || `${SITE_URL}/og-cover.png`;
+  const image = project.image || `${SITE_URL}/wensly-founder.jpg`;
   const url = `${SITE_URL}/portfolio/${project.slug}`;
   let html = template.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(title)}</title>`);
   html = replaceMeta(html, 'name="description"', "content", description);
@@ -71,7 +71,7 @@ function applyProjectMetadata(template, project) {
       url: SITE_URL,
     },
   };
-  html = html.replace("</head>", `<script type="application/ld+json">${JSON.stringify(structuredData)}</script>\n</head>`);
+  html = html.replace("</head>", `<script type="application/ld+json">${JSON.stringify(structuredData).replace(/</g, "\\u003c")}</script>\n</head>`);
   return { html, url, title };
 }
 
