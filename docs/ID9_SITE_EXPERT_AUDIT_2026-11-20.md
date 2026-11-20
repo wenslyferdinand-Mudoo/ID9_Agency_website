@@ -241,3 +241,16 @@ Correction appliquée sur la branche de la PR #53 :
 - Aucun contenu Sanity, aucune donnée backend et aucun environnement de production modifiés.
 
 À revalider : build Preview du nouveau HEAD, puis navigation réelle du lien depuis la fiche Mudoo sur mobile et desktop. Cette correction de code n'est pas encore une preuve de validation visuelle.
+
+## 11. Correctifs complémentaires — navigation SEO SPA
+
+Après relecture du code de la branche, trois défauts de cohérence ont été corrigés :
+
+1. **Métadonnées résiduelles sur les études de cas :** lors d'une navigation client vers un détail portfolio, les balises pouvaient conserver le titre/description de la page précédente pendant la requête Sanity. Un jeu de métadonnées de secours est désormais appliqué immédiatement.
+2. **JSON-LD résiduel :** le script `CreativeWork` d'un projet précédent pouvait rester dans le DOM après navigation SPA. Le script de l'étude de cas est maintenant retiré au changement de route avant de charger les données suivantes.
+3. **Articles de blog :** le script `BlogPosting` est maintenant supprimé à la sortie de la page ou au changement d'article, afin d'éviter de présenter un article précédent sur une autre route.
+4. **Portfolio indisponible :** lorsque les fallbacks Sanity, données fondatrices et API n'aboutissent pas, la page détail est marquée `noindex,nofollow` et reçoit un titre explicite d'indisponibilité.
+
+Ces modifications sont limitées au frontend et ne changent ni le contenu Sanity, ni MongoDB, ni les variables d'environnement.
+
+**Validation en cours :** le nouveau HEAD `7a4b542e6a8fa80a615078fde1d81ec0a7306bfc` possède un déploiement Vercel Preview identifié `dpl_HSFAtWKggosGqcQEF1TTseBCPGtn`, encore **QUEUED** au dernier contrôle. Aucun test navigateur visuel ni Lighthouse n'est disponible dans cette session. La validation reste donc partielle.
