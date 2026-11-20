@@ -87,7 +87,7 @@ export default function RouteSeo() {
     // previous case study attached to the new page.
     removeProjectSchema();
 
-    if (/^\\/portfolio\\/[^/]+$/.test(pathname)) {
+    if (/^\/portfolio\/[^/]+$/.test(pathname)) {
       applyMeta({
         title: lang === "fr"
           ? "Étude de cas — Impact Digital 9 Agency"
