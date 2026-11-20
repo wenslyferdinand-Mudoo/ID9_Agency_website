@@ -2,8 +2,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 
-// ⚠️ Remplacez par votre domaine final avant la mise en production (voir README.md)
-const SITE_URL = "https://id9agency.com";
+const SITE_URL = "https://id9-agency-website.vercel.app";
 
 const META = {
   "/": {
@@ -15,26 +14,48 @@ const META = {
     fr: ["À propos d’Impact Digital 9 Agency — Notre histoire", "Découvrez Impact Digital 9 Agency, sa vision créative, ses services intégrés et le fondateur du studio."],
   },
   "/services": {
-    en: ["Services — ID9_AGENCY", "Branding, web & app development, marketing, content and media production. 12 integrated capabilities."],
-    fr: ["Services — ID9_AGENCY", "Branding, développement web & app, marketing, contenu et production média. 12 expertises intégrées."],
+    en: ["Services — Impact Digital 9 Agency", "Explore Impact Digital 9 Agency services across brand strategy, graphic design, digital experiences, marketing and media production."],
+    fr: ["Services — Impact Digital 9 Agency", "Découvrez les expertises d’Impact Digital 9 Agency en stratégie de marque, design graphique, expériences numériques, marketing et production média."],
   },
   "/portfolio": {
     en: ["Projects & Case Studies — Impact Digital 9 Agency", "Explore selected client work, brand identities, campaigns and digital projects created by Impact Digital 9 Agency."],
     fr: ["Projets & réalisations — Impact Digital 9 Agency", "Découvrez une sélection de projets clients, identités de marque, campagnes et réalisations digitales d’Impact Digital 9 Agency."],
   },
   "/blog": {
-    en: ["Journal — ID9_AGENCY", "Insights on branding, digital strategy and growth from the ID9 team."],
-    fr: ["Journal — ID9_AGENCY", "Analyses sur le branding, la stratégie digitale et la croissance par l'équipe ID9."],
+    en: ["Journal — Impact Digital 9 Agency", "Insights on branding, design and digital strategy from Impact Digital 9 Agency."],
+    fr: ["Journal — Impact Digital 9 Agency", "Analyses sur le branding, le design et la stratégie digitale par Impact Digital 9 Agency."],
   },
   "/contact": {
-    en: ["Contact — ID9_AGENCY", "Start a project with Impact Digital 9. Free strategy session, reply within 1 hour."],
-    fr: ["Contact — ID9_AGENCY", "Démarrez un projet avec Impact Digital 9. Session stratégique gratuite, réponse sous 1h."],
+    en: ["Contact — Impact Digital 9 Agency", "Contact Impact Digital 9 Agency to discuss a branding, design, marketing or digital project."],
+    fr: ["Contact — Impact Digital 9 Agency", "Contactez Impact Digital 9 Agency pour discuter d’un projet de branding, design, marketing ou numérique."],
   },
 };
 
-function setMeta(selector, attr, value) {
-  const el = document.querySelector(selector);
-  if (el) el.setAttribute(attr, value);
+function ensureMeta(selector, attribute, value) {
+  let element = document.querySelector(selector);
+  if (!element && selector.startsWith("meta[")) {
+    const match = selector.match(/meta\[(name|property)="([^"]+)"\]/);
+    if (match) {
+      element = document.createElement("meta");
+      element.setAttribute(match[1], match[2]);
+      document.head.appendChild(element);
+    }
+  }
+  if (element) element.setAttribute(attribute, value);
+}
+
+function setCanonical(pathname) {
+  let canonical = document.querySelector('link[rel="canonical"]');
+  if (!canonical) {
+    canonical = document.createElement("link");
+    canonical.setAttribute("rel", "canonical");
+    document.head.appendChild(canonical);
+  }
+  canonical.setAttribute("href", SITE_URL + pathname);
+}
+
+function removeCanonical() {
+  document.querySelector('link[rel="canonical"]')?.remove();
 }
 
 export default function RouteSeo() {
@@ -42,28 +63,45 @@ export default function RouteSeo() {
   const { lang } = useI18n();
 
   useEffect(() => {
-    if (pathname.startsWith("/admin")) return;
-    const base = "/" + (pathname.split("/")[1] || "");
-    const entry = META[pathname] || META[base] || META["/"];
-    const [title, desc] = entry[lang] || entry.en;
+    const normalizedPath = pathname.length > 1 ? pathname.replace(/\/+$/, "") : "/";
+    const isAdmin = normalizedPath === "/admin" || normalizedPath.startsWith("/admin/");
+    const isProjectDetail = /^\/portfolio\/[^/]+$/.test(normalizedPath);
+    const isArticleDetail = /^\/blog\/[^/]+$/.test(normalizedPath);
+    const isKnownRoute = Boolean(META[normalizedPath]) || isProjectDetail || isArticleDetail;
+
+    document.documentElement.lang = lang === "fr" ? "fr" : "en";
+
+    if (isAdmin) {
+      document.title = "Administration — Impact Digital 9 Agency";
+      ensureMeta('meta[name="robots"]', "content", "noindex, nofollow");
+      removeCanonical();
+      return;
+    }
+
+    if (!isKnownRoute) {
+      document.title = lang === "fr" ? "Page introuvable — Impact Digital 9 Agency" : "Page not found — Impact Digital 9 Agency";
+      ensureMeta('meta[name="description"]', "content", lang === "fr" ? "La page demandée est introuvable." : "The requested page could not be found.");
+      ensureMeta('meta[name="robots"]', "content", "noindex, follow");
+      removeCanonical();
+      return;
+    }
+
+    const base = "/" + (normalizedPath.split("/")[1] || "");
+    const entry = META[normalizedPath] || META[base] || META["/"];
+    const [title, description] = entry[lang] || entry.en;
 
     document.title = title;
-    setMeta('meta[name="description"]', "content", desc);
-    setMeta('meta[property="og:title"]', "content", title);
-    setMeta('meta[property="og:description"]', "content", desc);
-    setMeta('meta[property="og:url"]', "content", SITE_URL + pathname);
-    setMeta('meta[property="og:locale"]', "content", lang === "fr" ? "fr_FR" : "en_US");
-    setMeta('meta[name="twitter:title"]', "content", title);
-    setMeta('meta[name="twitter:description"]', "content", desc);
-
-    let canonical = document.querySelector('link[rel="canonical"]');
-    if (!canonical) {
-      canonical = document.createElement("link");
-      canonical.setAttribute("rel", "canonical");
-      document.head.appendChild(canonical);
-    }
-    canonical.setAttribute("href", SITE_URL + pathname);
-    document.documentElement.lang = lang;
+    ensureMeta('meta[name="description"]', "content", description);
+    ensureMeta('meta[name="robots"]', "content", "index, follow");
+    ensureMeta('meta[property="og:site_name"]', "content", "Impact Digital 9 Agency");
+    ensureMeta('meta[property="og:title"]', "content", title);
+    ensureMeta('meta[property="og:description"]', "content", description);
+    ensureMeta('meta[property="og:type"]', "content", isArticleDetail ? "article" : "website");
+    ensureMeta('meta[property="og:url"]', "content", SITE_URL + normalizedPath);
+    ensureMeta('meta[property="og:locale"]', "content", lang === "fr" ? "fr_FR" : "en_US");
+    ensureMeta('meta[name="twitter:title"]', "content", title);
+    ensureMeta('meta[name="twitter:description"]', "content", description);
+    setCanonical(normalizedPath);
   }, [pathname, lang]);
 
   return null;
