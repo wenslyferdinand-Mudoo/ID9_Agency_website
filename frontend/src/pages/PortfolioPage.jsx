@@ -17,13 +17,13 @@ export default function PortfolioPage() {
   const { t, lang } = useI18n();
 
   const FILTERS = [
-    { k: "all", l: t("wk.filters.all") },
-    { k: "branding", l: t("wk.filters.branding") },
-    { k: "graphic-design", l: lang === "fr" ? "Design graphique" : "Graphic Design" },
-    { k: "web-design", l: lang === "fr" ? "Design web" : "Web Design" },
+    { k: "all", l: lang === "fr" ? "Tous" : "All" },
+    { k: "branding", l: lang === "fr" ? "Image de marque" : "Branding" },
+    { k: "graphic-design", l: lang === "fr" ? "Conception graphique" : "Graphic Design" },
+    { k: "web-design", l: lang === "fr" ? "Conception web" : "Web Design" },
     { k: "app-development", l: lang === "fr" ? "Développement d'applications" : "App Development" },
-    { k: "marketing", l: t("wk.filters.marketing") },
-    { k: "motion-design", l: lang === "fr" ? "Motion design" : "Motion Design" },
+    { k: "marketing", l: lang === "fr" ? "Commercialisation" : "Marketing" },
+    { k: "motion-design", l: lang === "fr" ? "Conception graphique animée" : "Motion Design" },
     { k: "photography", l: lang === "fr" ? "Photographie" : "Photography" },
   ];
 
@@ -95,24 +95,24 @@ export default function PortfolioPage() {
         <div className="max-w-7xl mx-auto">
           <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.3em] mb-6">{t("nav.portfolio")}</p>
           <h1 className="max-w-6xl font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[1.04] md:leading-[0.98] text-balance">
-            {t("wk.h1.pre") && (
-              <RevealText as="span" text={t("wk.h1.pre")} className="inline" />
+            {lang === "fr" ? (
+              <>
+                <RevealText as="span" text="Des projets qui" className="inline" />
+                <span>&nbsp;</span>
+                <span className="inline text-gradient-gold italic">donnent forme</span>
+                <br className="hidden sm:block" />
+                <span>&nbsp;</span>
+                <RevealText as="span" text="aux idées et renforcent les marques." className="inline italic" delay={0.2} />
+              </>
+            ) : (
+              <>
+                <RevealText as="span" text={t("wk.h1.pre")} className="inline" />
+                <span>&nbsp;</span>
+                <span className="inline text-gradient-gold italic">{t("wk.h1.hl")}</span>
+                <span>&nbsp;</span>
+                <RevealText as="span" text={t("wk.h1.post") + " " + t("wk.h2")} className="inline italic" delay={0.2} />
+              </>
             )}
-            {t("wk.h1.pre") && <span>&nbsp;</span>}
-            <motion.span
-              initial={{ opacity: 0, y: 28 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="inline-block text-gradient-gold italic pr-2"
-            >
-              {t("wk.h1.hl")}
-            </motion.span>
-            {t("wk.h1.post") && <span>&nbsp;</span>}
-            {t("wk.h1.post") && (
-              <RevealText as="span" text={t("wk.h1.post")} className="inline" delay={0.2} />
-            )}
-            <span>&nbsp;</span>
-            <RevealText as="span" text={t("wk.h2")} className="inline italic" delay={0.3} />
           </h1>
         </div>
       </section>
@@ -158,45 +158,53 @@ export default function PortfolioPage() {
               {lang === "fr" ? "Chargement des projets…" : "Loading projects…"}
             </p>
           ) : (
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6">
+            <div className="grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 xl:grid-cols-3 md:gap-6" data-testid="portfolio-project-grid">
               <AnimatePresence mode="popLayout">
                 {filtered.map((p, i) => (
-                <motion.div
-                  layout
-                  key={p.id || p.slug || "project-" + i}
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 20 }}
-                  transition={{ duration: 0.6, delay: (i % 4) * 0.05, ease: [0.16, 1, 0.3, 1] }}
-                  className="group relative overflow-hidden rounded-3xl bg-ink-700"
-                  data-testid={`portfolio-grid-card-${p.slug}`}
-                >
-                  <Link to={"/portfolio/" + p.slug} className="block">
-                    <PortfolioCover project={p} lang={lang} />
-                    <div className="absolute inset-0 bg-gradient-to-t from-ink-900 via-ink-900/30 to-transparent" />
-                    <div className="absolute bottom-0 inset-x-0 flex items-end justify-between gap-3 p-4 sm:p-6 md:p-8">
-                      <div className="min-w-0">
-                        <p className="mb-2 break-words font-ui text-[10px] uppercase tracking-[0.2em] text-orange_impact">
-                          {getCategoryLabel(p.category, lang)}{p.year ? " · " + p.year : ""}
-                        </p>
-                        {p.status && <span className="mb-2 inline-flex rounded-full border border-white/20 bg-black/30 px-3 py-1 text-[10px] uppercase tracking-[0.15em] text-white/75">{p.status}</span>}
-                        <h2 className="break-words font-display text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">
+                  <motion.article
+                    layout
+                    key={p.id || p.slug || "project-" + i}
+                    initial={{ opacity: 0, y: 28 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 16 }}
+                    transition={{ duration: 0.45, delay: (i % 6) * 0.035, ease: [0.16, 1, 0.3, 1] }}
+                    className="group flex h-full min-w-0 flex-col overflow-hidden rounded-3xl border border-white/[0.08] bg-ink-800/80 transition-colors duration-300 hover:border-orange_impact/35 hover:bg-ink-800"
+                    data-testid={`portfolio-grid-card-${p.slug}`}
+                  >
+                    <Link to={"/portfolio/" + p.slug} className="flex h-full flex-col focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange_impact">
+                      <PortfolioCover project={p} lang={lang} />
+                      <div className="flex flex-1 flex-col p-5 sm:p-6">
+                        <div className="mb-3 flex min-h-6 flex-wrap items-center gap-x-2 gap-y-1">
+                          <span className="font-ui text-[10px] font-semibold uppercase leading-relaxed tracking-[0.18em] text-orange_impact">
+                            {getCategoryLabel(p.category, lang)}
+                          </span>
+                          {p.year && <span className="text-xs text-white/35">· {p.year}</span>}
+                          {p.status && (
+                            <span className="ml-auto rounded-full border border-white/15 bg-white/[0.04] px-2.5 py-1 text-[9px] uppercase tracking-[0.12em] text-white/60">
+                              {p.status}
+                            </span>
+                          )}
+                        </div>
+                        <h2 className="line-clamp-2 min-h-[3.1rem] break-words font-display text-xl font-bold leading-[1.2] tracking-tight text-white sm:text-2xl">
                           {p.title || (lang === "fr" ? "Projet" : "Project")}
                         </h2>
-                        {p.client && <p className="mt-1 break-words text-xs text-white/55">{p.client}</p>}
-                        {p.summary && <p className="mt-2 line-clamp-2 max-w-xl text-sm leading-relaxed text-white/65">{p.summary}</p>}
-                        {Array.isArray(p.services) && p.services.some((service) => typeof service === "string" && service.trim()) && (
-                          <p className="mt-3 text-[11px] text-white/45">
-                            {p.services.filter((service) => typeof service === "string" && service.trim()).slice(0, 2).join(" · ")}
-                          </p>
+                        {p.client && (
+                          <p className="mt-2 min-h-5 truncate text-xs font-medium text-white/45">{p.client}</p>
                         )}
+                        <p className="mt-3 line-clamp-3 min-h-[4.5rem] text-sm leading-[1.55] text-white/60">
+                          {p.summary || (lang === "fr" ? "Découvrez cette réalisation d'Impact Digital 9." : "Explore this Impact Digital 9 project.")}
+                        </p>
+                        <div className="mt-auto flex items-center justify-between gap-3 border-t border-white/[0.07] pt-4">
+                          <span className="text-xs font-semibold text-white/65 transition-colors group-hover:text-orange_impact">
+                            {lang === "fr" ? "Découvrir le projet" : "Explore project"}
+                          </span>
+                          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/15 bg-white/[0.04] transition-all duration-300 group-hover:border-orange_impact group-hover:bg-orange_impact group-hover:text-ink-900">
+                            <ArrowUpRight className="h-4 w-4" />
+                          </span>
+                        </div>
                       </div>
-                      <div className="w-12 h-12 rounded-full bg-white/10 border border-white/20 grid place-items-center group-hover:bg-orange_impact group-hover:text-ink-900 group-hover:border-orange_impact transition-colors shrink-0">
-                        <ArrowUpRight className="w-4 h-4" />
-                      </div>
-                    </div>
-                  </Link>
-                </motion.div>
+                    </Link>
+                  </motion.article>
                 ))}
               </AnimatePresence>
             </div>
