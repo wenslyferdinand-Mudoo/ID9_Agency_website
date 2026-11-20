@@ -74,7 +74,6 @@ export default function RouteSeo() {
 
     setMeta('meta[name="robots"]', "content", "index,follow");
 
-    let cancelled = false;
     const canonicalUrl = SITE_URL + pathname;
     document.documentElement.lang = lang;
     setCanonical(pathname);
@@ -90,7 +89,7 @@ export default function RouteSeo() {
           : "Explore a selected case study and the creative approach of Impact Digital 9 Agency.",
         url: canonicalUrl,
       });
-      return () => { cancelled = true; };
+      return undefined;
     }
 
     const isKnownStaticPath = Object.prototype.hasOwnProperty.call(META, pathname);
@@ -102,13 +101,13 @@ export default function RouteSeo() {
         description: lang === "fr" ? "Cette adresse ne correspond à aucune page publiée." : "This address does not match a published page.",
         url: canonicalUrl,
       });
-      return () => { cancelled = true; };
+      return undefined;
     }
 
     const entry = META[pathname] || META["/" + (pathname.split("/")[1] || "")] || META["/"];
     const [title, description] = entry[lang] || entry.en;
     applyMeta({ title, description, url: canonicalUrl });
-    return () => { cancelled = true; };
+    return undefined;
   }, [pathname, lang]);
 
   return null;
