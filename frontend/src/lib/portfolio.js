@@ -131,12 +131,12 @@ const PROJECTION = `{
 }`
 
 const LIST_QUERY = `
-*[_type == "portfolioProject" && defined(slug.current)]
+*[_type == "portfolioProject" && defined(slug.current) && !(_id in path("drafts.**"))]
 | order(featured desc, year desc, _createdAt desc) ${PROJECTION}
 `
 
 const DETAIL_QUERY = `
-*[_type == "portfolioProject" && slug.current == $slug][0] ${PROJECTION}
+*[_type == "portfolioProject" && slug.current == $slug && !(_id in path("drafts.**"))][0] ${PROJECTION}
 `
 
 const FEATURED_QUERY = `
@@ -215,7 +215,8 @@ export async function fetchPortfolioBySlug(slug) {
   }
 
   // The CDN may briefly serve a stale empty result after publication. Retry the
-  // same query against Sanity's API directly before falling back to legacy data.
+  // same published-document query against Sanity's API directly. MongoDB legacy
+  // records are handled by the portfolio page compatibility layer, not this CMS client.
   try {
     const data = await uncachedSanityClient.fetch(DETAIL_QUERY, {slug})
     return normalizePortfolio(data)

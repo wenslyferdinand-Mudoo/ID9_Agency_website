@@ -37,7 +37,7 @@ Faire évoluer le site ID9 Agency vers une plateforme d'agence digitale premium,
 
 ### 3.2 SEO
 
-- `frontend/src/components/site/RouteSeo.jsx` définit actuellement le domaine canonique en dur sur `https://id9agency.com`.
+- Le domaine canonique a été harmonisé dans le lot P0 sur `https://id9-agency-website.vercel.app` (domaine Vercel temporaire). `id9agency.com` reste le domaine custom futur, non acheté et non attaché à Vercel.
 - Le domaine de production communiqué est actuellement `https://id9-agency-website.vercel.app`. Le domaine canonique doit rester aligné sur le domaine réellement choisi et vérifié. Ne pas basculer vers un domaine personnalisé non configuré.
 - Les métadonnées dynamiques des pages de détail doivent être vérifiées : titre, description, canonical, Open Graph, Twitter Cards et partage d'image.
 

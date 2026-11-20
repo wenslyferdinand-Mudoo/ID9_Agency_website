@@ -161,20 +161,18 @@ export default function ContactPage() {
                   </a>
                 </div>
               </div>
-              <div>
-                <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.25em] mb-2">{t("co.studio")}</p>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.25em] mb-2">
+                  {lang === "fr" ? "Zone d’intervention" : "Service area"}
+                </p>
                 <p className="font-display text-xl md:text-2xl inline-flex items-center gap-2">
                   <MapPin className="w-5 h-5" /> {BRAND.city}
                 </p>
-              </div>
-              <div className="aspect-[4/3] rounded-2xl overflow-hidden glass">
-                <iframe
-                  title="Studio map"
-                  className="w-full h-full"
-                  src="https://www.google.com/maps?q=Port-au-Prince,+Haiti&output=embed"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
+                <p className="mt-2 text-sm leading-relaxed text-white/55">
+                  {lang === "fr"
+                    ? "Agence à distance. Interventions sur site possibles selon le projet et la zone."
+                    : "Remote-first agency. On-site work may be arranged depending on the project and location."}
+                </p>
               </div>
             </aside>
 
