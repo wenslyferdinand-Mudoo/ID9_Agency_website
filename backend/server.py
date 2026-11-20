@@ -498,12 +498,33 @@ async def seed_content():
 # ---------- App setup ----------
 app.include_router(api_router)
 
+def get_allowed_origins() -> list[str]:
+    # The frontend is hosted on Vercel. Never fall back to a wildcard origin.
+    raw_origins = os.environ.get(
+        "CORS_ORIGINS",
+        "https://id9-agency-website.vercel.app",
+    )
+    origins = [origin.strip().rstrip("/") for origin in raw_origins.split(",") if origin.strip()]
+    if not origins or "*" in origins:
+        raise RuntimeError(
+            "CORS_ORIGINS must contain explicit trusted origins; wildcard CORS is disabled."
+        )
+    return origins
+
+
+def should_seed_demo_content() -> bool:
+    # Production must never insert sample records during an application restart.
+    app_env = os.environ.get("APP_ENV", "production").strip().lower()
+    seed_flag = os.environ.get("SEED_DEMO_CONTENT", "").strip().lower()
+    return app_env != "production" and seed_flag in {"1", "true", "yes"}
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=False,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=get_allowed_origins(),
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -519,7 +540,11 @@ async def on_startup():
     except Exception as e:
         logger.warning(f"[startup] index creation: {e}")
     await seed_admin()
-    await seed_content()
+    if should_seed_demo_content():
+        await seed_content()
+        logger.warning("[startup] demo content seed explicitly enabled outside production.")
+    else:
+        logger.info("[startup] demo content seeding skipped; existing records are preserved.")
     logger.info("ID9 backend ready.")
 
 
