@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import api from "@/lib/api";
 import FinalCTA from "@/components/sections/FinalCTA";
+import { useI18n } from "@/lib/i18n";
 
 function renderMarkdownLite(md) {
   // Minimal markdown rendering: ##, **, lists, paragraphs.
@@ -32,15 +33,15 @@ function renderMarkdownLite(md) {
     flushList();
     if (/^##\s+/.test(ln)) {
       out.push(
-        <h2 key={i} className="font-display text-3xl md:text-4xl font-bold tracking-tight mt-12 mb-4">
+        <h3 key={i} className="font-display text-2xl md:text-3xl font-bold tracking-tight mt-10 mb-4">
           {ln.replace(/^##\s+/, "")}
-        </h2>
+        </h3>
       );
     } else if (/^#\s+/.test(ln)) {
       out.push(
-        <h1 key={i} className="font-display text-4xl font-black tracking-tighter mt-12 mb-4">
+        <h2 key={i} className="font-display text-3xl md:text-4xl font-bold tracking-tight mt-12 mb-4">
           {ln.replace(/^#\s+/, "")}
-        </h1>
+        </h2>
       );
     } else if (/^\s*\d+\.\s+/.test(ln)) {
       // numbered list: convert to li (simple)
@@ -67,25 +68,73 @@ function renderMarkdownLite(md) {
 
 export default function BlogDetailPage() {
   const { slug } = useParams();
+  const { lang } = useI18n();
   const [post, setPost] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  useEffect(() => {
-    api
-      .get(`/blog/${slug}`)
-      .then((r) => setPost(r.data))
-      .catch(() => setNotFound(true));
-  }, [slug]);
+  const [loadError, setLoadError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
-  if (notFound)
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setNotFound(false);
+    setLoadError(false);
+    setPost(null);
+
+    api
+      .get(`/blog/${slug}`, { timeout: 8000 })
+      .then((r) => {
+        if (active) setPost(r?.data || null);
+      })
+      .catch((error) => {
+        if (!active) return;
+        if (error?.response?.status === 404) setNotFound(true);
+        else setLoadError(true);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [slug, retryCount]);
+
+  if (loading)
+    return (
+      <main className="min-h-screen pt-32 md:pt-40 px-4 text-center text-white/50" aria-live="polite" aria-busy="true">
+        {lang === "fr" ? "Chargement de l’article…" : "Loading article…"}
+      </main>
+    );
+
+  if (notFound || loadError || !post)
     return (
       <main className="min-h-screen pt-32 md:pt-40 px-4 sm:px-6 max-w-4xl mx-auto">
-        <p className="text-white/60">Post not found.</p>
-        <Link to="/blog" className="text-orange_impact underline mt-4 inline-block">
-          ← Back to journal
+        <h1 className="font-display text-3xl font-bold text-white">
+          {notFound
+            ? (lang === "fr" ? "Article introuvable." : "Article not found.")
+            : (lang === "fr" ? "Impossible de charger cet article." : "Unable to load this article.")}
+        </h1>
+        <p className="mt-3 text-white/60">
+          {notFound
+            ? (lang === "fr" ? "Cet article n’existe pas ou n’est plus disponible." : "This article does not exist or is no longer available.")
+            : (lang === "fr" ? "Vérifiez votre connexion et réessayez." : "Check your connection and try again.")}
+        </p>
+        {!notFound && (
+          <button
+            type="button"
+            onClick={() => setRetryCount((count) => count + 1)}
+            className="mt-6 inline-flex min-h-11 items-center rounded-full bg-orange_impact px-6 py-3 text-sm font-semibold text-ink-900"
+          >
+            {lang === "fr" ? "Réessayer" : "Try again"}
+          </button>
+        )}
+        <Link to="/blog" className="text-orange_impact underline mt-4 inline-flex min-h-11 items-center">
+          {lang === "fr" ? "← Retour au journal" : "← Back to journal"}
         </Link>
       </main>
     );
-  if (!post) return <main className="min-h-screen pt-32 md:pt-40 px-4 text-center text-white/50">Loading…</main>;
 
   return (
     <main data-testid="blog-detail" className="pt-32 md:pt-40">
