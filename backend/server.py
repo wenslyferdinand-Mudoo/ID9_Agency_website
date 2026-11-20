@@ -131,15 +131,15 @@ class PortfolioCreate(BaseModel):
     summary: str
     description: Optional[str] = None
     cover_image: str
-    gallery: List[str] = []
-    services: List[str] = []
-    tools: List[str] = []
+    gallery: List[str] = Field(default_factory=list)
+    services: List[str] = Field(default_factory=list)
+    tools: List[str] = Field(default_factory=list)
     challenge: Optional[str] = None
     approach: Optional[str] = None
     strategy: Optional[str] = None
     solution: Optional[str] = None
     outcome: Optional[str] = None
-    kpis: List[dict] = []
+    kpis: List[dict] = Field(default_factory=list)
     testimonial: Optional[str] = None
     featured: bool = False
 
