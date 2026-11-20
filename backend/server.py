@@ -442,24 +442,33 @@ BLOG_SEED = [
 
 
 async def seed_admin():
-    email = os.environ.get("ADMIN_EMAIL", "admin@id9agency.com").lower()
-    password = os.environ.get("ADMIN_PASSWORD", "admin123")
+    # Admin provisioning must be explicit. Never fall back to a public default
+    # credential and never overwrite an existing password during application startup.
+    email = os.environ.get("ADMIN_EMAIL", "").strip().lower()
+    password = os.environ.get("ADMIN_PASSWORD", "")
+
+    if not email or not password:
+        logger.warning(
+            "[security] ADMIN_EMAIL / ADMIN_PASSWORD are not both configured; "
+            "automatic admin provisioning skipped."
+        )
+        return
+
     existing = await db.users.find_one({"email": email})
-    if existing is None:
-        await db.users.insert_one({
-            "id": str(uuid.uuid4()),
-            "email": email,
-            "password_hash": hash_password(password),
-            "name": "ID9 Admin",
-            "role": "admin",
-            "created_at": utc_now_iso(),
-        })
-        logger.info(f"[seed] admin created: {email}")
-    else:
-        # Keep password in sync with .env (idempotent)
-        if not verify_password(password, existing["password_hash"]):
-            await db.users.update_one({"email": email}, {"$set": {"password_hash": hash_password(password)}})
-            logger.info(f"[seed] admin password updated: {email}")
+    if existing is not None:
+        # Credential rotation must be an explicit, audited administrative action.
+        logger.info("[security] configured admin account already exists; credentials unchanged.")
+        return
+
+    await db.users.insert_one({
+        "id": str(uuid.uuid4()),
+        "email": email,
+        "password_hash": hash_password(password),
+        "name": "ID9 Admin",
+        "role": "admin",
+        "created_at": utc_now_iso(),
+    })
+    logger.info("[security] initial admin account provisioned from environment configuration.")
 
 
 async def seed_content():

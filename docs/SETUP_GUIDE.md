@@ -75,12 +75,19 @@ cd id9-agency
 ```env
 MONGO_URL="mongodb://localhost:27017"
 DB_NAME="id9_local"
-CORS_ORIGINS="*"
-JWT_SECRET="changez-moi-avec-une-chaine-aleatoire-longue-64-caracteres"
-ADMIN_EMAIL="admin@id9agency.com"
-ADMIN_PASSWORD="ID9_Admin_2025!"
+CORS_ORIGINS="http://localhost:3000"
+JWT_SECRET="REMPLACER_PAR_UN_SECRET_ALEATOIRE_UNIQUE"
+ADMIN_EMAIL="admin@votre-domaine.com"
+ADMIN_PASSWORD="REMPLACER_PAR_UN_MOT_DE_PASSE_UNIQUE_ET_LONG"
 ```
 
+> 🔐 **Sécurité** :
+> - Générez un secret JWT unique (par exemple : `python -c "import secrets; print(secrets.token_urlsafe(48))"`).
+> - Choisissez un mot de passe administrateur unique et long. Ne réutilisez jamais un exemple de documentation.
+> - Les deux variables `ADMIN_EMAIL` et `ADMIN_PASSWORD` doivent être explicitement définies pour provisionner le premier compte.
+> - Au démarrage, l'application ne réinitialise plus le mot de passe d'un administrateur existant.
+> - En local, autorisez uniquement `http://localhost:3000` dans `CORS_ORIGINS`. En production, remplacez cette origine par les domaines frontend réellement utilisés, séparés par des virgules. N'utilisez pas `*`.
+>
 > 💡 Si vous utilisez **MongoDB Atlas**, remplacez `MONGO_URL` par votre URI Atlas :
 > `mongodb+srv://user:pass@cluster.mongodb.net/id9_local?retryWrites=true&w=majority`
 
@@ -240,7 +247,7 @@ git push -u origin main
 
    | Nom | Valeur |
    |---|---|
-   | `REACT_APP_BACKEND_URL` | URL publique de votre backend (voir 5.4) |
+   | `REACT_APP_API_URL` (ou `REACT_APP_BACKEND_URL`) | URL publique de votre backend (voir 5.4) |
    | `REACT_APP_SPLINE_SCENE_URL` | `https://prod.spline.design/ULqGLBLb7PZFYV8w/scene.splinecode` |
    | `REACT_APP_SANITY_PROJECT_ID` | `mqrbsugj` |
    | `REACT_APP_SANITY_DATASET` | `production` |
@@ -263,10 +270,10 @@ Vercel **ne supporte pas FastAPI nativement** (fonctions serverless limitées). 
 1. https://railway.app → **New Project** → **Deploy from GitHub** → sélectionner votre repo.
 2. **Root Directory** = `backend`.
 3. **Start Command** : `uvicorn server:app --host 0.0.0.0 --port $PORT`.
-4. **Variables** : ajouter `MONGO_URL`, `DB_NAME`, `JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `CORS_ORIGINS=https://id9-agency.vercel.app`.
+4. **Variables** : ajouter `MONGO_URL`, `DB_NAME`, `JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `CORS_ORIGINS=https://id9-agency-website.vercel.app` (ajouter le domaine personnalisé uniquement après son association à Vercel).
 5. **Add MongoDB** (plugin Railway) → copiez l'URI dans `MONGO_URL`.
 6. Après déploiement, Railway vous donne une URL du type `https://id9-backend.up.railway.app`.
-7. Retournez sur Vercel → **Settings → Environment Variables** → mettez à jour `REACT_APP_BACKEND_URL` avec cette URL.
+7. Retournez sur Vercel → **Settings → Environment Variables** → mettez à jour `REACT_APP_API_URL` (ou `REACT_APP_BACKEND_URL`) avec cette URL.
 8. Vercel → **Deployments** → **Redeploy** le dernier build.
 
 ---
@@ -334,8 +341,8 @@ yarn install                     # OU : npm install
 ## 🔐 8. Sécurité — checklist avant production
 
 - [ ] **Changer `JWT_SECRET`** dans `backend/.env` (chaîne aléatoire 64+ car).
-- [ ] **Changer `ADMIN_PASSWORD`** (12+ caractères, mix majuscule/chiffre/symbole).
-- [ ] **Restreindre `CORS_ORIGINS`** à votre domaine (ex: `https://id9agency.com`, pas `*`).
+- [ ] **Définir `ADMIN_PASSWORD`** avec un secret unique et long (20+ caractères recommandés), stocké uniquement dans le gestionnaire de secrets de l'hébergeur.
+- [ ] **Restreindre `CORS_ORIGINS`** aux origines frontend réellement déployées (jamais `*` en production).
 - [ ] **MongoDB Atlas** avec IP whitelisting (pas 0.0.0.0/0 en prod).
 - [ ] **HTTPS activé** partout (Vercel et Railway le font par défaut).
 - [ ] **Aucun `.env` commité** dans Git (déjà dans `.gitignore`).
