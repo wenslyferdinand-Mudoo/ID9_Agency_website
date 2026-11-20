@@ -4,8 +4,7 @@ import {SANITY_CONFIG, sanityClient, imageUrl} from './sanity'
 // Retry detail lookup without the CDN if a newly published document is missing from cache.
 const uncachedSanityClient = createClient({...SANITY_CONFIG, useCdn: false})
  
-// Verified public destinations for the two client case studies.
-// Incomplete Instagram handles are intentionally excluded rather than guessed.
+// Verified public destinations for client case studies and the Mudoo product.
 const VERIFIED_PROJECT_LINKS = [
   {
     matches: (identity) => /ika[\s_-]*collections?/i.test(identity),
@@ -67,7 +66,7 @@ const VERIFIED_PROJECT_LINKS = [
     ],
   },
   {
-    matches: (identity) => /\\bmudoo\\b/i.test(identity),
+    matches: (identity) => /mudoo/i.test(identity),
     links: [
       {
         _key: 'mudoo-website',
