@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
-import { fetchPortfolioBySlug } from "@/lib/portfolio";
 
 // Production canonical host until id9agency.com is purchased and attached to Vercel.
 const SITE_URL = "https://id9-agency-website.vercel.app";
@@ -87,6 +86,8 @@ export default function RouteSeo() {
     document.documentElement.lang = lang;
     setCanonical(pathname);
     if (/^\/portfolio\/[^/]+$/.test(pathname)) {
+      // The detail page owns SEO once its Sanity/local/API fallback resolves.
+      // Avoid a second Sanity request here and keep a stable fallback during loading.
       applyMeta({
         title: lang === "fr"
           ? "Étude de cas — Impact Digital 9 Agency"
@@ -96,49 +97,6 @@ export default function RouteSeo() {
           : "Explore a selected case study and the creative approach of Impact Digital 9 Agency.",
         url: canonicalUrl,
       });
-    }
-
-    if (/^\/portfolio\/[^/]+$/.test(pathname)) {
-      const slug = pathname.split("/").filter(Boolean)[1];
-      if (!slug) return undefined;
-
-      fetchPortfolioBySlug(slug).then((project) => {
-        if (cancelled || !project) return;
-        const title =
-          (typeof project.seoTitle === "string" && project.seoTitle.trim()) ||
-          `${project.title || "Project"} | Impact Digital 9 Agency`;
-        const description =
-          (typeof project.seoDescription === "string" && project.seoDescription.trim()) ||
-          (typeof project.summary === "string" && project.summary.trim()) ||
-          "A selected project by Impact Digital 9 Agency.";
-        const image = project.cover_image || DEFAULT_SHARE_IMAGE;
-
-        applyMeta({ title, description, image, url: canonicalUrl });
-        const schema = {
-          "@context": "https://schema.org",
-          "@type": "CreativeWork",
-          name: project.title || title,
-          description,
-          url: canonicalUrl,
-          image,
-          creator: {
-            "@type": "Organization",
-            name: "Impact Digital 9 Agency",
-            url: SITE_URL,
-          },
-        };
-        let script = document.querySelector('script[data-route-seo="project"]');
-        if (!script) {
-          script = document.createElement("script");
-          script.type = "application/ld+json";
-          script.dataset.routeSeo = "project";
-          document.head.appendChild(script);
-        }
-        script.textContent = JSON.stringify(schema);
-      }).catch(() => {
-        // Static prerendered metadata remains available if the CMS is temporarily unavailable.
-      });
-
       return () => { cancelled = true; };
     }
 
