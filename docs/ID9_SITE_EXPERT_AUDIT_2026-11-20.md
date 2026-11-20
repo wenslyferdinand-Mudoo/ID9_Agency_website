@@ -254,3 +254,12 @@ Après relecture du code de la branche, trois défauts de cohérence ont été c
 Ces modifications sont limitées au frontend et ne changent ni le contenu Sanity, ni MongoDB, ni les variables d'environnement.
 
 **Validation en cours :** le nouveau HEAD `7a4b542e6a8fa80a615078fde1d81ec0a7306bfc` possède un déploiement Vercel Preview identifié `dpl_HSFAtWKggosGqcQEF1TTseBCPGtn`, encore **QUEUED** au dernier contrôle. Aucun test navigateur visuel ni Lighthouse n'est disponible dans cette session. La validation reste donc partielle.
+
+## 12. Portfolio SEO ownership and CMS image accessibility
+
+Two additional cross-layer issues were addressed:
+
+- **Duplicate Sanity request:** both the route-level SEO component and the portfolio detail page independently fetched the same Sanity project. Route-level SEO now provides only immediate fallback metadata; the detail page owns the final metadata and `CreativeWork` JSON-LD after the existing Sanity → founder-project → API fallback resolves. This removes a redundant CMS lookup and keeps metadata aligned with the content actually rendered.
+- **Cover image alternative text:** the Sanity portfolio schema now supports optional alt text for cover images. The frontend normalizer propagates that field to portfolio cards, homepage project previews and detail pages, with a project-title fallback for existing documents that have not yet been enriched. No CMS documents were edited.
+
+**Validation remains pending:** these changes are committed to the audit branch and await the latest Vercel Preview build. No claim of visual or accessibility-audit completion is made before browser/Lighthouse checks.
