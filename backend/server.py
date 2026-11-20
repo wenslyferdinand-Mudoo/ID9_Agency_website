@@ -201,7 +201,8 @@ async def root():
 async def login(data: LoginRequest, request: Request):
     await enforce_rate_limit(request, "login", limit=10, window_seconds=300)
     email = data.email.lower().strip()
-    user = await db.users.find_one({"email": email})    if not user:
+    user = await db.users.find_one({"email": email})
+    if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     if not verify_password(data.password, user["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -381,7 +382,8 @@ async def get_service(slug: str):
 
 
 # ---------- Seed data ----------
-PORTFOLIO_SEED = [    {
+PORTFOLIO_SEED = [
+    {
         "title": "Akya Dance Company — Cultural Identity Reborn",
         "category": "branding",
         "client": "Akya Dance Company",
@@ -532,6 +534,12 @@ def get_allowed_origins() -> list[str]:
     return origins
 
 
+def should_seed_demo_content() -> bool:
+    app_env = os.environ.get("APP_ENV", "production").strip().lower()
+    seed_flag = os.environ.get("SEED_DEMO_CONTENT", "").strip().lower()
+    return app_env != "production" and seed_flag in {"1", "true", "yes"}
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=False,
@@ -554,9 +562,7 @@ async def on_startup():
     await db.blog.create_index("slug", unique=True)
     await db.rate_limits.create_index("expires_at", expireAfterSeconds=0)
     await seed_admin()
-    app_env = os.environ.get("APP_ENV", "production").strip().lower()
-    seed_flag = os.environ.get("SEED_DEMO_CONTENT", "").strip().lower()
-    if app_env != "production" and seed_flag in {"1", "true", "yes"}:
+    if should_seed_demo_content():
         await seed_content()
         logger.warning("[startup] demo content seed explicitly enabled outside production.")
     else:
