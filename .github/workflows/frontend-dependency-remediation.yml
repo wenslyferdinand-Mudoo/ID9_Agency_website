@@ -40,6 +40,9 @@ jobs:
       - name: Apply compatible security updates only
         run: npm audit fix --no-fund || true
 
+      - name: Verify candidate lockfile with a clean install
+        run: npm ci
+
       - name: Report remaining dependency advisories
         run: |
           npm audit --json > npm-audit-after.json || true
