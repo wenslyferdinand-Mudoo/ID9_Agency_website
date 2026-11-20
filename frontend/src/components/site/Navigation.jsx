@@ -27,14 +27,32 @@ export default function Navigation() {
     else if (latest < prev - 4 || latest <= 180) setHidden(false);
   });
 
-  // Lock body scroll when fullscreen menu is open
+  // Lock the page without resetting its scroll position while the mobile menu is open.
   useEffect(() => {
-    if (open) {
-      document.body.classList.add("menu-open");
-    } else {
-      document.body.classList.remove("menu-open");
-    }
-    return () => document.body.classList.remove("menu-open");
+    if (!open) return undefined;
+
+    const scrollY = window.scrollY;
+    const body = document.body;
+    const previousStyles = {
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      right: body.style.right,
+      width: body.style.width,
+      overflow: body.style.overflow,
+    };
+
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
+    body.style.overflow = "hidden";
+
+    return () => {
+      Object.assign(body.style, previousStyles);
+      window.scrollTo(0, scrollY);
+    };
   }, [open]);
 
   // Auto-close on route change
