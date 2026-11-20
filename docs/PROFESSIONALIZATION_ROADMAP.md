@@ -186,3 +186,108 @@ Cette première passe est une lecture statique du dépôt et de la documentation
 ## 9. Prochaine action technique
 
 Réaliser l'audit runtime (Preview Vercel, Sanity, routes, console/réseau, responsive) puis traiter P0 avant de commencer les améliorations fonctionnelles et visuelles P1/P2.
+
+
+---
+
+# 10. Plan d'exécution contrôlé — suivi anti-doublon
+
+Dernière mise à jour : 2026-11-20  
+Branche de suivi : `docs/id9-professionalization-execution-plan`  
+Référence de départ : `main@0270127badaed766f7df844f27512b29b71c5912`
+
+## Règles de gouvernance obligatoires
+
+1. Ce fichier est le registre unique de progression pour la professionnalisation du site. Avant chaque intervention, consulter ce registre, les PR ouvertes, les commits et les fichiers concernés.
+2. Ne jamais refaire une tâche marquée **VALIDÉE** sans nouveau défaut reproductible ou régression documentée.
+3. Une tâche n'est **VALIDÉE** qu'après preuve vérifiable : commit/PR, résultat CI, test d'intégration, réponse HTTP, capture/recette navigateur ou vérification de configuration non sensible. Une modification de code seule ne suffit pas.
+4. Mettre à jour ce fichier dans la même branche/PR que chaque lot de travail, en indiquant statut, date, commit, fichiers touchés, tests exécutés, résultat, limites et tâche suivante.
+5. Ne jamais pousser directement sur `main`. Travailler sur une branche dédiée et utiliser des PR ciblées. Réutiliser les PR existantes lorsqu'elles couvrent déjà le même périmètre ; ne pas créer une PR concurrente qui modifie les mêmes fichiers sans nécessité.
+6. Aucun merge automatique, aucune publication Production, aucun changement des données MongoDB Production ou du dataset Sanity Production sans demande explicite supplémentaire et validation préalable.
+7. Ne jamais afficher, récupérer dans les logs, inscrire dans Git ou transmettre les secrets. Ne jamais demander une URI MongoDB complète ou un mot de passe dans le chat.
+8. Les tests Atlas doivent être limités à une base Staging dont le nom commence par `id9_staging_test_`. Les tests doivent nettoyer uniquement leurs propres documents ; aucune suppression de collection ou de base.
+9. Avant toute modification de données, de CMS, de schéma ou de migration : sauvegarde/export vérifié, inventaire, stratégie de retour arrière et tests.
+10. Après chaque phase, arrêter si un critère de sécurité ou d'acceptation échoue. Documenter le blocage et ne pas passer à la phase dépendante.
+
+## Tableau de bord d'avancement
+
+Légende : **À FAIRE** = non commencé ; **EN COURS** = intervention active ; **BLOQUÉ** = dépendance ou preuve manquante ; **VALIDÉ** = critères et preuves vérifiés. Les statuts ne doivent jamais être déduits d'une simple modification de fichier.
+
+| ID | Phase | Livrable | Statut au 2026-11-20 | Preuve / remarque |
+|---|---|---|---|---|
+| P0.1 | Atlas + Render Staging | Authentification, permissions, URI, runtime, démarrage, health checks, tests Atlas | **EN COURS — BLOQUÉ** | Déploiement `dep-dc0ad7k9v7es73b4rpig` en `update_failed`; logs du 2026-11-20 à 20:00 UTC : Atlas `bad auth`, code 8000, startup failed. Python Render 3.14.10 contre CI 3.12. Aucune preuve de ping Atlas réussi. |
+| P0.2 | Vercel environnements | Séparation stricte API Preview / Production / Development | **À FAIRE** | L'audit a constaté `REACT_APP_API_URL` ciblée Preview + Production ; valeur non déchiffrée et cible effective à confirmer. |
+| P0.3 | Backend PR | Consolider #50, #52, #32 sans conflit ni perte | **À FAIRE** | PR #50 ouverte, #52 Draft, #32 Draft. Pas de merge autorisé dans ce chantier. |
+| P1.1 | Site UX / SEO | Finaliser les corrections existantes | **EN COURS** | PR #53 Draft ; contrôler son CI, Preview, diff et tests navigateur avant de la considérer terminée. |
+| P1.2 | Dépendances frontend | Réduire les vulnérabilités sans mises à jour forcées | **EN COURS** | PR #54 Draft ; état rapporté : 35 vulnérabilités restantes, 0 critique. Refaire un audit npm à partir du lockfile actuel avant validation. |
+| P1.3 | Portfolio / Sanity | Une source de vérité, modèle éditorial, administration cohérente | **À FAIRE** | Audit initial existant dans ce fichier ; aucune migration de données autorisée sans export et comparaison. |
+| P1.4 | Parcours fonctionnels | Formulaires, authentification admin, administration, contact | **À FAIRE** | Tests E2E et contrôles réseau à établir. |
+| P1.5 | WCAG / SEO | Audits mesurés et corrections vérifiées | **À FAIRE** | Scores Lighthouse/WCAG non mesurés ; ne pas annoncer de scores sans exécution. |
+| P2.1 | Performance | Images, JS, fonts, Core Web Vitals | **À FAIRE** | Tailles d'images identifiées dans l'audit ; mesures terrain manquantes. |
+| P2.2 | Direction artistique | Cohérence responsive et finition premium | **À FAIRE** | Ne pas remplacer l'identité visuelle existante ; procéder par corrections ciblées. |
+| P2.3 | Domaine / observabilité | Domaine personnalisé, monitoring, alertes et procédures | **À FAIRE** | Domaine personnalisé non confirmé/configuré ; ne pas changer le canonical avant vérification DNS et Vercel. |
+
+## P0.1 — Procédure détaillée : MongoDB Atlas et Render Staging
+
+### État de départ factuel
+
+- Service Render : `id9-backend-staging`, ID `srv-dc08tkg8v5cc738uetm0`.
+- Branche de service : `security/backend-hardening-staging`.
+- URL Staging : `https://id9-backend-staging.onrender.com`.
+- Déploiement récent : `dep-dc0ad7k9v7es73b4rpig`, commit `b3faa66daa92c60030a6e4d8b454e62541787c6b`, statut `update_failed`.
+- Dernier message bloquant : `pymongo.errors.OperationFailure: bad auth : authentication failed`, code Atlas 8000, suivi de `Application startup failed` et absence de port ouvert.
+- Runtime Render observé : Python 3.14.10. Workflow GitHub observé : Python 3.12.
+- Sur la branche #52, `backend/requirements.txt` fixe Motor 3.3.1 et PyMongo 4.5.0 ; aucun fichier `.python-version` n'existe à la racine.
+- Le test `backend/tests/test_atlas_staging_integration.py` existe sur la branche #52, pas sur `main`. Il exige `ID9_ATLAS_STAGING_URI` et `ID9_ATLAS_STAGING_DB`, refuse les bases qui ne commencent pas par `id9_staging_test_` et nettoie les documents de test qu'il crée.
+
+### Sous-étapes et critères de sortie
+
+| Sous-ID | Action | Statut | Critère de validation |
+|---|---|---|---|
+| P0.1-a | Confirmer l'utilisateur Atlas applicatif Staging et ses rôles, sans afficher de secret | **BLOQUÉ** | Vérification Atlas prouvant l'utilisateur applicatif attendu et les droits limités aux bases Staging nécessaires. |
+| P0.1-b | Vérifier la construction de `MONGO_URL` : nom utilisateur, encodage URL du mot de passe, hôte/cluster, nom de base, `authSource` | **BLOQUÉ** | Validation côté service par diagnostic sans valeur secrète et ping réussi ; ne jamais imprimer l'URI. |
+| P0.1-c | Aligner le runtime Python entre Render et CI et vérifier la compatibilité Motor/PyMongo | **À FAIRE** | Version unique définie dans un fichier versionné à la racine, workflow CI qui lit ce fichier, installation et tests réussis. Choisir la version après vérification de compatibilité ; aucune modification de variable Render secrète. |
+| P0.1-d | Confirmer le démarrage et le ping MongoDB Atlas | **BLOQUÉ** | Nouveau déploiement Staging réussi, ping MongoDB réussi, processus Uvicorn stable et réponse HTTP valide. |
+| P0.1-e | Définir des endpoints de santé live/ready adaptés et configurer le health check Render | **À FAIRE** | Endpoints définis sans fuite d'informations ; readiness vérifie la dépendance requise ; tests HTTP réussis avant configuration Render. |
+| P0.1-f | Exécuter les tests Atlas d'intégration sur la base isolée | **BLOQUÉ** | Ping préalable confirmé, base `id9_staging_test_*`, tests passants, nettoyage vérifié et absence d'impact hors données de test. |
+
+**Règle de blocage P0.1 :** tant que P0.1-a/b/d ne sont pas vérifiés et que le ping Atlas n'est pas réussi, ne pas exécuter les tests d'intégration qui écrivent en base, ne pas modifier les données, ne pas déclencher un nouveau déploiement à répétition et ne pas prétendre que Staging est opérationnel. La correction d'un secret/identifiant doit être effectuée dans Atlas/Render par un canal sécurisé ; l'assistant ne doit jamais demander ni révéler sa valeur.
+
+### Déroulement d'exécution de toutes les phases
+
+Pour chaque phase :
+1. Lire ce tableau et l'état GitHub actuel (branches, commits, PR, checks).
+2. Identifier les corrections déjà présentes dans les PR ouvertes et les commits récents.
+3. Choisir une seule PR/branche cible pour le périmètre ; éviter les changements concurrents.
+4. Implémenter le lot minimal nécessaire.
+5. Exécuter les contrôles statiques, tests unitaires, tests d'intégration et vérifications Preview adaptés.
+6. Contrôler le diff, les secrets, les régressions, les effets de bord et le statut de CI.
+7. Mettre à jour le statut ici avec les références exactes.
+8. Passer à l'étape suivante uniquement lorsque les critères de sortie sont démontrés.
+
+## Journal d'exécution
+
+### 2026-11-20 — Initialisation du registre
+
+- Réutilisation du fichier existant `docs/PROFESSIONALIZATION_ROADMAP.md` : aucun second fichier de roadmap créé.
+- Relecture des PR ouvertes : #54, #53, #52, #50, #34, #32, #21, #8, #7 et #4.
+- Relecture du service Render Staging, des cinq derniers déploiements et des logs les plus récents.
+- Confirmation du blocage Atlas `bad auth` / code 8000 ; le dernier déploiement est en échec.
+- Confirmation du décalage Python Render 3.14.10 / GitHub Actions 3.12 et absence de fichier de version Python racine.
+- Vérification du code de test Atlas sur la branche #52 : tests opt-in et garde-fou `id9_staging_test_*`.
+- Aucun secret consulté ou exposé ; aucune variable Render/Atlas modifiée ; aucune base ni donnée touchée ; aucun déploiement déclenché.
+- **Prochaine action :** traiter P0.1-c (alignement Python reproductible) sur une branche dédiée, puis demander une validation sécurisée de l'identité/URI Atlas si le ping échoue toujours. P0.1-a/b/d restent bloquées par l'authentification.
+
+### Format obligatoire de mise à jour après chaque intervention
+
+```md
+### YYYY-MM-DD — [ID de tâche] — [résultat]
+- Statut : À FAIRE / EN COURS / BLOQUÉ / VALIDÉ
+- Branche / PR :
+- Commit :
+- Fichiers modifiés :
+- Contrôles exécutés :
+- Résultats observés :
+- Risques / limites :
+- Prochaine étape :
+```
