@@ -72,6 +72,9 @@ export default function RouteSeo() {
   const { lang } = useI18n();
 
   useEffect(() => {
+    // Clear route-scoped project schema even when navigating into admin.
+    removeProjectSchema();
+
     if (pathname.startsWith("/admin")) {
       setMeta('meta[name="robots"]', "content", "noindex,nofollow");
       return undefined;
@@ -83,10 +86,6 @@ export default function RouteSeo() {
     const canonicalUrl = SITE_URL + pathname;
     document.documentElement.lang = lang;
     setCanonical(pathname);
-    // A client-side route change must not leave structured data from the
-    // previous case study attached to the new page.
-    removeProjectSchema();
-
     if (/^\/portfolio\/[^/]+$/.test(pathname)) {
       applyMeta({
         title: lang === "fr"
