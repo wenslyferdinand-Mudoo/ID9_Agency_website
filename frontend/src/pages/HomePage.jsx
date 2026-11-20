@@ -11,44 +11,40 @@ import LeadMagnet from "@/components/sections/LeadMagnet";
 import FinalCTA from "@/components/sections/FinalCTA";
 import MarqueeDivider from "@/components/site/MarqueeDivider";
 import KineticTypography from "@/components/site/KineticTypography";
+import { useI18n } from "@/lib/i18n";
 
 export default function HomePage() {
+  const { lang } = useI18n();
 
   return (
     <main data-testid="home-page">
       <HeroSection />
       <AboutPreview />
       <MarqueeDivider
-        items={[
-          "Brand",
-          "Web",
-          "Motion",
-          "Strategy",
-          "Story",
-          "Identity",
-          "Growth",
-        ]}
+        items={lang === "fr"
+          ? ["Marque", "Web", "Motion", "Stratégie", "Récit", "Identité", "Croissance"]
+          : ["Brand", "Web", "Motion", "Strategy", "Story", "Identity", "Growth"]}
       />
       <ServicesGrid />
       <PortfolioPreview />
       <KineticTypography
-        lines={[
-          { text: "STRATEGY × DESIGN × IMPACT.", direction: "left" },
-          { text: "BRANDS. SYSTEMS. GROWTH.", direction: "right" },
-        ]}
+        lines={lang === "fr"
+          ? [
+              { text: "STRATÉGIE × DESIGN × IMPACT.", direction: "left" },
+              { text: "MARQUES. SYSTÈMES. CROISSANCE.", direction: "right" },
+            ]
+          : [
+              { text: "STRATEGY × DESIGN × IMPACT.", direction: "left" },
+              { text: "BRANDS. SYSTEMS. GROWTH.", direction: "right" },
+            ]}
       />
       <ProcessTimeline />
       <FounderAuthority />
       <TrainingSection />
       <MarqueeDivider
-        items={[
-          "Discover",
-          "Strategy",
-          "Design",
-          "Develop",
-          "Launch",
-          "Scale",
-        ]}
+        items={lang === "fr"
+          ? ["Découvrir", "Stratégie", "Concevoir", "Développer", "Lancer", "Déployer"]
+          : ["Discover", "Strategy", "Design", "Develop", "Launch", "Scale"]}
         speed={45}
       />
       <WhyUs />
