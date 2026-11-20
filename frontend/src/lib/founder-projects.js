@@ -49,6 +49,29 @@ const PROJECTS = [
     tools: ["Flutter", "Dart", "SQLite", "FTS5"],
     outcome: "Mudoo is an ongoing product build. This portfolio entry describes the product direction and current engineering focus; it does not claim that every planned feature is production-ready.",
     outcomeFr: "Mudoo est un produit en cours de développement. Cette présentation décrit son orientation et ses priorités techniques actuelles ; elle ne prétend pas que toutes les fonctionnalités prévues sont prêtes pour la production.",
+    externalLinks: [
+      {
+        _key: "mudoo-website",
+        label: "Mudoo — Site officiel",
+        platform: "Website",
+        url: "https://landing-page-mudoo-media-player-wensl-s-projects.vercel.app/",
+        description: "Site officiel de présentation de l’application Mudoo.",
+      },
+      {
+        _key: "mudoo-instagram",
+        label: "Mudoo — Instagram",
+        platform: "Instagram",
+        url: "https://www.instagram.com/mudooapp?jplx=ZHBwcnNjdWZlcmU3",
+        description: "Profil Instagram officiel de Mudoo.",
+      },
+      {
+        _key: "mudoo-facebook",
+        label: "Mudoo — Facebook",
+        platform: "Facebook",
+        url: "https://www.facebook.com/share/18TmCMjhrD/",
+        description: "Page Facebook de Mudoo.",
+      },
+    ],
   },
   {
     id: "founder-collect-story",
