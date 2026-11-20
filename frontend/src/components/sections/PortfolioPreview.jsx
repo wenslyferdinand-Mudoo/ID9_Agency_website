@@ -133,21 +133,25 @@ export default function PortfolioPreview() {
                   )}
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-ink-900 via-ink-900/20 to-transparent opacity-90" />
-                <div className="absolute bottom-0 inset-x-0 p-6 md:p-8 flex items-end justify-between gap-4">
-                  <div>
-                    <p className="text-orange_impact font-ui text-[10px] uppercase tracking-[0.25em] mb-2">
-                      {p.category} · {p.year}
+                <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4 sm:gap-4 sm:p-6 md:p-8">
+                  <div className="min-w-0 flex-1">
+                    <p className="mb-2 min-h-[1.2em] break-words font-ui text-[10px] uppercase leading-relaxed tracking-[0.2em] text-orange_impact">
+                      {p.category || (lang === "fr" ? "Projet" : "Project")}{p.year ? " · " + p.year : ""}
                     </p>
-                    {p.status && <span className="inline-flex mb-2 rounded-full border border-white/20 bg-black/30 px-3 py-1 text-[10px] uppercase tracking-[0.15em] text-white/75">{p.status}</span>}
-                    <h3 className="font-display text-2xl md:text-3xl font-bold tracking-tight">{p.title}</h3>
-                    {p.summary && (
-                      <p className="mt-2 max-w-lg text-xs leading-relaxed text-white/70 font-inter sm:text-sm">
-                        {p.summary}
-                      </p>
+                    {p.status && (
+                      <span className="mb-2 inline-flex max-w-full rounded-full border border-white/20 bg-black/30 px-3 py-1 text-[10px] uppercase tracking-[0.15em] text-white/75">
+                        {p.status}
+                      </span>
                     )}
+                    <h3 className="line-clamp-2 min-h-[2.35em] break-words font-display text-xl font-bold leading-[1.15] tracking-tight sm:text-2xl md:text-3xl">
+                      {p.title || (lang === "fr" ? "Projet" : "Project")}
+                    </h3>
+                    <p className="mt-2 line-clamp-3 min-h-[3.9em] max-w-2xl break-words font-inter text-xs leading-[1.3] text-white/70 sm:text-sm">
+                      {p.summary || ""}
+                    </p>
                   </div>
-                  <div className="w-12 h-12 rounded-full bg-white/10 border border-white/20 grid place-items-center group-hover:bg-orange_impact group-hover:text-ink-900 group-hover:border-orange_impact transition-colors shrink-0">
-                    <ArrowUpRight className="w-4 h-4" />
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/20 bg-white/10 transition-colors group-hover:border-orange_impact group-hover:bg-orange_impact group-hover:text-ink-900 sm:h-12 sm:w-12">
+                    <ArrowUpRight className="h-4 w-4" />
                   </div>
                 </div>
               </Link>
