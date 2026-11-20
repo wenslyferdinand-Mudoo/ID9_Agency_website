@@ -5,6 +5,7 @@ Run from the backend directory with: pytest tests/test_blog_visibility_unit.py
 """
 import asyncio
 import os
+from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 # The application module constructs a Motor client at import time, but does not
@@ -21,7 +22,7 @@ import server
 
 def test_public_blog_detail_queries_only_published_posts(monkeypatch):
     find_one = AsyncMock(return_value=None)
-    monkeypatch.setattr(server.db.blog, "find_one", find_one)
+    monkeypatch.setattr(server, "db", SimpleNamespace(blog=SimpleNamespace(find_one=find_one)))
 
     with pytest.raises(HTTPException) as exc:
         asyncio.run(server.get_blog("draft-post"))
