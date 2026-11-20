@@ -176,11 +176,11 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="mt-12 sm:mt-16 pt-6 pb-24 md:pb-0 border-t border-white/5 flex flex-col items-center text-center sm:flex-row sm:items-center sm:justify-between sm:text-left gap-3 text-xs font-ui text-white/40">
-            <p>
+          <div className="mt-12 sm:mt-16 border-t border-white/5 pt-6 pb-[calc(7rem+env(safe-area-inset-bottom))] md:pb-0 flex flex-col items-center gap-3 text-center text-xs leading-relaxed font-ui text-white/40 sm:flex-row sm:items-center sm:justify-between sm:text-left">
+            <p className="w-full min-w-0 break-words sm:w-auto">
               © {BRAND.founded}–{new Date().getFullYear()} {BRAND.fullName}. {t("ft.rights")}
             </p>
-            <p>
+            <p className="w-full min-w-0 break-words sm:w-auto">
               {t("ft.designed")} <span className="text-orange_impact">●</span>{" "}
               {t("ft.worldwide")}
             </p>
