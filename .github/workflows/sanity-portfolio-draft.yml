@@ -1,0 +1,102 @@
+name: Sanity — create portfolio draft (staging only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      title:
+        description: "Portfolio title"
+        required: true
+        type: string
+      slug:
+        description: "Lowercase URL slug (kebab-case)"
+        required: true
+        type: string
+      category:
+        description: "Existing portfolio category"
+        required: true
+        type: choice
+        options:
+          - graphic-design
+          - branding
+          - web
+          - app
+          - marketing
+          - motion
+          - photo
+      summary:
+        description: "Short public card summary (max 280 characters)"
+        required: true
+        type: string
+      client:
+        description: "Client name (leave blank if not confirmed)"
+        required: false
+        type: string
+      year:
+        description: "Year (leave blank if not confirmed)"
+        required: false
+        type: string
+      cover_image_path:
+        description: "Repository-relative cover image path"
+        required: true
+        type: string
+      gallery_image_path:
+        description: "Optional repository-relative gallery image path"
+        required: false
+        type: string
+      cover_alt:
+        description: "Cover image alternative text"
+        required: false
+        type: string
+      gallery_alt:
+        description: "Gallery image alternative text"
+        required: false
+        type: string
+      gallery_caption:
+        description: "Gallery image caption"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sanity-portfolio-draft-staging
+  cancel-in-progress: false
+
+jobs:
+  create-draft:
+    name: Create unpublished portfolio draft in Sanity staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: sanity-staging
+    steps:
+      - name: Checkout selected commit
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install locked frontend dependencies
+        run: npm ci --prefix frontend --ignore-scripts
+
+      - name: Create draft and upload images
+        env:
+          SANITY_PROJECT_ID: mqrbsugj
+          SANITY_DATASET: staging
+          SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
+          PROJECT_TITLE: ${{ inputs.title }}
+          PROJECT_SLUG: ${{ inputs.slug }}
+          PROJECT_CATEGORY: ${{ inputs.category }}
+          PROJECT_SUMMARY: ${{ inputs.summary }}
+          PROJECT_CLIENT: ${{ inputs.client }}
+          PROJECT_YEAR: ${{ inputs.year }}
+          PROJECT_COVER_PATH: ${{ inputs.cover_image_path }}
+          PROJECT_GALLERY_PATH: ${{ inputs.gallery_image_path }}
+          PROJECT_COVER_ALT: ${{ inputs.cover_alt }}
+          PROJECT_GALLERY_ALT: ${{ inputs.gallery_alt }}
+          PROJECT_GALLERY_CAPTION: ${{ inputs.gallery_caption }}
+        run: node frontend/scripts/sanity-create-portfolio-draft.mjs
