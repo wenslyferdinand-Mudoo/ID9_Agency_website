@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import api from "@/lib/api";
 import FinalCTA from "@/components/sections/FinalCTA";
@@ -68,6 +68,7 @@ function renderMarkdownLite(md) {
 
 export default function BlogDetailPage() {
   const { slug } = useParams();
+  const { pathname } = useLocation();
   const { lang } = useI18n();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -100,6 +101,71 @@ export default function BlogDetailPage() {
       active = false;
     };
   }, [slug, retryCount]);
+
+
+  useEffect(() => {
+    const setMeta = (selector, attribute, value) => {
+      const element = document.querySelector(selector);
+      if (element) element.setAttribute(attribute, value);
+    };
+    const siteUrl = "https://id9-agency-website.vercel.app";
+    const canonicalUrl = siteUrl + pathname;
+
+    if (loading) return;
+
+    if (!post) {
+      if (notFound || loadError) {
+        document.title = lang === "fr"
+          ? "Article indisponible — Impact Digital 9 Agency"
+          : "Article unavailable — Impact Digital 9 Agency";
+        setMeta('meta[name="robots"]', "content", "noindex,nofollow");
+      }
+      return;
+    }
+
+    const title = `${post.title || "Journal"} | Impact Digital 9 Agency`;
+    const description = String(post.excerpt || post.title || "").slice(0, 160);
+    const image = post.cover_image || `${siteUrl}/wensly-founder.jpg`;
+    document.title = title;
+    setMeta('meta[name="description"]', "content", description);
+    setMeta('meta[property="og:title"]', "content", title);
+    setMeta('meta[property="og:description"]', "content", description);
+    setMeta('meta[property="og:type"]', "content", "article");
+    setMeta('meta[property="og:url"]', "content", canonicalUrl);
+    setMeta('meta[property="og:image"]', "content", image);
+    setMeta('meta[name="twitter:card"]', "content", "summary_large_image");
+    setMeta('meta[name="twitter:title"]', "content", title);
+    setMeta('meta[name="twitter:description"]', "content", description);
+    setMeta('meta[name="twitter:image"]', "content", image);
+    setMeta('meta[name="robots"]', "content", "index,follow");
+
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.rel = "canonical";
+      document.head.appendChild(canonical);
+    }
+    canonical.href = canonicalUrl;
+
+    let schema = document.querySelector('script[data-route-seo="blog"]');
+    if (!schema) {
+      schema = document.createElement("script");
+      schema.type = "application/ld+json";
+      schema.dataset.routeSeo = "blog";
+      document.head.appendChild(schema);
+    }
+    schema.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: post.title,
+      description,
+      image,
+      datePublished: post.created_at || undefined,
+      author: { "@type": "Organization", name: post.author || "Impact Digital 9 Agency" },
+      publisher: { "@type": "Organization", name: "Impact Digital 9 Agency", url: siteUrl },
+      mainEntityOfPage: canonicalUrl,
+    });
+  }, [post, loading, notFound, loadError, lang, pathname]);
 
   if (loading)
     return (
