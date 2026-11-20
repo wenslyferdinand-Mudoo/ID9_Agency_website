@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, Quote, Wrench, Target, Lightbulb, Rocket, TrendingUp } from "lucide-react";
 import api from "@/lib/api";
 import { fetchPortfolioBySlug } from "@/lib/portfolio";
@@ -15,14 +15,15 @@ export default function PortfolioDetailPage() {
   const [notFound, setNotFound] = useState(false);
   const { lang } = useI18n();
   const heroRef = useRef(null);
+  const reduceMotion = useReducedMotion();
 
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
   });
-  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.18]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0.45]);
-  const titleY = useTransform(scrollYProgress, [0, 1], [0, 120]);
+  const heroScale = useTransform(scrollYProgress, [0, 1], reduceMotion ? [1, 1] : [1, 1.18]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 1], reduceMotion ? [1, 1] : [1, 0.45]);
+  const titleY = useTransform(scrollYProgress, [0, 1], reduceMotion ? [0, 0] : [0, 120]);
 
   useEffect(() => {
     let cancelled = false;
@@ -80,13 +81,26 @@ export default function PortfolioDetailPage() {
 
   const L = (fr, en) => (lang === "fr" ? fr : en);
   const externalLinks = getProjectExternalLinks(item);
+  const projectTools = Array.isArray(item.tools) ? item.tools.filter((tool) => typeof tool === "string" && tool.trim()) : [];
+  const projectGallery = Array.isArray(item.gallery) ? item.gallery : [];
+  const projectKpis = Array.isArray(item.kpis)
+    ? item.kpis.filter(
+        (kpi) =>
+          kpi &&
+          typeof kpi === "object" &&
+          kpi.label != null &&
+          String(kpi.label).trim() &&
+          kpi.value != null &&
+          String(kpi.value).trim()
+      )
+    : [];
 
   return (
     <main data-testid="portfolio-detail" className="pb-0 bg-ink-900">
       {/* ============ CINEMATIC HERO ============ */}
       <section
         ref={heroRef}
-        className="relative h-[100svh] min-h-[640px] w-full overflow-hidden"
+        className="relative h-[100svh] min-h-[min(640px,100svh)] w-full overflow-hidden"
         data-testid="case-hero"
       >
         <motion.div
@@ -96,9 +110,11 @@ export default function PortfolioDetailPage() {
           {item.cover_image ? (
             <img
               src={item.cover_image}
-              alt={item.title}
-              className="w-full h-full object-cover"
+              alt={item.title || ""}
+              className="h-full w-full object-cover"
               loading="eager"
+              decoding="async"
+              fetchPriority="high"
             />
           ) : (
             <div className="w-full h-full grid place-items-center bg-[radial-gradient(circle_at_20%_25%,rgba(255,135,22,0.3),transparent_38%),radial-gradient(circle_at_80%_75%,rgba(111,29,157,0.48),transparent_42%),linear-gradient(135deg,#17131f,#09090d)]">
@@ -161,8 +177,8 @@ export default function PortfolioDetailPage() {
         {/* scroll hint */}
         <motion.div
           className="absolute bottom-8 right-8 hidden lg:flex items-center gap-2 text-white/40 font-ui text-[11px] uppercase tracking-[0.3em]"
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          animate={reduceMotion ? undefined : { y: [0, 8, 0] }}
+          transition={reduceMotion ? undefined : { duration: 2, repeat: Infinity, ease: "easeInOut" }}
         >
           {L("Faire défiler", "Scroll")} ↓
         </motion.div>
@@ -170,7 +186,7 @@ export default function PortfolioDetailPage() {
 
       {/* ============ META BAR ============ */}
       <section className="border-y border-white/[0.06] bg-ink-800/40 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 py-8 grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 py-8 sm:grid-cols-2 sm:px-6 md:grid-cols-4 md:gap-8 md:px-12">
           <MetaBlock label={L("Client", "Client")} value={item.client} />
           <MetaBlock label={L("Secteur", "Sector")} value={item.sector || item.category} />
           <MetaBlock label={L("Année", "Year")} value={item.year} />
@@ -234,14 +250,14 @@ export default function PortfolioDetailPage() {
       </section>
 
       {/* ============ TOOLS ============ */}
-      {item.tools?.length > 0 && (
+      {projectTools.length > 0 && (
         <section className="border-y border-white/[0.06] bg-gradient-to-r from-ink-800/40 via-ink-900 to-ink-800/40 py-16">
           <div className="max-w-7xl mx-auto px-6 md:px-12">
             <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.3em] mb-6">
               {L("Outils utilisés", "Tools Used")}
             </p>
             <div className="flex flex-wrap gap-3">
-              {item.tools.map((tool, i) => (
+              {projectTools.map((tool, i) => (
                 <motion.span
                   key={tool}
                   initial={{ opacity: 0, y: 15 }}
@@ -260,7 +276,7 @@ export default function PortfolioDetailPage() {
       )}
 
       {/* ============ GALLERY — BENTO GRID ============ */}
-      {item.gallery?.length > 0 && (
+      {projectGallery.length > 0 && (
         <section className="px-6 md:px-12 lg:px-20 py-24 md:py-32 max-w-7xl mx-auto">
           <div className="mb-14">
             <p className="text-orange_impact font-ui text-xs uppercase tracking-[0.3em] mb-4">
@@ -270,7 +286,7 @@ export default function PortfolioDetailPage() {
               {L("Le projet en images.", "The work in detail.")}
             </h2>
           </div>
-          <BentoGallery images={item.gallery} title={item.title} />
+          <BentoGallery images={projectGallery} title={item.title || "Project"} />
         </section>
       )}
 
@@ -333,7 +349,7 @@ export default function PortfolioDetailPage() {
       )}
 
       {/* ============ KPIS / RESULTS ============ */}
-      {(item.kpis?.length > 0 || item.outcome) && (
+      {(projectKpis.length > 0 || item.outcome) && (
         <section className="relative px-6 md:px-12 lg:px-20 py-24 md:py-36 overflow-hidden">
           <div className="absolute inset-0 opacity-50 pointer-events-none">
             <div
@@ -357,9 +373,9 @@ export default function PortfolioDetailPage() {
               </div>
             </div>
 
-            {item.kpis?.length > 0 && (
+            {projectKpis.length > 0 && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-16">
-                {item.kpis.map((k, i) => (
+                {projectKpis.map((k, i) => (
                   <motion.div
                     key={i}
                     initial={{ opacity: 0, y: 30 }}
@@ -369,10 +385,10 @@ export default function PortfolioDetailPage() {
                     className="glass rounded-3xl p-6 md:p-8"
                     data-testid={`case-kpi-${i}`}
                   >
-                    <p className="font-display text-4xl md:text-6xl font-black text-gradient-gold leading-none mb-3">
+                    <p className="mb-3 font-display text-4xl font-black leading-none text-gradient-gold md:text-6xl">
                       {k.value}
                     </p>
-                    <p className="font-ui text-xs md:text-sm uppercase tracking-[0.18em] text-white/65">
+                    <p className="font-ui text-xs uppercase tracking-[0.18em] text-white/65 md:text-sm">
                       {k.label}
                     </p>
                   </motion.div>

@@ -13,17 +13,18 @@ import { getFounderProjects } from "@/lib/founder-projects";
 export default function PortfolioPage() {
   const [items, setItems] = useState([]);
   const [filter, setFilter] = useState("all");
+  const [isLoading, setIsLoading] = useState(true);
   const { t, lang } = useI18n();
 
   const FILTERS = [
     { k: "all", l: t("wk.filters.all") },
     { k: "branding", l: t("wk.filters.branding") },
     { k: "graphic-design", l: lang === "fr" ? "Design graphique" : "Graphic Design" },
-    { k: "web", l: t("wk.filters.web") },
-    { k: "app", l: t("wk.filters.app") },
+    { k: "web-design", l: lang === "fr" ? "Design web" : "Web Design" },
+    { k: "app-development", l: lang === "fr" ? "Développement d'applications" : "App Development" },
     { k: "marketing", l: t("wk.filters.marketing") },
-    { k: "motion", l: t("wk.filters.motion") },
-    { k: "photo", l: lang === "fr" ? "Photographie" : "Photography" },
+    { k: "motion-design", l: lang === "fr" ? "Motion design" : "Motion Design" },
+    { k: "photography", l: lang === "fr" ? "Photographie" : "Photography" },
   ];
 
   useEffect(() => {
@@ -55,8 +56,10 @@ export default function PortfolioPage() {
         if (!project || typeof project !== "object") return false;
         const key = project.slug
           ? String(project.slug).trim().toLowerCase()
-          : `${String(project.client || "").trim().toLowerCase()}::${String(project.title || "").trim().toLowerCase()}`;
-        if (!key || seen.has(key)) return false;
+          : project.id
+            ? String(project.id).trim().toLowerCase()
+            : [String(project.client || "").trim().toLowerCase(), String(project.title || "").trim().toLowerCase()].join("::");
+        if (!key || key === "::" || seen.has(key)) return false;
         seen.add(key);
         return true;
       });
@@ -64,9 +67,13 @@ export default function PortfolioPage() {
       if (!cancelled) setItems(unique);
     }
 
-    loadPortfolio().catch(() => {
-      if (!cancelled) setItems(safeArray(getFounderProjects(lang)));
-    });
+    loadPortfolio()
+      .catch(() => {
+        if (!cancelled) setItems(safeArray(getFounderProjects(lang)));
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
 
     return () => {
       cancelled = true;
@@ -74,8 +81,12 @@ export default function PortfolioPage() {
   }, [lang]);
 
   const filtered = useMemo(() => {
-    const list = safeArray(items);
-    return filter === "all" ? list : list.filter((p) => p && p.category === filter);
+    const list = safeArray(items).filter(
+      (project) => project && typeof project.slug === "string" && project.slug.trim()
+    );
+    return filter === "all"
+      ? list
+      : list.filter((project) => normalizePortfolioCategory(project.category) === filter);
   }, [items, filter]);
 
   return (
@@ -126,7 +137,8 @@ export default function PortfolioPage() {
             <button
               key={f.k}
               onClick={() => setFilter(f.k)}
-              className={`min-h-11 shrink-0 whitespace-nowrap rounded-full px-4 py-2.5 font-ui text-sm transition-colors ${
+              aria-pressed={filter === f.k}
+              className={`min-h-11 shrink-0 whitespace-nowrap rounded-full px-4 py-2.5 font-ui text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange_impact ${
                 filter === f.k
                   ? "bg-orange_impact text-ink-900"
                   : "bg-white/5 text-white/70 hover:text-white border border-white/10"
@@ -141,12 +153,17 @@ export default function PortfolioPage() {
 
       <section className="px-4 py-10 pb-32 sm:px-6 sm:py-12 md:px-8">
         <div className="max-w-7xl mx-auto">
-          <AnimatePresence mode="popLayout">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-              {filtered.map((p, i) => (
+          {isLoading ? (
+            <p className="py-20 text-center font-ui text-sm text-white/55" role="status" aria-live="polite">
+              {lang === "fr" ? "Chargement des projets…" : "Loading projects…"}
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6">
+              <AnimatePresence mode="popLayout">
+                {filtered.map((p, i) => (
                 <motion.div
                   layout
-                  key={p.id || p.slug}
+                  key={p.id || p.slug || "project-" + i}
                   initial={{ opacity: 0, y: 40 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 20 }}
@@ -154,32 +171,25 @@ export default function PortfolioPage() {
                   className="group relative overflow-hidden rounded-3xl bg-ink-700"
                   data-testid={`portfolio-grid-card-${p.slug}`}
                 >
-                  <Link to={`/portfolio/${p.slug}`} className="block">
-                    <div className="aspect-[4/3] overflow-hidden bg-ink-800 flex items-center justify-center">
-                      {p.cover_image ? (
-                        <img
-                          src={p.cover_image}
-                          alt={p.title}
-                          loading="lazy"
-                          className="w-full h-full object-contain transition-opacity duration-500 group-hover:opacity-90"
-                        />
-                      ) : (
-                        <div className="w-full h-full grid place-items-center bg-[radial-gradient(circle_at_25%_20%,rgba(255,135,22,0.28),transparent_38%),radial-gradient(circle_at_80%_80%,rgba(111,29,157,0.4),transparent_42%),linear-gradient(135deg,#17131f,#09090d)] group-hover:scale-105 transition-transform duration-700">
-                          <span className="font-display text-8xl md:text-9xl font-black tracking-tighter text-white/90">{p.monogram || p.title.slice(0, 2)}</span>
-                          <span className="absolute top-6 left-6 text-[10px] uppercase tracking-[0.3em] text-white/45">Impact Digital 9 · Product</span>
-                        </div>
-                      )}
-                    </div>
+                  <Link to={"/portfolio/" + p.slug} className="block">
+                    <PortfolioCover project={p} lang={lang} />
                     <div className="absolute inset-0 bg-gradient-to-t from-ink-900 via-ink-900/30 to-transparent" />
                     <div className="absolute bottom-0 inset-x-0 flex items-end justify-between gap-3 p-4 sm:p-6 md:p-8">
                       <div className="min-w-0">
-                        <p className="text-orange_impact font-ui text-[10px] uppercase tracking-[0.2em] mb-2 break-words">
-                          {p.category} · {p.year || "—"}
+                        <p className="mb-2 break-words font-ui text-[10px] uppercase tracking-[0.2em] text-orange_impact">
+                          {getCategoryLabel(p.category, lang)}{p.year ? " · " + p.year : ""}
                         </p>
-                        {p.status && <span className="inline-flex mb-2 rounded-full border border-white/20 bg-black/30 px-3 py-1 text-[10px] uppercase tracking-[0.15em] text-white/75">{p.status}</span>}
-                        <h2 className="font-display text-xl sm:text-2xl md:text-3xl font-bold tracking-tight break-words">
-                          {p.title}
+                        {p.status && <span className="mb-2 inline-flex rounded-full border border-white/20 bg-black/30 px-3 py-1 text-[10px] uppercase tracking-[0.15em] text-white/75">{p.status}</span>}
+                        <h2 className="break-words font-display text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">
+                          {p.title || (lang === "fr" ? "Projet" : "Project")}
                         </h2>
+                        {p.client && <p className="mt-1 break-words text-xs text-white/55">{p.client}</p>}
+                        {p.summary && <p className="mt-2 line-clamp-2 max-w-xl text-sm leading-relaxed text-white/65">{p.summary}</p>}
+                        {Array.isArray(p.services) && p.services.some((service) => typeof service === "string" && service.trim()) && (
+                          <p className="mt-3 text-[11px] text-white/45">
+                            {p.services.filter((service) => typeof service === "string" && service.trim()).slice(0, 2).join(" · ")}
+                          </p>
+                        )}
                       </div>
                       <div className="w-12 h-12 rounded-full bg-white/10 border border-white/20 grid place-items-center group-hover:bg-orange_impact group-hover:text-ink-900 group-hover:border-orange_impact transition-colors shrink-0">
                         <ArrowUpRight className="w-4 h-4" />
@@ -187,16 +197,73 @@ export default function PortfolioPage() {
                     </div>
                   </Link>
                 </motion.div>
-              ))}
+                ))}
+              </AnimatePresence>
             </div>
-          </AnimatePresence>
-          {filtered.length === 0 && (
-            <p className="text-white/50 text-center py-20 font-ui">{t("wk.empty")}</p>
+          )}
+          {!isLoading && filtered.length === 0 && (
+            <p className="py-20 text-center font-ui text-white/50">{t("wk.empty")}</p>
           )}
         </div>
       </section>
 
       <FinalCTA />
     </main>
+  );
+}
+
+
+function normalizePortfolioCategory(category) {
+  const value = typeof category === "string" ? category.trim().toLowerCase() : "";
+  const aliases = {
+    web: "web-design",
+    app: "app-development",
+    motion: "motion-design",
+    photo: "photography",
+  };
+  return aliases[value] || value;
+}
+
+function getCategoryLabel(category, lang) {
+  const value = normalizePortfolioCategory(category);
+  const labels = {
+    branding: lang === "fr" ? "Identité de marque" : "Branding",
+    "graphic-design": lang === "fr" ? "Design graphique" : "Graphic Design",
+    "web-design": lang === "fr" ? "Design web" : "Web Design",
+    "app-development": lang === "fr" ? "Développement d'applications" : "App Development",
+    marketing: "Marketing",
+    "motion-design": lang === "fr" ? "Motion design" : "Motion Design",
+    photography: lang === "fr" ? "Photographie" : "Photography",
+  };
+  return labels[value] || (category || "");
+}
+
+function PortfolioCover({ project, lang }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const title = typeof project.title === "string" ? project.title : "";
+  const imageUrl = typeof project.cover_image === "string" ? project.cover_image : "";
+
+  return (
+    <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-ink-800">
+      {imageUrl && !imageFailed ? (
+        <img
+          src={imageUrl}
+          alt={title}
+          loading="lazy"
+          decoding="async"
+          onError={() => setImageFailed(true)}
+          className="h-full w-full object-contain transition-opacity duration-500 group-hover:opacity-90"
+        />
+      ) : (
+        <div className="grid h-full w-full place-items-center bg-[radial-gradient(circle_at_25%_20%,rgba(255,135,22,0.28),transparent_38%),radial-gradient(circle_at_80%_80%,rgba(111,29,157,0.4),transparent_42%),linear-gradient(135deg,#17131f,#09090d)] transition-transform duration-700 group-hover:scale-105">
+          <span className="font-display text-8xl font-black tracking-tighter text-white/90 md:text-9xl">
+            {project.monogram || title.slice(0, 2) || "ID9"}
+          </span>
+          <span className="absolute left-6 top-6 text-[10px] uppercase tracking-[0.3em] text-white/45">
+            {lang === "fr" ? "Impact Digital 9 Agency · Projet" : "Impact Digital 9 Agency · Project"}
+          </span>
+        </div>
+      )}
+    </div>
   );
 }
