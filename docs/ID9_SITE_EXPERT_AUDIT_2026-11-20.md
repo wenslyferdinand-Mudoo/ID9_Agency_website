@@ -242,7 +242,7 @@ Correction appliquée sur la branche de la PR #53 :
 
 À revalider : build Preview du nouveau HEAD, puis navigation réelle du lien depuis la fiche Mudoo sur mobile et desktop. Cette correction de code n'est pas encore une preuve de validation visuelle.
 
-## 11. Correctifs complémentaires — navigation SEO SPA
+## 12. Correctifs complémentaires — navigation SEO SPA
 
 Après relecture du code de la branche, trois défauts de cohérence ont été corrigés :
 
@@ -255,7 +255,7 @@ Ces modifications sont limitées au frontend et ne changent ni le contenu Sanity
 
 **Validation en cours :** le nouveau HEAD `7a4b542e6a8fa80a615078fde1d81ec0a7306bfc` possède un déploiement Vercel Preview identifié `dpl_HSFAtWKggosGqcQEF1TTseBCPGtn`, encore **QUEUED** au dernier contrôle. Aucun test navigateur visuel ni Lighthouse n'est disponible dans cette session. La validation reste donc partielle.
 
-## 12. Portfolio SEO ownership and CMS image accessibility
+## 13. Portfolio SEO ownership and CMS image accessibility
 
 Two additional cross-layer issues were addressed:
 
@@ -263,3 +263,31 @@ Two additional cross-layer issues were addressed:
 - **Cover image alternative text:** the Sanity portfolio schema now supports optional alt text for cover images. The frontend normalizer propagates that field to portfolio cards, homepage project previews and detail pages, with a project-title fallback for existing documents that have not yet been enriched. No CMS documents were edited.
 
 **Validation remains pending:** these changes are committed to the audit branch and await the latest Vercel Preview build. No claim of visual or accessibility-audit completion is made before browser/Lighthouse checks.
+
+
+## 14. Vérification CI, audit des dépendances et CMS — 20 novembre 2026
+
+### Frontend et génération SEO
+- Workflow GitHub `Frontend Build Validation` : **SUCCESS** au SHA `ddc0b87111e0d5660b1ae7e2ec7f19899f4e009a`, run `44764779565`.
+- `npm ci` et `npm run vercel-build` réussis ; la génération SEO a produit 8 routes portfolio publiées depuis le dataset Sanity.
+- Le build reste marqué **Compiled with warnings** : classes Tailwind ambiguës (`duration-[1200ms]`, `duration-[1500ms]`, valeurs `ease-[cubic-bezier(...)]`), avertissements de dépendances obsolètes et conflit de peer dependency ESLint.
+
+### Audit npm — état mesuré
+- Graphe complet : **53 vulnérabilités** — 2 critical, 31 high, 9 moderate, 11 low.
+- Graphe après `npm audit --omit=dev` : **52 vulnérabilités** — 2 critical, 31 high, 8 moderate, 11 low. Cela décrit le graphe de dépendances classées comme production dans le manifeste ; cela ne signifie pas que chaque paquet est embarqué dans le JavaScript navigateur.
+- Critiques transitives identifiées : `proxy-addr@2.0.7` via `express@4.22.2` (risque d'usurpation IP dans le traitement des sous-réseaux IPv4-mapped IPv6) et `shell-quote@1.9.0` via `launch-editor` / `react-dev-utils` (injection de commande dans le quoting).
+- Dépendances directes à risque élevé relevées : `axios@1.18.1`, `react-router-dom@7.18.1`, `zod@3.25.76`, `postcss@8.5.16` et `react-scripts@5.0.1`.
+- La chaîne CRA/CRACO est un facteur structurel : plusieurs correctifs npm exigent des changements majeurs. Aucun `npm audit fix --force` ni changement de dépendance n'a été appliqué. Les correctifs compatibles sont en cours d'analyse isolée avant toute mise à jour.
+
+### Sanity Studio
+- Le schéma `portfolioProject` prend désormais en charge le texte alternatif de la couverture et le frontend consomme cette valeur avec un fallback sur le titre.
+- Un build du Studio Sanity est ajouté au workflow ; run `44765834255` au SHA `f563b6decefc9f5feb06bcd37fa0eeb5e49e7ecd`, **en cours** au moment de cette note.
+- Aucun document du dataset `production` n'a été édité et aucun déploiement du Studio n'a été effectué.
+
+### Vercel et infrastructure
+- Le Preview Vercel du HEAD actuel n'a pas pu être créé : l'API a renvoyé **402 / api-deployments-free-per-day**, limite de plus de 100 déploiements sur 24 h. Aucun changement de plan/facturation n'a été effectué.
+- Un build Preview intermédiaire a échoué sur une expression régulière invalide dans `RouteSeo.jsx`; les commits suivants contiennent le correctif et le build GitHub frontend au SHA `ddc0b87` est vert. Le dernier HEAD reste sans Preview Vercel.
+- Aucun service Render n'est listé ; l'URI Atlas staging manque. Aucun accès à MongoDB Production.
+
+### Décision
+PR #53 et PR #52 restent en Draft. Aucun merge dans `main), aucune promotion Production, aucune modification des données Sanity ou MongoDB. Le site n'est pas certifié prêt pour la production tant que les dépendances critiques, le Preview visuel, le backend Atlas/Render staging et les tests de bout en bout ne sont pas validés.
