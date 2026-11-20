@@ -48,10 +48,6 @@ function setCanonical(pathname) {
   canonical.setAttribute("href", SITE_URL + pathname);
 }
 
-function removeProjectSchema() {
-  document.querySelector('script[data-route-seo="project"]')?.remove();
-}
-
 function applyMeta({ title, description, image = DEFAULT_SHARE_IMAGE, url, type = "website" }) {
   document.title = title;
   setMeta('meta[name="description"]', "content", description);
@@ -71,9 +67,6 @@ export default function RouteSeo() {
   const { lang } = useI18n();
 
   useEffect(() => {
-    // Clear route-scoped project schema even when navigating into admin.
-    removeProjectSchema();
-
     if (pathname.startsWith("/admin")) {
       setMeta('meta[name="robots"]', "content", "noindex,nofollow");
       return undefined;
