@@ -31,9 +31,9 @@ export default function Footer() {
             transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
             className="font-display font-black tracking-[-0.05em] leading-[0.88] text-[clamp(3.5rem,14vw,15rem)] text-balance"
           >
-            Let&rsquo;s build
+            {t("ft.cta.line1")}
             <br />
-            something <span className="text-gradient-gold italic">undeniable.</span>
+            {t("ft.cta.line2")}
           </motion.h2>
           <div className="mt-12 flex flex-wrap items-center gap-4">
             <Link
@@ -72,7 +72,7 @@ export default function Footer() {
                 {t("ft.about")}
               </p>
               <p className="text-white/40 font-ui text-xs uppercase tracking-[0.2em] mt-8 mb-3">
-                Social
+                {t("ft.social")}
               </p>
               <div className="flex items-center gap-2">
                 <a
