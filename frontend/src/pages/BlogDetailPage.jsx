@@ -165,6 +165,12 @@ export default function BlogDetailPage() {
       publisher: { "@type": "Organization", name: "Impact Digital 9 Agency", url: siteUrl },
       mainEntityOfPage: canonicalUrl,
     });
+
+    // Remove article JSON-LD when leaving this route or switching articles.
+    return () => {
+      const currentSchema = document.querySelector('script[data-route-seo="blog"]');
+      if (currentSchema === schema) currentSchema.remove();
+    };
   }, [post, loading, notFound, loadError, lang, pathname]);
 
   if (loading)
