@@ -34,7 +34,7 @@ const VERIFIED_PROJECT_LINKS = [
     ],
   },
   {
-    matches: (identity) => /ak(?:y|i)a[\s_-]*dance[\s_-]*company/i.test(identity),
+    matches: (identity) => /ak(?:y|i)a[\s_-]*dan[cs]e(?:[\s_-]*company)?/i.test(identity),
     links: [
       {
         _key: 'akya-facebook',
