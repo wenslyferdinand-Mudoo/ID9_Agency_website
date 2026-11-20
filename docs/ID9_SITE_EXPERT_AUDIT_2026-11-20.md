@@ -290,8 +290,10 @@ Two additional cross-layer issues were addressed:
 - Aucun document du dataset `production` n'a été édité et aucun déploiement du Studio n'a été effectué.
 
 ### Vercel et infrastructure
-- Le Preview Vercel du HEAD actuel n'a pas pu être créé : l'API a renvoyé **402 / api-deployments-free-per-day**, limite de plus de 100 déploiements sur 24 h. Aucun changement de plan/facturation n'a été effectué.
-- Un build Preview intermédiaire a échoué sur une expression régulière invalide dans `RouteSeo.jsx`; les commits suivants contiennent le correctif et le build GitHub frontend au SHA `ddc0b87` est vert. Le dernier HEAD reste sans Preview Vercel.
+- Preview Vercel **READY** pour le dernier commit contenant des changements applicatifs : SHA `82ad58218bb659174e2c79f48e90f9e8f0a7b473`, déploiement `dpl_3DoAydG1QpAkirkCrUEJANywu6ZW`, alias `id9-agency-website-git-audit-site-expe-52da14-wensly-s-projects.vercel.app`.
+- Les commits postérieurs au SHA `82ad582` sur la branche d'audit ne modifient que les workflows GitHub et la documentation ; aucun fichier frontend ou schéma Studio n'a changé. Le Preview READY représente donc le code applicatif courant.
+- Une tentative de création manuelle d'un nouveau Preview a reçu **402 / api-deployments-free-per-day**, limite de plus de 100 déploiements sur 24 h. Aucun changement de plan/facturation n'a été effectué. La création automatique du Preview `82ad582` a néanmoins abouti.
+- Un build Preview intermédiaire a échoué sur une expression régulière invalide dans `RouteSeo.jsx`; les commits suivants contiennent le correctif et le build GitHub frontend est vert. La validation navigateur visuelle, mobile/desktop et Lighthouse reste à faire.
 - Aucun service Render n'est listé ; l'URI Atlas staging manque. Aucun accès à MongoDB Production.
 
 ### Décision
