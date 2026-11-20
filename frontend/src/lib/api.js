@@ -51,19 +51,30 @@ api.interceptors.response.use(
 
     original._retry = true;
     try {
-      if (!refreshPromise) {
-        refreshPromise = api
-          .post("/auth/refresh", {}, { skipAuthRefresh: true })
-          .then(({ data }) => {
-            if (!data?.access_token) throw new Error("Refresh response did not include an access token.");
-            localStorage.setItem("id9_token", data.access_token);
-            return data.access_token;
-          })
-          .finally(() => {
+      const performRefresh = async () => {
+        const currentToken = localStorage.getItem("id9_token");
+        // Another tab may already have rotated the shared session cookie.
+        if (currentToken && currentToken !== original.headers?.Authorization?.replace(/^Bearer\\s+/i, "")) {
+          return currentToken;
+        }
+        const { data } = await api.post("/auth/refresh", {}, { skipAuthRefresh: true });
+        if (!data?.access_token) throw new Error("Refresh response did not include an access token.");
+        localStorage.setItem("id9_token", data.access_token);
+        return data.access_token;
+      };
+
+      let nextToken;
+      if (navigator.locks?.request) {
+        // Coordinate refresh rotation across tabs to avoid false reuse detection.
+        nextToken = await navigator.locks.request("id9-auth-refresh", performRefresh);
+      } else {
+        if (!refreshPromise) {
+          refreshPromise = performRefresh().finally(() => {
             refreshPromise = null;
           });
+        }
+        nextToken = await refreshPromise;
       }
-      const nextToken = await refreshPromise;
       original.headers = original.headers || {};
       original.headers.Authorization = `Bearer ${nextToken}`;
       return api(original);
