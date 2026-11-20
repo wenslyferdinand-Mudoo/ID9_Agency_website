@@ -8,12 +8,13 @@ import os
 import re
 import uuid
 import logging
+import hashlib
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional
 
 import bcrypt
 import jwt
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, Request, status
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, Request, Response, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -34,8 +35,21 @@ api_router = APIRouter(prefix="/api")
 
 # ---------- Auth utils ----------
 JWT_ALGORITHM = "HS256"
-JWT_EXPIRES_MIN = 60 * 24 * 7  # 7 days for admin convenience
+ACCESS_TOKEN_EXPIRES_MIN = 15
+REFRESH_TOKEN_EXPIRES_DAYS = 30
+AUTH_COOKIE_NAME = "id9_refresh"
 security = HTTPBearer(auto_error=False)
+
+
+def _jwt_secret() -> str:
+    secret = os.environ.get("JWT_SECRET", "")
+    if len(secret.encode("utf-8")) < 32:
+        raise RuntimeError("JWT_SECRET must contain at least 32 bytes.")
+    return secret
+
+
+def _token_hash(value: str) -> str:
+    return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
 def hash_password(password: str) -> str:
@@ -49,33 +63,77 @@ def verify_password(plain: str, hashed: str) -> bool:
         return False
 
 
-def create_access_token(user_id: str, email: str) -> str:
-    payload = {
-        "sub": user_id,
-        "email": email,
-        "type": "access",
-        "exp": datetime.now(timezone.utc) + timedelta(minutes=JWT_EXPIRES_MIN),
-    }
-    return jwt.encode(payload, os.environ["JWT_SECRET"], algorithm=JWT_ALGORITHM)
+def _issue_session_tokens(user: dict, session_id: str) -> tuple[str, str, str, datetime]:
+    now = datetime.now(timezone.utc)
+    refresh_jti = str(uuid.uuid4())
+    refresh_exp = now + timedelta(days=REFRESH_TOKEN_EXPIRES_DAYS)
+    common = {"sub": user["id"], "email": user["email"], "sid": session_id}
+    access = jwt.encode(
+        {**common, "jti": str(uuid.uuid4()), "type": "access",
+         "iat": now, "exp": now + timedelta(minutes=ACCESS_TOKEN_EXPIRES_MIN)},
+        _jwt_secret(), algorithm=JWT_ALGORITHM,
+    )
+    refresh = jwt.encode(
+        {**common, "jti": refresh_jti, "type": "refresh", "iat": now, "exp": refresh_exp},
+        _jwt_secret(), algorithm=JWT_ALGORITHM,
+    )
+    return access, refresh, _token_hash(refresh_jti), refresh_exp
+
+
+def _set_refresh_cookie(response: Response, token: str) -> None:
+    production = os.environ.get("APP_ENV", "production").strip().lower() != "development"
+    response.set_cookie(
+        key=AUTH_COOKIE_NAME, value=token, httponly=True, secure=production,
+        samesite="none" if production else "lax", path="/api/auth",
+        max_age=REFRESH_TOKEN_EXPIRES_DAYS * 24 * 60 * 60,
+    )
+
+
+def _clear_refresh_cookie(response: Response) -> None:
+    production = os.environ.get("APP_ENV", "production").strip().lower() != "development"
+    response.delete_cookie(
+        key=AUTH_COOKIE_NAME, path="/api/auth", secure=production,
+        httponly=True, samesite="none" if production else "lax",
+    )
 
 
 async def get_current_admin(creds: Optional[HTTPAuthorizationCredentials] = Depends(security)):
     if creds is None or not creds.credentials:
         raise HTTPException(status_code=401, detail="Not authenticated")
-    token = creds.credentials
     try:
-        payload = jwt.decode(token, os.environ["JWT_SECRET"], algorithms=[JWT_ALGORITHM])
+        payload = jwt.decode(
+            creds.credentials, _jwt_secret(), algorithms=[JWT_ALGORITHM],
+            options={"require": ["exp", "sub", "type", "sid", "jti"]},
+        )
         if payload.get("type") != "access":
             raise HTTPException(status_code=401, detail="Invalid token type")
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
-    user = await db.users.find_one({"id": payload["sub"]}, {"_id": 0, "password_hash": 0})
-    if not user or user.get("role") != "admin":
-        raise HTTPException(status_code=401, detail="Admin not found")
+
+    now = datetime.now(timezone.utc)
+    session = await db.auth_sessions.find_one({
+        "id": payload["sid"], "user_id": payload["sub"], "revoked": False,
+        "expires_at": {"$gt": now},
+    })
+    if not session:
+        raise HTTPException(status_code=401, detail="Session expired or revoked")
+    user = await db.users.find_one(
+        {"id": payload["sub"]}, {"_id": 0, "password_hash": 0}
+    )
+    if not user:
+        raise HTTPException(status_code=401, detail="Account unavailable")
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Administrator access required")
     return user
 
+
+async def _revoke_session(session_id: str) -> None:
+    await db.auth_sessions.update_one(
+        {"id": session_id, "revoked": False},
+        {"$set": {"revoked": True, "revoked_at": datetime.now(timezone.utc)}},
+    )
 
 # ---------- Helpers ----------
 def slugify(text: str) -> str:
@@ -198,17 +256,89 @@ async def root():
 
 
 @api_router.post("/auth/login", response_model=LoginResponse)
-async def login(data: LoginRequest, request: Request):
+async def login(data: LoginRequest, request: Request, response: Response):
     await enforce_rate_limit(request, "login", limit=10, window_seconds=300)
     email = data.email.lower().strip()
     user = await db.users.find_one({"email": email})
-    if not user:
+    if not user or not verify_password(data.password, user.get("password_hash", "")):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    if not verify_password(data.password, user["password_hash"]):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-    token = create_access_token(user["id"], user["email"])
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Administrator access required")
+
+    session_id = str(uuid.uuid4())
+    access, refresh, refresh_hash, refresh_exp = _issue_session_tokens(user, session_id)
+    await db.auth_sessions.insert_one({
+        "id": session_id, "user_id": user["id"], "refresh_jti_hash": refresh_hash,
+        "revoked": False, "created_at": datetime.now(timezone.utc),
+        "last_used_at": datetime.now(timezone.utc), "expires_at": refresh_exp,
+    })
+    _set_refresh_cookie(response, refresh)
     safe_user = {"id": user["id"], "email": user["email"], "name": user.get("name"), "role": user.get("role")}
-    return LoginResponse(access_token=token, user=safe_user)
+    return LoginResponse(access_token=access, user=safe_user)
+
+
+@api_router.post("/auth/refresh", response_model=LoginResponse)
+async def refresh_session(request: Request, response: Response):
+    refresh_token = request.cookies.get(AUTH_COOKIE_NAME)
+    if not refresh_token:
+        raise HTTPException(status_code=401, detail="Refresh session missing")
+    try:
+        payload = jwt.decode(
+            refresh_token, _jwt_secret(), algorithms=[JWT_ALGORITHM],
+            options={"require": ["exp", "sub", "type", "sid", "jti"]},
+        )
+        if payload.get("type") != "refresh":
+            raise HTTPException(status_code=401, detail="Invalid token type")
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Refresh session expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
+
+    now = datetime.now(timezone.utc)
+    current = await db.auth_sessions.find_one({
+        "id": payload["sid"], "user_id": payload["sub"], "revoked": False,
+        "expires_at": {"$gt": now},
+    })
+    if not current:
+        raise HTTPException(status_code=401, detail="Session expired or revoked")
+
+    user = await db.users.find_one({"id": payload["sub"]}, {"_id": 0, "password_hash": 0})
+    if not user or user.get("role") != "admin":
+        await _revoke_session(payload["sid"])
+        raise HTTPException(status_code=401, detail="Account unavailable")
+
+    access, rotated_refresh, next_hash, next_exp = _issue_session_tokens(user, payload["sid"])
+    rotated = await db.auth_sessions.find_one_and_update(
+        {"id": payload["sid"], "user_id": payload["sub"], "revoked": False,
+         "refresh_jti_hash": _token_hash(payload["jti"]), "expires_at": {"$gt": now}},
+        {"$set": {"refresh_jti_hash": next_hash, "last_used_at": now, "expires_at": next_exp}},
+        return_document=ReturnDocument.AFTER,
+    )
+    if not rotated:
+        # A previously rotated refresh token was replayed. Revoke the whole session.
+        await _revoke_session(payload["sid"])
+        raise HTTPException(status_code=401, detail="Refresh token reuse detected; session revoked")
+
+    _set_refresh_cookie(response, rotated_refresh)
+    safe_user = {"id": user["id"], "email": user["email"], "name": user.get("name"), "role": user.get("role")}
+    return LoginResponse(access_token=access, user=safe_user)
+
+
+@api_router.post("/auth/logout")
+async def logout(request: Request, response: Response):
+    token = request.cookies.get(AUTH_COOKIE_NAME)
+    if token:
+        try:
+            payload = jwt.decode(
+                token, _jwt_secret(), algorithms=[JWT_ALGORITHM],
+                options={"verify_exp": False, "require": ["sub", "type", "sid", "jti"]},
+            )
+            if payload.get("type") == "refresh":
+                await _revoke_session(payload["sid"])
+        except jwt.InvalidTokenError:
+            pass
+    _clear_refresh_cookie(response)
+    return {"ok": True}
 
 
 @api_router.get("/auth/me")
@@ -542,7 +672,7 @@ def should_seed_demo_content() -> bool:
 
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=False,
+    allow_credentials=True,
     allow_origins=get_allowed_origins(),
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type"],
@@ -561,6 +691,8 @@ async def on_startup():
     await db.portfolio.create_index("slug", unique=True)
     await db.blog.create_index("slug", unique=True)
     await db.rate_limits.create_index("expires_at", expireAfterSeconds=0)
+    await db.auth_sessions.create_index("id", unique=True)
+    await db.auth_sessions.create_index("expires_at", expireAfterSeconds=0)
     await seed_admin()
     if should_seed_demo_content():
         await seed_content()
