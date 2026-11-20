@@ -193,7 +193,7 @@ Sanity Manage → https://www.sanity.io/manage/personal/project/mqrbsugj
    - `https://*.vercel.app` (preview URLs — cocher **Allow credentials**)
    - `http://localhost:3000` (dev local)
    - `http://localhost:3333` (Sanity Studio local, si utilisé)
-   - Votre domaine custom quand vous en aurez un (ex: `https://id9agency.com`)
+   - Le domaine temporaire actuel est `https://id9-agency-website.vercel.app`. Le domaine custom visé est `id9agency.com`, mais il n'est pas encore acheté ni relié à Vercel.
 4. Cliquer **Save**.
 5. Rafraîchir le site Vercel — les projets portfolio doivent maintenant charger.
 
@@ -335,7 +335,7 @@ yarn install                     # OU : npm install
 
 - [ ] **Changer `JWT_SECRET`** dans `backend/.env` (chaîne aléatoire 64+ car).
 - [ ] **Changer `ADMIN_PASSWORD`** (12+ caractères, mix majuscule/chiffre/symbole).
-- [ ] **Restreindre `CORS_ORIGINS`** à votre domaine (ex: `https://id9agency.com`, pas `*`).
+- [ ] **Restreindre `CORS_ORIGINS`** aux origines réellement utilisées (production : `https://id9-agency-website.vercel.app`; aucun wildcard `*`).
 - [ ] **MongoDB Atlas** avec IP whitelisting (pas 0.0.0.0/0 en prod).
 - [ ] **HTTPS activé** partout (Vercel et Railway le font par défaut).
 - [ ] **Aucun `.env` commité** dans Git (déjà dans `.gitignore`).
