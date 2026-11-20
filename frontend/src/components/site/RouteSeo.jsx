@@ -98,7 +98,7 @@ export default function RouteSeo() {
       });
     }
 
-    if (pathname.startsWith("/portfolio/")) {
+    if (/^\/portfolio\/[^/]+$/.test(pathname)) {
       const slug = pathname.split("/").filter(Boolean)[1];
       if (!slug) return undefined;
 
