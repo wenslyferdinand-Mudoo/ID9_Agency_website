@@ -163,6 +163,10 @@ export function normalizePortfolio(doc) {
     ...doc,
     id: doc._id,
     cover_image: doc.coverImage ? imageUrl(doc.coverImage, 1600) : '',
+    cover_image_alt:
+      typeof doc.coverImage?.alt === 'string' && doc.coverImage.alt.trim()
+        ? doc.coverImage.alt.trim()
+        : (typeof doc.title === 'string' ? doc.title : 'Portfolio project image'),
     gallery: gallery.map((g) => ({
       _key: g?._key,
       url: imageUrl(g, 1600),
