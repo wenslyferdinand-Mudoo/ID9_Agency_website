@@ -89,7 +89,6 @@ const document = {
   coverImage: {
     _type: 'image',
     asset: {_type: 'reference', _ref: coverAsset._id},
-    alt: coverAlt || title,
   },
   ...(clientName ? {client: clientName} : {}),
   ...(year ? {year} : {}),
