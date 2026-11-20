@@ -11,27 +11,6 @@ const PROJECTS = [
     client: "Product by Wensly Ferdinand",
     status: "Active development",
     statusFr: "Développement actif",
-    externalLinks: [
-      {
-        _key: "mudoo-website",
-        label: "Mudoo — Site officiel",
-        platform: "website",
-        url: "https://landing-page-mudoo-media-player-wensly-s-projects.vercel.app/",
-        description: "Présentation officielle de l’application Mudoo.",
-      },
-      {
-        _key: "mudoo-instagram",
-        label: "Mudoo sur Instagram",
-        platform: "instagram",
-        url: "https://www.instagram.com/mudooapp?jplx=ZHBwcnNjdWZlcmU3",
-      },
-      {
-        _key: "mudoo-facebook",
-        label: "Mudoo sur Facebook",
-        platform: "facebook",
-        url: "https://www.facebook.com/share/18TmCMjhrD/",
-      },
-    ],
     monogram: "M",
     summary: "A private, offline-first Android music player built around local listening, personal libraries and user control.",
     summaryFr: "Un lecteur musical Android privé et hors ligne, centré sur l’écoute locale, la bibliothèque personnelle et le contrôle de l’utilisateur.",
