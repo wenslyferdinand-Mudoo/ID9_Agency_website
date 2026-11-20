@@ -289,7 +289,7 @@ async def list_blog(category: Optional[str] = None):
 
 @api_router.get("/blog/{slug}", response_model=BlogPost)
 async def get_blog(slug: str):
-    item = await db.blog.find_one({"slug": slug}, {"_id": 0})
+    item = await db.blog.find_one({"slug": slug, "published": True}, {"_id": 0})
     if not item:
         raise HTTPException(status_code=404, detail="Blog post not found")
     return item
