@@ -131,15 +131,15 @@ class PortfolioCreate(BaseModel):
     summary: str
     description: Optional[str] = None
     cover_image: str
-    gallery: List[str] = []
-    services: List[str] = []
-    tools: List[str] = []
+    gallery: List[str] = Field(default_factory=list)
+    services: List[str] = Field(default_factory=list)
+    tools: List[str] = Field(default_factory=list)
     challenge: Optional[str] = None
     approach: Optional[str] = None
     strategy: Optional[str] = None
     solution: Optional[str] = None
     outcome: Optional[str] = None
-    kpis: List[dict] = []
+    kpis: List[dict] = Field(default_factory=list)
     testimonial: Optional[str] = None
     featured: bool = False
 
@@ -289,7 +289,7 @@ async def list_blog(category: Optional[str] = None):
 
 @api_router.get("/blog/{slug}", response_model=BlogPost)
 async def get_blog(slug: str):
-    item = await db.blog.find_one({"slug": slug}, {"_id": 0})
+    item = await db.blog.find_one({"slug": slug, "published": True}, {"_id": 0})
     if not item:
         raise HTTPException(status_code=404, detail="Blog post not found")
     return item
@@ -442,24 +442,32 @@ BLOG_SEED = [
 
 
 async def seed_admin():
-    email = os.environ.get("ADMIN_EMAIL", "admin@id9agency.com").lower()
-    password = os.environ.get("ADMIN_PASSWORD", "admin123")
+    # Provisioning is explicit: never create a default administrator or rotate
+    # an existing password as a side effect of application startup.
+    email = os.environ.get("ADMIN_EMAIL", "").strip().lower()
+    password = os.environ.get("ADMIN_PASSWORD", "")
+
+    if not email or not password:
+        logger.warning(
+            "[security] ADMIN_EMAIL / ADMIN_PASSWORD are not both configured; "
+            "automatic admin provisioning skipped."
+        )
+        return
+
     existing = await db.users.find_one({"email": email})
-    if existing is None:
-        await db.users.insert_one({
-            "id": str(uuid.uuid4()),
-            "email": email,
-            "password_hash": hash_password(password),
-            "name": "ID9 Admin",
-            "role": "admin",
-            "created_at": utc_now_iso(),
-        })
-        logger.info(f"[seed] admin created: {email}")
-    else:
-        # Keep password in sync with .env (idempotent)
-        if not verify_password(password, existing["password_hash"]):
-            await db.users.update_one({"email": email}, {"$set": {"password_hash": hash_password(password)}})
-            logger.info(f"[seed] admin password updated: {email}")
+    if existing is not None:
+        logger.info("[security] configured admin account already exists; credentials unchanged.")
+        return
+
+    await db.users.insert_one({
+        "id": str(uuid.uuid4()),
+        "email": email,
+        "password_hash": hash_password(password),
+        "name": "ID9 Admin",
+        "role": "admin",
+        "created_at": utc_now_iso(),
+    })
+    logger.info("[security] initial admin account provisioned from environment configuration.")
 
 
 async def seed_content():
