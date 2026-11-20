@@ -57,11 +57,11 @@ export default function FluidGradient({ intensity = 1, className = "" }) {
           filter: "blur(80px)",
           opacity: 0.6 * intensity,
         }}
-        animate={{
+        animate={reduceMotion ? undefined : {
           x: [0, -80, 40, 0],
           y: [0, -60, 100, 0],
           scale: [1, 0.9, 1.15, 1],
-        }}
+        }}}
         transition={reduceMotion ? undefined : { duration: 22, ease: "easeInOut", repeat: Infinity, delay: 1 }}
       />
 
@@ -78,10 +78,10 @@ export default function FluidGradient({ intensity = 1, className = "" }) {
           filter: "blur(70px)",
           opacity: 0.5 * intensity,
         }}
-        animate={{
+        animate={reduceMotion ? undefined : {
           x: [0, 60, -40, 0],
           y: [0, -100, 40, 0],
-        }}
+        }}}
         transition={reduceMotion ? undefined : { duration: 25, ease: "easeInOut", repeat: Infinity, delay: 2 }}
       />
 
