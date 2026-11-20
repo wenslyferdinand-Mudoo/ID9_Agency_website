@@ -67,6 +67,20 @@ export default function PortfolioDetailPage() {
     };
   }, [slug, lang]);
 
+  useEffect(() => {
+    const robots = document.querySelector('meta[name="robots"]');
+    if (!robots) return;
+
+    if (notFound) {
+      robots.setAttribute("content", "noindex,nofollow");
+      document.title = lang === "fr"
+        ? "Projet introuvable — Impact Digital 9 Agency"
+        : "Project not found — Impact Digital 9 Agency";
+    } else if (item) {
+      robots.setAttribute("content", "index,follow");
+    }
+  }, [notFound, item, lang]);
+
   if (notFound)
     return (
       <main className="min-h-screen pt-32 md:pt-40 px-4 sm:px-6 max-w-4xl mx-auto">
