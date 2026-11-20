@@ -170,3 +170,24 @@ Ce rapport est fondé sur l'arbre Git, les fichiers sources, les métadonnées P
 - Aucun merge vers main et aucun déploiement production sans validation distincte.
 - Chaque correctif doit avoir une preuve : test, log, capture ou résultat reproductible.
 - Ne pas déclarer un critère validé sur la base d'une simulation.
+
+
+## 8. Première vague de corrections sur la branche d'audit
+
+Les changements suivants sont maintenant présents sur la branche audit, sans toucher à main :
+
+- App.js : ajout d'une route catch-all.
+- NotFoundPage.jsx : page 404 bilingue, accessible au clavier et cohérente avec le système visuel ID9.
+- RouteSeo.jsx : ajout de noindex,nofollow pour les routes admin et les URL inconnues, avec rétablissement de index,follow sur les routes publiques connues.
+- Footer.jsx et i18n.jsx : CTA de signature et libellé Social traduits en français/anglais.
+- HomePage.jsx : textes des deux bandeaux marquee et de la typographie cinétique localisés selon la langue active.
+
+**Validation en attente :** le déploiement Preview Vercel de cette branche est créé mais restait QUEUED lors du dernier contrôle (20 novembre 2026, vers 15:00 UTC). Aucun build réussi n'est donc revendiqué et aucun test navigateur n'a été exécuté.
+
+**Limites connues de cette première correction :**
+- La page 404 est une 404 applicative côté React. Le fallback SPA Vercel peut encore renvoyer un statut HTTP 200 ; le statut HTTP 404 doit être traité séparément et vérifié.
+- robots.txt interdit actuellement le crawl de /admin. Un crawler bloqué ne peut pas lire la balise meta noindex ; prévoir un en-tête X-Robots-Tag ou une stratégie robots cohérente après validation de la configuration Vercel.
+- Les routes dynamiques de projet/article restent considérées comme valides par la couche SEO jusqu'à ce que leur page détail confirme si le contenu existe.
+- Les traductions ajoutées couvrent les chaînes relevées dans Footer et HomePage, pas encore l'ensemble des textes codés en dur dans toutes les pages et composants.
+
+Ces modifications constituent une première passe ciblée, pas une certification de qualité, sécurité, performance ou production.
