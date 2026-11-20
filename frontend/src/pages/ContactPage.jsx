@@ -106,7 +106,7 @@ export default function ContactPage() {
             className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[1.04] md:leading-[0.98] text-balance"
           />
           <RevealText
-            as="h1"
+            as="h2"
             text={t("co.h2")}
             className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[1.04] md:leading-[0.98] text-gradient-gold text-balance"
             delay={0.1}
