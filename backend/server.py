@@ -37,6 +37,7 @@ api_router = APIRouter(prefix="/api")
 JWT_ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRES_MIN = 15
 REFRESH_TOKEN_EXPIRES_DAYS = 30
+SESSION_MAX_DAYS = 90
 AUTH_COOKIE_NAME = "id9_refresh"
 security = HTTPBearer(auto_error=False)
 
@@ -63,10 +64,14 @@ def verify_password(plain: str, hashed: str) -> bool:
         return False
 
 
-def _issue_session_tokens(user: dict, session_id: str) -> tuple[str, str, str, datetime]:
+def _issue_session_tokens(
+    user: dict, session_id: str, absolute_expiry: Optional[datetime] = None
+) -> tuple[str, str, str, datetime]:
     now = datetime.now(timezone.utc)
     refresh_jti = str(uuid.uuid4())
     refresh_exp = now + timedelta(days=REFRESH_TOKEN_EXPIRES_DAYS)
+    if absolute_expiry is not None:
+        refresh_exp = min(refresh_exp, absolute_expiry)
     common = {"sub": user["id"], "email": user["email"], "sid": session_id}
     access = jwt.encode(
         {**common, "jti": str(uuid.uuid4()), "type": "access",
@@ -266,11 +271,15 @@ async def login(data: LoginRequest, request: Request, response: Response):
         raise HTTPException(status_code=403, detail="Administrator access required")
 
     session_id = str(uuid.uuid4())
-    access, refresh, refresh_hash, refresh_exp = _issue_session_tokens(user, session_id)
+    absolute_expiry = datetime.now(timezone.utc) + timedelta(days=SESSION_MAX_DAYS)
+    access, refresh, refresh_hash, refresh_exp = _issue_session_tokens(
+        user, session_id, absolute_expiry
+    )
     await db.auth_sessions.insert_one({
         "id": session_id, "user_id": user["id"], "refresh_jti_hash": refresh_hash,
         "revoked": False, "created_at": datetime.now(timezone.utc),
         "last_used_at": datetime.now(timezone.utc), "expires_at": refresh_exp,
+        "absolute_expires_at": absolute_expiry,
     })
     _set_refresh_cookie(response, refresh)
     safe_user = {"id": user["id"], "email": user["email"], "name": user.get("name"), "role": user.get("role")}
@@ -297,7 +306,7 @@ async def refresh_session(request: Request, response: Response):
     now = datetime.now(timezone.utc)
     current = await db.auth_sessions.find_one({
         "id": payload["sid"], "user_id": payload["sub"], "revoked": False,
-        "expires_at": {"$gt": now},
+        "expires_at": {"$gt": now}, "absolute_expires_at": {"$gt": now},
     })
     if not current:
         raise HTTPException(status_code=401, detail="Session expired or revoked")
@@ -307,10 +316,13 @@ async def refresh_session(request: Request, response: Response):
         await _revoke_session(payload["sid"])
         raise HTTPException(status_code=401, detail="Account unavailable")
 
-    access, rotated_refresh, next_hash, next_exp = _issue_session_tokens(user, payload["sid"])
+    access, rotated_refresh, next_hash, next_exp = _issue_session_tokens(
+        user, payload["sid"], current.get("absolute_expires_at")
+    )
     rotated = await db.auth_sessions.find_one_and_update(
         {"id": payload["sid"], "user_id": payload["sub"], "revoked": False,
-         "refresh_jti_hash": _token_hash(payload["jti"]), "expires_at": {"$gt": now}},
+         "refresh_jti_hash": _token_hash(payload["jti"]), "expires_at": {"$gt": now},
+         "absolute_expires_at": {"$gt": now}},
         {"$set": {"refresh_jti_hash": next_hash, "last_used_at": now, "expires_at": next_exp}},
         return_document=ReturnDocument.AFTER,
     )
@@ -327,13 +339,17 @@ async def refresh_session(request: Request, response: Response):
 @api_router.post("/auth/logout")
 async def logout(request: Request, response: Response):
     token = request.cookies.get(AUTH_COOKIE_NAME)
+    if not token:
+        authorization = request.headers.get("authorization", "")
+        if authorization.lower().startswith("bearer "):
+            token = authorization[7:].strip()
     if token:
         try:
             payload = jwt.decode(
                 token, _jwt_secret(), algorithms=[JWT_ALGORITHM],
                 options={"verify_exp": False, "require": ["sub", "type", "sid", "jti"]},
             )
-            if payload.get("type") == "refresh":
+            if payload.get("type") in {"refresh", "access"}:
                 await _revoke_session(payload["sid"])
         except jwt.InvalidTokenError:
             pass
