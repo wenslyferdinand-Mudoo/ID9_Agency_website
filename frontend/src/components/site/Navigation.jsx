@@ -53,11 +53,9 @@ export default function Navigation() {
     return () => {
       Object.assign(body.style, previousStyles);
 
-      // Restore the previous position only when the menu closes on the same route.
-      // A route transition must keep ScrollToTop's new position instead of jumping back.
-      if (window.location.pathname === lockedPathname) {
-        window.scrollTo(0, scrollY);
-      }
+      // Restore the previous position on close; a route change must start at the top.
+      // ScrollToTop may run while the body is still fixed, so apply the reset after unlock.
+      window.scrollTo(0, window.location.pathname === lockedPathname ? scrollY : 0);
     };
   }, [open]);
 
