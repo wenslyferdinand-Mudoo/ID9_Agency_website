@@ -68,7 +68,12 @@ export default function RouteSeo() {
   const { lang } = useI18n();
 
   useEffect(() => {
-    if (pathname.startsWith("/admin")) return undefined;
+    if (pathname.startsWith("/admin")) {
+      setMeta('meta[name="robots"]', "content", "noindex,nofollow");
+      return undefined;
+    }
+
+    setMeta('meta[name="robots"]', "content", "index,follow");
 
     let cancelled = false;
     const canonicalUrl = SITE_URL + pathname;
@@ -116,6 +121,18 @@ export default function RouteSeo() {
         // Static prerendered metadata remains available if the CMS is temporarily unavailable.
       });
 
+      return () => { cancelled = true; };
+    }
+
+    const isKnownStaticPath = Object.prototype.hasOwnProperty.call(META, pathname);
+    const isDynamicContentPath = /^\/(portfolio|blog)\/[^/]+$/.test(pathname);
+    if (!isKnownStaticPath && !isDynamicContentPath) {
+      setMeta('meta[name="robots"]', "content", "noindex,nofollow");
+      applyMeta({
+        title: lang === "fr" ? "Page introuvable — Impact Digital 9 Agency" : "Page not found — Impact Digital 9 Agency",
+        description: lang === "fr" ? "Cette adresse ne correspond à aucune page publiée." : "This address does not match a published page.",
+        url: canonicalUrl,
+      });
       return () => { cancelled = true; };
     }
 
