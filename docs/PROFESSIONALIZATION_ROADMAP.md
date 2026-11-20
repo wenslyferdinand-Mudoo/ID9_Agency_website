@@ -246,7 +246,7 @@ Légende : **À FAIRE** = non commencé ; **EN COURS** = intervention active ; *
 |---|---|---|---|
 | P0.1-a | Confirmer l'utilisateur Atlas applicatif Staging et ses rôles, sans afficher de secret | **BLOQUÉ** | Vérification Atlas prouvant l'utilisateur applicatif attendu et les droits limités aux bases Staging nécessaires. |
 | P0.1-b | Vérifier la construction de `MONGO_URL` : nom utilisateur, encodage URL du mot de passe, hôte/cluster, nom de base, `authSource` | **BLOQUÉ** | Validation côté service par diagnostic sans valeur secrète et ping réussi ; ne jamais imprimer l'URI. |
-| P0.1-c | Aligner le runtime Python entre Render et CI et vérifier la compatibilité Motor/PyMongo | **À FAIRE** | Version unique définie dans un fichier versionné à la racine, workflow CI qui lit ce fichier, installation et tests réussis. Choisir la version après vérification de compatibilité ; aucune modification de variable Render secrète. |
+| P0.1-c | Aligner le runtime Python entre Render et CI et vérifier la compatibilité Motor/PyMongo | **VALIDÉ (CI)** | Commit `c37ab8f`; `.python-version=3.12.16`, workflow lit le fichier ; run #44811200708 SUCCESS, installation Motor 3.3.1/PyMongo 4.5.0 réussie, 25 passed, 1 skipped (Atlas absent), 5 warnings. Render doit encore adopter le pin lors d'un déploiement Staging contrôlé. |
 | P0.1-d | Confirmer le démarrage et le ping MongoDB Atlas | **BLOQUÉ** | Nouveau déploiement Staging réussi, ping MongoDB réussi, processus Uvicorn stable et réponse HTTP valide. |
 | P0.1-e | Définir des endpoints de santé live/ready adaptés et configurer le health check Render | **À FAIRE** | Endpoints définis sans fuite d'informations ; readiness vérifie la dépendance requise ; tests HTTP réussis avant configuration Render. |
 | P0.1-f | Exécuter les tests Atlas d'intégration sur la base isolée | **BLOQUÉ** | Ping préalable confirmé, base `id9_staging_test_*`, tests passants, nettoyage vérifié et absence d'impact hors données de test. |
@@ -304,4 +304,19 @@ Pour chaque phase :
 - Résultats observés : run `44811200708` était `in_progress` au dernier contrôle. Aucun déploiement Render déclenché ; AutoDeploy reste désactivé.
 - Risques / limites : le pin n'est pas encore effectif sur le service Render avant un déploiement contrôlé. Les versions Motor 3.3.1 et PyMongo 4.5.0 sont toujours épinglées dans `backend/requirements.txt` ; leur compatibilité opérationnelle complète n'est pas encore certifiée. Le problème d'authentification Atlas code 8000 reste bloquant.
 - Prochaine étape : attendre le résultat CI ; si succès, planifier le déploiement Staging uniquement après vérification sécurisée de l'utilisateur/URI Atlas. Ne pas lancer les tests d'intégration ni le déploiement tant que l'authentification n'est pas résolue.
+
+
+
+### 2026-11-20 — P0.1-c — Runtime Python et dépendances validés en CI
+
+- Statut : **VALIDÉ (CI uniquement)**.
+- Branche / PR : `security/backend-hardening-staging` / PR #52 (Draft conservé).
+- Commit : `c37ab8f22322f7372326002aeea1b05a22aff45e`.
+- Fichiers : `.python-version` = `3.12.16` ; `.github/workflows/backend-static.yml` lit ce fichier via `python-version-file`.
+- Run GitHub Actions : [#44811200708](https://github.com/wenslyferdinand-Mudoo/ID9_Agency_website/actions/runs/44811200708), conclusion **SUCCESS**.
+- Étapes : checkout, setup Python 3.12.16, compileall, installation dépendances et tests réussis.
+- Résultat : **25 passed, 1 skipped, 5 warnings**. Motor 3.3.1 et PyMongo 4.5.0 s'installent ensemble sur Python 3.12.16 et les tests unitaires/HTTP sélectionnés passent.
+- Limite : les variables `ID9_ATLAS_STAGING_URI` et `ID9_ATLAS_STAGING_DB` sont vides dans le run ; le test Atlas a été **skipped**. Cela ne valide ni l'authentification Atlas ni le démarrage Render.
+- Render : aucun nouveau déploiement déclenché ; AutoDeploy désactivé. Le service tourne encore sur le dernier déploiement en échec connu.
+- Prochaine étape : P0.1-a/b (vérification sécurisée de l'utilisateur et de l'URI Atlas) avant tout déploiement contrôlé. P0.1-d/e/f restent non validés.
 
