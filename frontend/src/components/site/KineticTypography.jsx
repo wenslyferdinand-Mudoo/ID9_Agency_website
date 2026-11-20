@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 
 /**
@@ -12,6 +12,7 @@ export default function KineticTypography({
   ],
 }) {
   const ref = useRef(null);
+  const reduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const xLeft = useTransform(scrollYProgress, [0, 1], ["20%", "-40%"]);
   const xRight = useTransform(scrollYProgress, [0, 1], ["-30%", "30%"]);
@@ -37,7 +38,7 @@ export default function KineticTypography({
         {lines.map((line, i) => (
           <motion.div
             key={i}
-            style={{ x: line.direction === "right" ? xRight : xLeft }}
+            style={reduceMotion ? undefined : { x: line.direction === "right" ? xRight : xLeft }}
             className="whitespace-nowrap font-display font-black tracking-[-0.05em] leading-[0.9] text-[clamp(4rem,14vw,14rem)]"
           >
             <span
