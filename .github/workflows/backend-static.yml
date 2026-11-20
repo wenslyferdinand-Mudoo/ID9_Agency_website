@@ -7,7 +7,7 @@ on:
       - "backend/**"
       - ".github/workflows/backend-static.yml"
   push:
-    branches: [main]
+    branches: [main, security/backend-hardening-staging]
     paths:
       - "backend/**"
       - ".github/workflows/backend-static.yml"
