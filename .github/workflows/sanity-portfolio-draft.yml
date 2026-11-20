@@ -43,10 +43,6 @@ on:
         description: "Optional repository-relative gallery image path"
         required: false
         type: string
-      cover_alt:
-        description: "Cover image alternative text"
-        required: false
-        type: string
       gallery_alt:
         description: "Gallery image alternative text"
         required: false
@@ -96,7 +92,6 @@ jobs:
           PROJECT_YEAR: ${{ inputs.year }}
           PROJECT_COVER_PATH: ${{ inputs.cover_image_path }}
           PROJECT_GALLERY_PATH: ${{ inputs.gallery_image_path }}
-          PROJECT_COVER_ALT: ${{ inputs.cover_alt }}
           PROJECT_GALLERY_ALT: ${{ inputs.gallery_alt }}
           PROJECT_GALLERY_CAPTION: ${{ inputs.gallery_caption }}
         run: node frontend/scripts/sanity-create-portfolio-draft.mjs
