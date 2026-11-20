@@ -43,6 +43,39 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
+      - name: Audit dependency advisories (report only)
+        run: |
+          npm audit --json > npm-audit-all.json || true
+          npm audit --omit=dev --json > npm-audit-production.json || true
+          node <<'NODE'
+          const fs = require("node:fs");
+          const files = ["npm-audit-all.json", "npm-audit-production.json"];
+          for (const file of files) {
+            try {
+              const report = JSON.parse(fs.readFileSync(file, "utf8"));
+              const v = report.metadata?.vulnerabilities || {};
+              const line = `${file}: ${v.total ?? "unknown"} total (critical ${v.critical ?? "?"}, high ${v.high ?? "?"}, moderate ${v.moderate ?? "?"}, low ${v.low ?? "?"})`;
+              console.log(line);
+              fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `- ${line}\n`);
+            } catch (error) {
+              const line = `${file}: report unavailable — ${error.message}`;
+              console.log(line);
+              fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `- ${line}\n`);
+            }
+          }
+          NODE
+
+      - name: Upload npm audit reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: id9-npm-audit-reports
+          path: |
+            frontend/npm-audit-all.json
+            frontend/npm-audit-production.json
+          if-no-files-found: ignore
+          retention-days: 7
+
       - name: Build frontend and generate static SEO routes
         env:
           REACT_APP_SANITY_PROJECT_ID: mqrbsugj
