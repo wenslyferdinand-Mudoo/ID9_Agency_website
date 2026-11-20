@@ -87,7 +87,7 @@ Le dépôt contient actuellement :
 - Le schéma Sanity autorise `photo`, mais les filtres publics précédemment audités ne l'exposaient pas.
 - La page publique lit Sanity en priorité, tandis que l'interface AdminPortfolio utilise l'API FastAPI/MongoDB : risque de double source de vérité.
 - Le schéma existant couvre déjà plusieurs éléments d'étude de cas, mais le parcours de publication et le rendu doivent être vérifiés de bout en bout.
-- Un domaine canonique était codé en dur sur `id9agency.com`, alors que l'URL Vercel actuellement partagée est `id9-agency-website.vercel.app`. Le domaine officiel doit être confirmé avant de modifier les canonicals.
+- Le domaine canonique temporaire confirmé est `https://id9-agency-website.vercel.app`. `id9agency.com` est le domaine custom futur, non encore acheté ni attaché à Vercel. Les canonicals, Open Graph, robots et sitemap doivent donc rester sur le domaine Vercel jusqu'à la migration explicite.
 - Une documentation historique mentionne `PortfolioPreview.jsx` ; la page repérée dans le code audité est `PortfolioPage.jsx`. Toujours vérifier les chemins réels.
 
 Ne pas extrapoler ces constats si la branche de travail contient déjà des corrections.
