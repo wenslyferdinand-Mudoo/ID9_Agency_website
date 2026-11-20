@@ -52,9 +52,7 @@ def test_cors_rejects_wildcard(monkeypatch):
 def test_demo_seeding_is_disabled_in_production(monkeypatch):
     monkeypatch.setenv("APP_ENV", "production")
     monkeypatch.setenv("SEED_DEMO_CONTENT", "true")
-    # The startup policy is production-safe: the production branch never opts in.
-    assert (os.environ["APP_ENV"].strip().lower() != "production"
-            and os.environ["SEED_DEMO_CONTENT"].strip().lower() in {"1", "true", "yes"}) is False
+    assert server.should_seed_demo_content() is False
 
 
 def test_rate_limit_returns_429_after_threshold(monkeypatch):
