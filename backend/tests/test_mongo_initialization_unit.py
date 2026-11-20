@@ -57,7 +57,7 @@ def test_startup_pings_and_creates_all_required_indexes(monkeypatch):
         name: IndexCollection()
         for name in ("users", "portfolio", "blog", "rate_limits", "auth_sessions")
     }
-    database = SimpleNamespace(**collections, command=server.AsyncIOMotorClient.__class__)
+    database = SimpleNamespace(**collections)
     async def ping(command):
         assert command == "ping"
         return {"ok": 1}
@@ -115,7 +115,6 @@ def test_concurrent_rate_limit_updates_are_atomic_and_enforce_threshold(monkeypa
         except HTTPException as error:
             return error.status_code
 
-    results = asyncio.run(asyncio.gather(*[])) if False else None
     async def run_all():
         return await asyncio.gather(*(attempt() for _ in range(20)))
     results = asyncio.run(run_all())
