@@ -53,7 +53,25 @@ jobs:
           npm explain postcss || true
 
       - name: Preview compatible audit fixes (dry run)
-        run: npm audit fix --dry-run --json > npm-audit-fix-plan.json || true
+        run: |
+          npm audit fix --dry-run --json > npm-audit-fix-plan.json || true
+          node <<'NODE'
+          const fs = require("node:fs");
+          try {
+            const plan = JSON.parse(fs.readFileSync("npm-audit-fix-plan.json", "utf8"));
+            const summary = {
+              added: plan.added,
+              removed: plan.removed,
+              changed: plan.changed,
+              audited: plan.audited,
+              vulnerabilities: plan.audit?.metadata?.vulnerabilities || plan.metadata?.vulnerabilities,
+            };
+            console.log(JSON.stringify(summary, null, 2));
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, "```json\n" + JSON.stringify(summary, null, 2) + "\n```\n");
+          } catch (error) {
+            console.log("Could not parse npm audit fix plan:", error.message);
+          }
+          NODE
 
       - name: Audit dependency advisories (report only)
         run: |
@@ -85,6 +103,7 @@ jobs:
           path: |
             frontend/npm-audit-all.json
             frontend/npm-audit-production.json
+            frontend/npm-audit-fix-plan.json
           if-no-files-found: ignore
           retention-days: 7
 
