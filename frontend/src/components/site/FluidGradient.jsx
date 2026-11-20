@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 /**
  * Animated fluid mesh gradient background.
@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
  * Pass `intensity` (0-1) to tone down for less prominent sections.
  */
 export default function FluidGradient({ intensity = 1, className = "" }) {
+  const reduceMotion = useReducedMotion();
   return (
     <div
       className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`}
@@ -35,12 +36,12 @@ export default function FluidGradient({ intensity = 1, className = "" }) {
           filter: "blur(80px)",
           opacity: 0.7 * intensity,
         }}
-        animate={{
+        animate={reduceMotion ? undefined : {
           x: [0, 120, -40, 0],
           y: [0, 60, -80, 0],
           scale: [1, 1.1, 0.95, 1],
         }}
-        transition={{ duration: 18, ease: "easeInOut", repeat: Infinity }}
+        transition={reduceMotion ? undefined : { duration: 18, ease: "easeInOut", repeat: Infinity }}
       />
 
       {/* animated blob 2 — orange */}
@@ -56,12 +57,12 @@ export default function FluidGradient({ intensity = 1, className = "" }) {
           filter: "blur(80px)",
           opacity: 0.6 * intensity,
         }}
-        animate={{
+        animate={reduceMotion ? undefined : {
           x: [0, -80, 40, 0],
           y: [0, -60, 100, 0],
           scale: [1, 0.9, 1.15, 1],
         }}
-        transition={{ duration: 22, ease: "easeInOut", repeat: Infinity, delay: 1 }}
+        transition={reduceMotion ? undefined : { duration: 22, ease: "easeInOut", repeat: Infinity, delay: 1 }}
       />
 
       {/* animated blob 3 — gold accent */}
@@ -77,11 +78,11 @@ export default function FluidGradient({ intensity = 1, className = "" }) {
           filter: "blur(70px)",
           opacity: 0.5 * intensity,
         }}
-        animate={{
+        animate={reduceMotion ? undefined : {
           x: [0, 60, -40, 0],
           y: [0, -100, 40, 0],
         }}
-        transition={{ duration: 25, ease: "easeInOut", repeat: Infinity, delay: 2 }}
+        transition={reduceMotion ? undefined : { duration: 25, ease: "easeInOut", repeat: Infinity, delay: 2 }}
       />
 
       {/* noise overlay for cinematic grain */}
