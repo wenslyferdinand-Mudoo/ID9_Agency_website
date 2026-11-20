@@ -248,7 +248,7 @@ Légende : **À FAIRE** = non commencé ; **EN COURS** = intervention active ; *
 | P0.1-b | Vérifier la construction de `MONGO_URL` : nom utilisateur, encodage URL du mot de passe, hôte/cluster, nom de base, `authSource` | **BLOQUÉ** | Validation côté service par diagnostic sans valeur secrète et ping réussi ; ne jamais imprimer l'URI. |
 | P0.1-c | Aligner le runtime Python entre Render et CI et vérifier la compatibilité Motor/PyMongo | **VALIDÉ (CI)** | Commit `c37ab8f`; `.python-version=3.12.16`, workflow lit le fichier ; run #44811200708 SUCCESS, installation Motor 3.3.1/PyMongo 4.5.0 réussie, 25 passed, 1 skipped (Atlas absent), 5 warnings. Render doit encore adopter le pin lors d'un déploiement Staging contrôlé. |
 | P0.1-d | Confirmer le démarrage et le ping MongoDB Atlas | **BLOQUÉ** | Nouveau déploiement Staging réussi, ping MongoDB réussi, processus Uvicorn stable et réponse HTTP valide. |
-| P0.1-e | Définir des endpoints de santé live/ready adaptés et configurer le health check Render | **À FAIRE** | Endpoints définis sans fuite d'informations ; readiness vérifie la dépendance requise ; tests HTTP réussis avant configuration Render. |
+| P0.1-e | Définir des endpoints de santé live/ready adaptés et configurer le health check Render | **EN COURS — CODE VALIDÉ, CONFIG RENDER EN ATTENTE** | `GET /health/live` et `GET /health/ready` ajoutés et couverts par CI (#44811359124 : 28 passed, 1 skipped). Le healthCheckPath Render n'est pas encore configuré ; le connecteur Render disponible ne propose pas d'action update service. |
 | P0.1-f | Exécuter les tests Atlas d'intégration sur la base isolée | **BLOQUÉ** | Ping préalable confirmé, base `id9_staging_test_*`, tests passants, nettoyage vérifié et absence d'impact hors données de test. |
 
 **Règle de blocage P0.1 :** tant que P0.1-a/b/d ne sont pas vérifiés et que le ping Atlas n'est pas réussi, ne pas exécuter les tests d'intégration qui écrivent en base, ne pas modifier les données, ne pas déclencher un nouveau déploiement à répétition et ne pas prétendre que Staging est opérationnel. La correction d'un secret/identifiant doit être effectuée dans Atlas/Render par un canal sécurisé ; l'assistant ne doit jamais demander ni révéler sa valeur.
@@ -319,4 +319,18 @@ Pour chaque phase :
 - Limite : les variables `ID9_ATLAS_STAGING_URI` et `ID9_ATLAS_STAGING_DB` sont vides dans le run ; le test Atlas a été **skipped**. Cela ne valide ni l'authentification Atlas ni le démarrage Render.
 - Render : aucun nouveau déploiement déclenché ; AutoDeploy désactivé. Le service tourne encore sur le dernier déploiement en échec connu.
 - Prochaine étape : P0.1-a/b (vérification sécurisée de l'utilisateur et de l'URI Atlas) avant tout déploiement contrôlé. P0.1-d/e/f restent non validés.
+
+
+
+### 2026-11-20 — P0.1-e — Endpoints de santé ajoutés et tests réussis
+
+- Statut : **EN COURS — endpoints validés en CI ; configuration Render en attente**.
+- Branche / PR : `security/backend-hardening-staging` / PR #52 (Draft conservé).
+- Commits : `9d5903aa7bc649ef1245e04c697a0db22db82eb9` (endpoints), `1c71c15ee4f934cd6cab6658d0e7356a73c6313f` (tests).
+- Fichiers modifiés : `backend/server.py`, `backend/tests/test_mongo_initialization_unit.py`.
+- Endpoints ajoutés : `GET /health/live` (liveness indépendante de MongoDB) et `GET /health/ready` (ping MongoDB, 503 générique si indisponible). Routes masquées du schéma OpenAPI ; aucun détail de connexion renvoyé au client.
+- CI : run [#44811359124](https://github.com/wenslyferdinand-Mudoo/ID9_Agency_website/actions/runs/44811359124) **SUCCESS**, 28 passed, 1 skipped, 5 warnings.
+- Le test Atlas est toujours skipped car les deux variables d'intégration ne sont pas définies dans GitHub Actions. Aucune preuve de connexion Atlas réelle.
+- Limite : le connecteur Render disponible permet la lecture du service et des déploiements, mais ne propose pas d'action de mise à jour de configuration du service ; le health check path n'a donc pas été modifié. Le service ne démarre toujours pas tant que l'authentification Atlas échoue.
+- Prochaine étape : résoudre P0.1-a/b (identité/permissions et URI Atlas) par le canal sécurisé, puis déployer Staging contrôlé, configurer `/health/ready` comme health check Render et valider les réponses live/ready.
 
