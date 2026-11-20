@@ -1,5 +1,11 @@
 """Regression tests for independent mutable defaults in backend request models."""
 import os
+import sys
+from pathlib import Path
+
+# Make the backend module importable whether pytest is launched from the
+# repository root or from the backend directory.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 # server initializes a Motor client at import time; these inert values avoid
 # dependence on deployment configuration and do not connect to the database.
