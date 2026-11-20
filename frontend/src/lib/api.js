@@ -54,7 +54,7 @@ api.interceptors.response.use(
       const performRefresh = async () => {
         const currentToken = localStorage.getItem("id9_token");
         // Another tab may already have rotated the shared session cookie.
-        if (currentToken && currentToken !== original.headers?.Authorization?.replace(/^Bearer\\s+/i, "")) {
+        if (currentToken && currentToken !== original.headers?.Authorization?.replace(/^Bearer\s+/i, "")) {
           return currentToken;
         }
         const { data } = await api.post("/auth/refresh", {}, { skipAuthRefresh: true });
