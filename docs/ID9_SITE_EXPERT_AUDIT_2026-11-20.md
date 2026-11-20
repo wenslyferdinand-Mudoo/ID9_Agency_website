@@ -182,7 +182,7 @@ Les changements suivants sont maintenant présents sur la branche audit, sans to
 - Footer.jsx et i18n.jsx : CTA de signature et libellé Social traduits en français/anglais.
 - HomePage.jsx : textes des deux bandeaux marquee et de la typographie cinétique localisés selon la langue active.
 
-**Validation en attente :** le déploiement Preview Vercel de cette branche est créé mais restait QUEUED lors du dernier contrôle (20 novembre 2026, vers 15:00 UTC). Aucun build réussi n'est donc revendiqué et aucun test navigateur n'a été exécuté.
+**Validation du build :** Vercel Preview est maintenant **READY** sur le HEAD `414a84b9c1904bab6c1a15416d906dee31b78e48` (20 novembre 2026, 15:04 UTC). Le build a donc réussi. Cette preuve confirme la compilation et le déploiement Preview, mais pas la recette visuelle ou fonctionnelle dans un navigateur réel ; aucun test navigateur/Lighthouse n'est revendiqué.
 
 **Limites connues de cette première correction :**
 - La page 404 est une 404 applicative côté React. Le fallback SPA Vercel peut encore renvoyer un statut HTTP 200 ; le statut HTTP 404 doit être traité séparément et vérifié.
@@ -209,3 +209,23 @@ Correction appliquée sur la branche d'audit :
 - conservation de la directive meta robots côté client comme défense supplémentaire.
 
 Le JSON de `vercel.json` a été parsé avant l'enregistrement. La prise en compte réelle des en-têtes par Vercel reste à vérifier sur le prochain déploiement Preview. Ce correctif SEO n'est pas un contrôle d'accès : l'authentification et les autorisations backend restent obligatoires.
+
+
+## 10. Vérification de suivi — 20 novembre 2026, 15:05 UTC
+
+### Preview de la PR #53
+- État Vercel : **READY**.
+- Commit exact : `414a84b9c1904bab6c1a15416d906dee31b78e48`.
+- URL Preview : https://id9-agency-website-git-audit-site-expe-52da14-wensly-s-projects.vercel.app
+- GitHub check « Vercel Preview Comments » : success, aucun feedback non résolu.
+- Cela ne remplace pas les tests navigateur, mobile/tablette/desktop, les tests de liens ni les mesures Lighthouse.
+
+### Backend — PR #52
+- GitHub Actions « Backend Static Validation » : **success** au SHA `825241f5e210c65cc9e62c874fb4143d6d8bd1ac`, run `44756055357`.
+- Une exécution antérieure au SHA `1feae79365883ed593789f3ccff9cef97dbfde87` a échoué parce que les fixtures utilisaient `admin@example.test`, rejeté par EmailStr comme domaine réservé. Le test fixture utilise désormais `admin@example.com` et le run au HEAD actuel est réussi.
+- La suite Atlas reste opt-in et n'est pas une preuve d'intégration Atlas tant que les secrets et l'environnement staging ne sont pas configurés.
+- Vercel Preview de la PR #52 : **READY** au SHA `825241f5e210c65cc9e62c874fb4143d6d8bd1ac`.
+- Render workspace : aucun service n'est actuellement listé. Aucun backend Render staging n'est donc confirmé.
+
+### Décision
+La compilation frontend de la PR #53 et les tests backend isolés de la PR #52 sont réussis sur leurs SHA respectifs. La validation de bout en bout reste incomplète. Les deux PR restent ouvertes et en Draft ; aucun merge ni déploiement production n'est autorisé par cette vérification.
