@@ -279,9 +279,14 @@ Two additional cross-layer issues were addressed:
 - Dépendances directes à risque élevé relevées : `axios@1.18.1`, `react-router-dom@7.18.1`, `zod@3.25.76`, `postcss@8.5.16` et `react-scripts@5.0.1`.
 - La chaîne CRA/CRACO est un facteur structurel : plusieurs correctifs npm exigent des changements majeurs. Aucun `npm audit fix --force` ni changement de dépendance n'a été appliqué. Les correctifs compatibles sont en cours d'analyse isolée avant toute mise à jour.
 
+
+- Un dry-run `npm audit fix --dry-run` a identifié 32 mises à jour compatibles, dont `axios 1.18.1 → 1.21.1`, `react-router-dom 7.18.1 → 7.18.6`, `postcss 8.5.16 → 8.5.33`, `proxy-addr 2.0.7 → 2.0.8` et `shell-quote 1.9.0 → 1.12.0`. Aucun correctif n'a été appliqué à ce stade.
+- Une branche isolée `security/frontend-deps-auditfix-2026-11-20` a été créée pour appliquer uniquement les correctifs compatibles, puis produire un build et un artefact de lockfile. Son workflow est en attente d'exécution ; aucune mise à jour n'est encore considérée comme validée.
+- Les vulnérabilités Zod et la dette structurelle CRA/CRACO nécessitent une analyse séparée : Zod exige une migration majeure vers v4, et plusieurs alertes React Scripts n'ont pas de correctif compatible dans CRA 5.
+
 ### Sanity Studio
 - Le schéma `portfolioProject` prend désormais en charge le texte alternatif de la couverture et le frontend consomme cette valeur avec un fallback sur le titre.
-- Un build du Studio Sanity est ajouté au workflow ; run `44765834255` au SHA `f563b6decefc9f5feb06bcd37fa0eeb5e49e7ecd`, **en cours** au moment de cette note.
+- Le build du Studio Sanity a réussi dans le run `44765834255` au SHA `f563b6decefc9f5feb06bcd37fa0eeb5e49e7ecd`. Un `studio/package-lock.json` a été généré comme artefact de validation, mais n'est pas encore commité.
 - Aucun document du dataset `production` n'a été édité et aucun déploiement du Studio n'a été effectué.
 
 ### Vercel et infrastructure
