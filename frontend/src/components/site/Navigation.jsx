@@ -32,6 +32,7 @@ export default function Navigation() {
     if (!open) return undefined;
 
     const scrollY = window.scrollY;
+    const lockedPathname = loc.pathname;
     const body = document.body;
     const previousStyles = {
       position: body.style.position,
@@ -51,7 +52,12 @@ export default function Navigation() {
 
     return () => {
       Object.assign(body.style, previousStyles);
-      window.scrollTo(0, scrollY);
+
+      // Restore the previous position only when the menu closes on the same route.
+      // A route transition must keep ScrollToTop's new position instead of jumping back.
+      if (window.location.pathname === lockedPathname) {
+        window.scrollTo(0, scrollY);
+      }
     };
   }, [open]);
 
