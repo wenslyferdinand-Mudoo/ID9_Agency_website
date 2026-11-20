@@ -83,7 +83,17 @@ export default function PortfolioDetailPage() {
   const externalLinks = getProjectExternalLinks(item);
   const projectTools = Array.isArray(item.tools) ? item.tools.filter((tool) => typeof tool === "string" && tool.trim()) : [];
   const projectGallery = Array.isArray(item.gallery) ? item.gallery : [];
-  const projectKpis = Array.isArray(item.kpis) ? item.kpis.filter((kpi) => kpi && typeof kpi === "object") : [];
+  const projectKpis = Array.isArray(item.kpis)
+    ? item.kpis.filter(
+        (kpi) =>
+          kpi &&
+          typeof kpi === "object" &&
+          kpi.label != null &&
+          String(kpi.label).trim() &&
+          kpi.value != null &&
+          String(kpi.value).trim()
+      )
+    : [];
 
   return (
     <main data-testid="portfolio-detail" className="pb-0 bg-ink-900">
@@ -376,10 +386,10 @@ export default function PortfolioDetailPage() {
                     data-testid={`case-kpi-${i}`}
                   >
                     <p className="mb-3 font-display text-4xl font-black leading-none text-gradient-gold md:text-6xl">
-                      {k.value || "—"}
+                      {k.value}
                     </p>
                     <p className="font-ui text-xs uppercase tracking-[0.18em] text-white/65 md:text-sm">
-                      {k.label || ""}
+                      {k.label}
                     </p>
                   </motion.div>
                 ))}
