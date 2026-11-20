@@ -246,7 +246,7 @@ const DICT = {
   // Footer
   "ft.h2": { en: "Let’s make your next move count.", fr: "Donnons de la portée à votre prochain projet." },
   "ft.cta.line1": { en: "Let’s build", fr: "Construisons" },
-  "ft.cta.line2": { en: "something undeniable.", fr: "quelque chose d’inoubliable." },
+  "ft.cta.line2": { en: "something undeniable.", fr: "quelque chose d’incontestable." },
   "ft.social": { en: "Social", fr: "Réseaux sociaux" },
   "ft.pages": { en: "Pages", fr: "Pages" },
   "ft.about": {
