@@ -197,3 +197,15 @@ Ces modifications constituent une première passe ciblée, pas une certification
 - Ajustement du libellé français du CTA footer vers une formulation plus courte, mieux équilibrée typographiquement.
 
 **Limite SEO à conserver :** les métadonnées d'article sont actuellement injectées après hydratation React. Les crawlers et plateformes sociales qui ne rendent pas le JavaScript peuvent encore recevoir les métadonnées génériques de la page blog. Une génération statique/prérendu des articles ou un rendu serveur reste nécessaire pour une prévisualisation sociale robuste.
+
+
+## 9. Correctif complémentaire : indexation des routes administrateur
+
+L'audit de suivi a révélé une incohérence : `robots.txt` interdisait le crawl de `/admin`, alors que RouteSeo ajoutait `noindex,nofollow` côté client. Un robot respectant robots.txt pouvait donc ne jamais récupérer la page et lire cette directive.
+
+Correction appliquée sur la branche d'audit :
+- suppression de `Disallow: /admin` dans `robots.txt` ;
+- ajout de l'en-tête HTTP `X-Robots-Tag: noindex, nofollow` pour `/admin` et `/admin/*` dans `vercel.json` ;
+- conservation de la directive meta robots côté client comme défense supplémentaire.
+
+Le JSON de `vercel.json` a été parsé avant l'enregistrement. La prise en compte réelle des en-têtes par Vercel reste à vérifier sur le prochain déploiement Preview. Ce correctif SEO n'est pas un contrôle d'accès : l'authentification et les autorisations backend restent obligatoires.
