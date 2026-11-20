@@ -257,7 +257,7 @@ function PortfolioCover({ project, lang }) {
       {imageUrl && !imageFailed ? (
         <img
           src={imageUrl}
-          alt={title}
+          alt={project.cover_image_alt || title}
           loading="lazy"
           decoding="async"
           onError={() => setImageFailed(true)}

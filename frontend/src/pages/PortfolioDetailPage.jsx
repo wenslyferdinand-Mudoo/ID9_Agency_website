@@ -67,6 +67,85 @@ export default function PortfolioDetailPage() {
     };
   }, [slug, lang]);
 
+  useEffect(() => {
+    const setMeta = (selector, attribute, value) => {
+      const element = document.querySelector(selector);
+      if (element) element.setAttribute(attribute, value);
+    };
+    const siteUrl = "https://id9-agency-website.vercel.app";
+    const canonicalUrl = siteUrl + window.location.pathname;
+
+    if (notFound) {
+      setMeta('meta[name="robots"]', "content", "noindex,nofollow");
+      document.title = lang === "fr"
+        ? "Projet introuvable — Impact Digital 9 Agency"
+        : "Project not found — Impact Digital 9 Agency";
+      return undefined;
+    }
+
+    if (!item) return undefined;
+
+    const title = (
+      (typeof item.seoTitle === "string" && item.seoTitle.trim()) ||
+      (item.title ? `${item.title} | Impact Digital 9 Agency` : "Impact Digital 9 Agency")
+    );
+    const description = String(
+      item.seoDescription || item.summary || item.description ||
+      (lang === "fr" ? "Une réalisation d’Impact Digital 9 Agency." : "A selected project by Impact Digital 9 Agency.")
+    ).trim().slice(0, 160);
+    let image = `${siteUrl}/wensly-founder.jpg`;
+    try {
+      if (typeof item.cover_image === "string" && item.cover_image.trim()) {
+        image = new URL(item.cover_image.trim(), siteUrl).href;
+      }
+    } catch {
+      // Keep the known site share image when a CMS image URL is malformed.
+    }
+
+    document.title = title;
+    setMeta('meta[name="robots"]', "content", "index,follow");
+    setMeta('meta[name="description"]', "content", description);
+    setMeta('meta[property="og:title"]', "content", title);
+    setMeta('meta[property="og:description"]', "content", description);
+    setMeta('meta[property="og:type"]', "content", "website");
+    setMeta('meta[property="og:url"]', "content", canonicalUrl);
+    setMeta('meta[property="og:image"]', "content", image);
+    setMeta('meta[name="twitter:card"]', "content", "summary_large_image");
+    setMeta('meta[name="twitter:title"]', "content", title);
+    setMeta('meta[name="twitter:description"]', "content", description);
+    setMeta('meta[name="twitter:image"]', "content", image);
+
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.rel = "canonical";
+      document.head.appendChild(canonical);
+    }
+    canonical.href = canonicalUrl;
+
+    const schema = document.createElement("script");
+    schema.type = "application/ld+json";
+    schema.dataset.routeSeo = "project";
+    schema.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "CreativeWork",
+      name: item.title || title,
+      description,
+      url: canonicalUrl,
+      image,
+      creator: {
+        "@type": "Organization",
+        name: "Impact Digital 9 Agency",
+        url: siteUrl,
+      },
+    });
+    document.head.appendChild(schema);
+
+    return () => {
+      if (schema.isConnected) schema.remove();
+    };
+  }, [notFound, item, lang, slug]);
+
   if (notFound)
     return (
       <main className="min-h-screen pt-32 md:pt-40 px-4 sm:px-6 max-w-4xl mx-auto">
@@ -110,7 +189,7 @@ export default function PortfolioDetailPage() {
           {item.cover_image ? (
             <img
               src={item.cover_image}
-              alt={item.title || ""}
+              alt={item.cover_image_alt || item.title || ""}
               className="h-full w-full object-cover"
               loading="eager"
               decoding="async"
