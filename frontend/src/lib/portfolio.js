@@ -3,6 +3,57 @@ import {SANITY_CONFIG, sanityClient, imageUrl} from './sanity'
 
 // Retry detail lookup without the CDN if a newly published document is missing from cache.
 const uncachedSanityClient = createClient({...SANITY_CONFIG, useCdn: false})
+ 
+// Verified public destinations for the two client case studies.
+// Incomplete Instagram handles are intentionally excluded rather than guessed.
+const VERIFIED_PROJECT_LINKS = [
+  {
+    matches: (identity) => /ika[\\s_-]*collections?/i.test(identity),
+    links: [
+      {
+        _key: 'ika-facebook',
+        label: 'Facebook — IKA Collection',
+        platform: 'facebook',
+        url: 'https://www.facebook.com/share/1Z2S8g7G6R/?utm_source=chatgpt.com',
+        description: 'Page Facebook communiquée pour IKA Collection.',
+      },
+      {
+        _key: 'ika-whatsapp-catalog',
+        label: 'Catalogue WhatsApp — IKA Collection',
+        platform: 'other',
+        url: 'https://wa.me/c/50940832021?utm_source=chatgpt.com',
+        description: 'Accès direct au catalogue de produits sur WhatsApp.',
+      },
+      {
+        _key: 'ika-inufocad-press',
+        label: 'Article INUFOCAD — IKACOLLECTIONS',
+        platform: 'press',
+        url: 'https://inufocad.edu.ht/de-latelier-a-lentreprise-faika-sabiana-laure-structure-lavenir-de-lartisanat-haitien-avec-ikacollections/',
+        description: 'Portrait publié par l’Université INUFOCAD le 16 septembre 2026.',
+      },
+    ],
+  },
+  {
+    matches: (identity) => /ak(?:y|i)a[\\s_-]*dance[\\s_-]*company/i.test(identity),
+    links: [
+      {
+        _key: 'akya-facebook',
+        label: 'Facebook — AKYA Dance Company',
+        platform: 'facebook',
+        url: 'https://www.facebook.com/share/1979tXee2S/?utm_source=chatgpt.com',
+        description: 'Page Facebook communiquée pour AKYA Dance Company.',
+      },
+    ],
+  },
+]
+
+function getVerifiedProjectLinks(doc) {
+  const identity = [doc?.slug, doc?.title, doc?.client]
+    .filter((value) => typeof value === 'string')
+    .join(' ')
+  return VERIFIED_PROJECT_LINKS.find((entry) => entry.matches(identity))?.links || []
+}
+
 
 /** GROQ queries */
 const PROJECTION = `{
@@ -58,6 +109,10 @@ export function normalizePortfolio(doc) {
   const tools = Array.isArray(doc.tools) ? doc.tools : []
   const kpis = Array.isArray(doc.kpis) ? doc.kpis : []
   const externalLinks = Array.isArray(doc.externalLinks) ? doc.externalLinks : []
+  const existingExternalUrls = new Set(externalLinks.map((link) => String(link?.url || '').trim().replace(/\\/$/, '')))
+  const verifiedExternalLinks = getVerifiedProjectLinks(doc).filter(
+    (link) => !existingExternalUrls.has(link.url.replace(/\\/$/, ''))
+  )
   return {
     ...doc,
     id: doc._id,
@@ -89,7 +144,8 @@ export function normalizePortfolio(doc) {
           description: typeof link?.description === "string" ? link.description.trim() : "",
         };
       })
-      .filter((link) => link.label && link.url),
+      .filter((link) => link.label && link.url)
+      .concat(verifiedExternalLinks),
   }
 }
 
