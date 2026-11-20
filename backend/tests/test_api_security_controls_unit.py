@@ -12,22 +12,30 @@ os.environ.setdefault("DB_NAME", "id9_unit_test")
 os.environ.setdefault("JWT_SECRET", "unit-test-only-not-a-production-secret")
 
 import pytest
+from pydantic import ValidationError
 from fastapi import HTTPException
 from starlette.requests import Request
 import server
 
 
 def test_contact_fields_have_bounded_lengths():
-    with pytest.raises(Exception):
+    # Keep the email valid so each assertion exercises the intended field limit.
+    with pytest.raises(ValidationError):
         server.ContactCreate(
             name="A",
-            email="person@example.test",
-            message="short",
+            email="person@example.com",
+            message="This message is long enough.",
         )
-    with pytest.raises(Exception):
+    with pytest.raises(ValidationError):
         server.ContactCreate(
             name="Valid Name",
-            email="person@example.test",
+            email="person@example.com",
+            message="short",
+        )
+    with pytest.raises(ValidationError):
+        server.ContactCreate(
+            name="Valid Name",
+            email="person@example.com",
             message="x" * 5001,
         )
 
