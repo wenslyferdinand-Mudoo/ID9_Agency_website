@@ -10,7 +10,7 @@ export const API_BASE = BACKEND_URL
     : `${BACKEND_URL}/api`
   : null;
 
-const api = axios.create({ baseURL: API_BASE });
+const api = axios.create({ baseURL: API_BASE, withCredentials: true });
 
 api.interceptors.request.use((config) => {
   if (!BACKEND_URL) {
@@ -28,6 +28,52 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// One refresh request is shared by concurrent API failures in this browser tab.
+// The refresh credential itself is an HttpOnly cookie and is never read by JS.
+let refreshPromise = null;
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const original = error.config;
+    const url = original?.url || "";
+    const isAuthEndpoint = /\/auth\/(login|refresh|logout)/.test(url);
+    if (
+      error.response?.status !== 401 ||
+      !original ||
+      original._retry ||
+      original.skipAuthRefresh ||
+      isAuthEndpoint ||
+      !localStorage.getItem("id9_token")
+    ) {
+      return Promise.reject(error);
+    }
+
+    original._retry = true;
+    try {
+      if (!refreshPromise) {
+        refreshPromise = api
+          .post("/auth/refresh", {}, { skipAuthRefresh: true })
+          .then(({ data }) => {
+            if (!data?.access_token) throw new Error("Refresh response did not include an access token.");
+            localStorage.setItem("id9_token", data.access_token);
+            return data.access_token;
+          })
+          .finally(() => {
+            refreshPromise = null;
+          });
+      }
+      const nextToken = await refreshPromise;
+      original.headers = original.headers || {};
+      original.headers.Authorization = `Bearer ${nextToken}`;
+      return api(original);
+    } catch (refreshError) {
+      localStorage.removeItem("id9_token");
+      window.dispatchEvent(new Event("id9:auth-expired"));
+      return Promise.reject(refreshError);
+    }
+  }
+);
 
 export default api;
 
