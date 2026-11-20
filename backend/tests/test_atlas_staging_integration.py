@@ -31,20 +31,21 @@ if "localhost" in ATLAS_URI or "127.0.0.1" in ATLAS_URI:
 
 
 @pytest.fixture(scope="module")
-def atlas_db():
-    client = AsyncIOMotorClient(ATLAS_URI, serverSelectionTimeoutMS=8000)
-    database = client[ATLAS_DB_NAME]
-    asyncio.run(database.command("ping"))
-    yield database
-    client.close()
+def atlas_config():
+    return ATLAS_URI, ATLAS_DB_NAME
 
 
-def test_atlas_indexes_unique_constraints_and_existing_data_preservation(atlas_db):
+def test_atlas_indexes_unique_constraints_and_existing_data_preservation(atlas_config):
     suffix = uuid.uuid4().hex
     sentinel_id = f"id9-staging-sentinel-{suffix}"
     session_id = f"id9-staging-session-{suffix}"
 
+    uri, db_name = atlas_config
+
     async def run():
+        client = AsyncIOMotorClient(uri, serverSelectionTimeoutMS=8000)
+        atlas_db = client[db_name]
+        await atlas_db.command("ping")
         sentinel = {"_id": sentinel_id, "marker": "preserve-me"}
         await atlas_db.staging_sentinels.insert_one(sentinel)
         await atlas_db.auth_sessions.create_index("id", unique=True)
@@ -61,20 +62,22 @@ def test_atlas_indexes_unique_constraints_and_existing_data_preservation(atlas_d
 
         persisted = await atlas_db.staging_sentinels.find_one({"_id": sentinel_id})
         assert persisted == sentinel
+        await atlas_db.staging_sentinels.delete_one({"_id": sentinel_id})
+        await atlas_db.auth_sessions.delete_one({"id": session_id})
+        client.close()
 
-    try:
-        asyncio.run(run())
-    finally:
-        async def cleanup():
-            await atlas_db.staging_sentinels.delete_one({"_id": sentinel_id})
-            await atlas_db.auth_sessions.delete_one({"id": session_id})
-        asyncio.run(cleanup())
+    asyncio.run(run())
 
 
-def test_atlas_atomic_rate_limit_counter_under_concurrency(atlas_db):
+def test_atlas_atomic_rate_limit_counter_under_concurrency(atlas_config):
     counter_id = f"id9-staging-counter-{uuid.uuid4().hex}"
 
+    uri, db_name = atlas_config
+
     async def run():
+        client = AsyncIOMotorClient(uri, serverSelectionTimeoutMS=8000)
+        atlas_db = client[db_name]
+        await atlas_db.command("ping")
         async def increment():
             return await atlas_db.rate_limits.find_one_and_update(
                 {"_id": counter_id},
@@ -85,19 +88,23 @@ def test_atlas_atomic_rate_limit_counter_under_concurrency(atlas_db):
         await asyncio.gather(*(increment() for _ in range(40)))
         record = await atlas_db.rate_limits.find_one({"_id": counter_id})
         assert record["count"] == 40
+        await atlas_db.rate_limits.delete_one({"_id": counter_id})
+        client.close()
 
-    try:
-        asyncio.run(run())
-    finally:
-        asyncio.run(atlas_db.rate_limits.delete_one({"_id": counter_id}))
+    asyncio.run(run())
 
 
-def test_atlas_refresh_rotation_is_single_use_under_concurrency(atlas_db):
+def test_atlas_refresh_rotation_is_single_use_under_concurrency(atlas_config):
     session_id = f"id9-staging-rotation-{uuid.uuid4().hex}"
     current_hash = uuid.uuid4().hex
     now = datetime.now(timezone.utc)
 
+    uri, db_name = atlas_config
+
     async def run():
+        client = AsyncIOMotorClient(uri, serverSelectionTimeoutMS=8000)
+        atlas_db = client[db_name]
+        await atlas_db.command("ping")
         await atlas_db.auth_sessions.insert_one({
             "id": session_id, "user_id": "atlas-staging-test-user",
             "refresh_jti_hash": current_hash, "revoked": False,
@@ -116,8 +123,7 @@ def test_atlas_refresh_rotation_is_single_use_under_concurrency(atlas_db):
             )
         outcomes = await asyncio.gather(rotate(), rotate())
         assert sum(item is not None for item in outcomes) == 1
+        await atlas_db.auth_sessions.delete_one({"id": session_id})
+        client.close()
 
-    try:
-        asyncio.run(run())
-    finally:
-        asyncio.run(atlas_db.auth_sessions.delete_one({"id": session_id}))
+    asyncio.run(run())
