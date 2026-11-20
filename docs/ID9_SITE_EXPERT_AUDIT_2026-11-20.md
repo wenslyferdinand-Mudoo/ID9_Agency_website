@@ -281,7 +281,7 @@ Two additional cross-layer issues were addressed:
 
 
 - Un dry-run `npm audit fix --dry-run` a identifié 32 mises à jour compatibles, dont `axios 1.18.1 → 1.21.1`, `react-router-dom 7.18.1 → 7.18.6`, `postcss 8.5.16 → 8.5.33`, `proxy-addr 2.0.7 → 2.0.8` et `shell-quote 1.9.0 → 1.12.0`. Aucun correctif n'a été appliqué à ce stade.
-- Une branche isolée `security/frontend-deps-auditfix-2026-11-20` a été créée pour appliquer uniquement les correctifs compatibles, puis produire un build et un artefact de lockfile. Son workflow est en attente d'exécution ; aucune mise à jour n'est encore considérée comme validée.
+- La branche isolée `security/frontend-deps-auditfix-2026-11-20` a appliqué les correctifs compatibles sans `--force`. Le run `44767221287` a réussi : `npm ci` initial, `npm audit fix`, second `npm ci` propre et `npm run vercel-build` sont tous verts. Le lockfile validé est commité (`59bd371`) et proposé dans la PR #54, maintenue en Draft. Le graphe passe de 53 à **35 vulnérabilités, 0 critical** (17 high, 7 moderate, 11 low).
 - Les vulnérabilités Zod et la dette structurelle CRA/CRACO nécessitent une analyse séparée : Zod exige une migration majeure vers v4, et plusieurs alertes React Scripts n'ont pas de correctif compatible dans CRA 5.
 
 ### Sanity Studio
