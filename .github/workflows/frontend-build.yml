@@ -95,6 +95,13 @@ jobs:
           }
           NODE
 
+      - name: Install and build Sanity Studio
+        working-directory: studio
+        env:
+          SANITY_STUDIO_PROJECT_ID: mqrbsugj
+          SANITY_STUDIO_DATASET: production
+        run: npm install --no-audit --no-fund && npm run build
+
       - name: Upload npm audit reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -104,6 +111,7 @@ jobs:
             frontend/npm-audit-all.json
             frontend/npm-audit-production.json
             frontend/npm-audit-fix-plan.json
+            studio/package-lock.json
           if-no-files-found: ignore
           retention-days: 7
 
