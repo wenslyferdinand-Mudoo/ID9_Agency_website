@@ -89,8 +89,11 @@ def api(monkeypatch):
         portfolio=FakeCollection(), blog=FakeCollection(), contacts=FakeCollection(),
     )
     monkeypatch.setattr(server, "db", database)
-    with TestClient(server.app) as client:
-        yield client, database, admin
+    # Do not enter TestClient's lifespan context: startup intentionally pings
+    # MongoDB and creates indexes, which belongs in a separate integration suite.
+    client = TestClient(server.app)
+    yield client, database, admin
+    client.close()
 
 
 def login(client):
