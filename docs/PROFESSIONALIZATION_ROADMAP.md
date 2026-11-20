@@ -215,8 +215,8 @@ Légende : **À FAIRE** = non commencé ; **EN COURS** = intervention active ; *
 
 | ID | Phase | Livrable | Statut au 2026-11-20 | Preuve / remarque |
 |---|---|---|---|---|
-| P0.1 | Atlas + Render Staging | Authentification, permissions, URI, runtime, démarrage, health checks, tests Atlas | **EN COURS — BLOQUÉ** | Déploiement `dep-dc0ad7k9v7es73b4rpig` en `update_failed`; logs du 2026-11-20 à 20:00 UTC : Atlas `bad auth`, code 8000, startup failed. Python Render 3.14.10 contre CI 3.12. Aucune preuve de ping Atlas réussi. |
-| P0.2 | Vercel environnements | Séparation stricte API Preview / Production / Development | **À FAIRE** | L'audit a constaté `REACT_APP_API_URL` ciblée Preview + Production ; valeur non déchiffrée et cible effective à confirmer. |
+| P0.1 | Atlas + Render Staging | Authentification, permissions, URI, runtime, démarrage, health checks, tests Atlas | **EN COURS — BLOQUÉ** | Déploiement `dep-dc0ad7k9v7es73b4rpig` en `update_failed`; logs du 2026-11-20 à 20:00 UTC : Atlas `bad auth`, code 8000, startup failed. Le déploiement utilise encore le commit `b3faa66` (antérieur au pin `.python-version` présent sur la tête PR #52 `1c71c15`) ; Python 3.14.10 observé ne prouve donc pas l'échec du pin. Aucun nouveau déploiement tant que l'auth Atlas n'est pas corrigée. |
+| P0.2 | Vercel environnements | Séparation stricte API Preview / Production / Development | **EN COURS — BLOQUÉ** | Audit non sensible du 2026-11-20 : une seule entrée `REACT_APP_API_URL` existe et cible simultanément `preview` + `production`. Valeur masquée (type sensitive), donc l'API réellement ciblée par chaque environnement n'est pas vérifiable sans déchiffrer. Aucun changement effectué ; séparation à appliquer seulement après confirmation sécurisée de l'URL Staging et de l'URL Production. |
 | P0.3 | Backend PR | Consolider #50, #52, #32 sans conflit ni perte | **À FAIRE** | PR #50 ouverte, #52 Draft, #32 Draft. Pas de merge autorisé dans ce chantier. |
 | P1.1 | Site UX / SEO | Finaliser les corrections existantes | **EN COURS** | PR #53 Draft ; contrôler son CI, Preview, diff et tests navigateur avant de la considérer terminée. |
 | P1.2 | Dépendances frontend | Réduire les vulnérabilités sans mises à jour forcées | **EN COURS** | PR #54 Draft ; état rapporté : 35 vulnérabilités restantes, 0 critique. Refaire un audit npm à partir du lockfile actuel avant validation. |
@@ -334,3 +334,18 @@ Pour chaque phase :
 - Limite : le connecteur Render disponible permet la lecture du service et des déploiements, mais ne propose pas d'action de mise à jour de configuration du service ; le health check path n'a donc pas été modifié. Le service ne démarre toujours pas tant que l'authentification Atlas échoue.
 - Prochaine étape : résoudre P0.1-a/b (identité/permissions et URI Atlas) par le canal sécurisé, puis déployer Staging contrôlé, configurer `/health/ready` comme health check Render et valider les réponses live/ready.
 
+
+
+### 2026-11-20 — P0.1 / P0.2 — Contrôle Render et inventaire Vercel non sensible
+
+- Statut P0.1 : **EN COURS — BLOQUÉ** ; P0.2 : **EN COURS — BLOQUÉ, audit initial réalisé**.
+- Branche / PR documentation : `docs/id9-professionalization-execution-plan` / PR #55 (Draft).
+- Branche / PR backend : `security/backend-hardening-staging` / PR #52 (Draft), tête `1c71c15ee4f934cd6cab6658d0e7356a73c6313f`.
+- Render : le service `id9-backend-staging` est toujours sur la branche attendue, AutoDeploy désactivé, healthCheckPath vide. Les cinq derniers déploiements sont en échec. Le dernier déploiement `dep-dc0ad7k9v7es73b4rpig` a utilisé le commit `b3faa66daa92c60030a6e4d8b454e62541787c6b`, qui est antérieur aux commits du pin Python et des health endpoints de la tête PR #52. Les logs de ce déploiement montrent Python 3.14.10 et l'échec Atlas `bad auth`, code 8000.
+- Interprétation : le Python 3.14.10 observé correspond à l'ancien commit déployé ; il ne permet pas de conclure que Render ignore le fichier `.python-version`. Selon la documentation Render, ce fichier doit être à la racine du dépôt et est pris en compte au prochain build. Le pin 3.12.16 reste à vérifier sur un déploiement contrôlé, qui demeure interdit tant que l'auth Atlas n'est pas résolue.
+- Vercel : projet `id9-agency-website`, framework Create React App, Node 22.x. Inventaire des variables effectué avec `decrypt=false`. Une seule entrée `REACT_APP_API_URL` est enregistrée avec les cibles `preview` et `production`. La valeur est de type sensitive et n'a pas été déchiffrée. La séparation des environnements n'est donc pas démontrée.
+- Décision P0.2 : aucune modification de variable, aucun redéploiement. Il faut d'abord confirmer par canal sécurisé quelle URL publique est l'API Staging et quelle URL est Production ; ensuite créer des valeurs distinctes Preview/Production et contrôler le résultat sans exposer les secrets.
+- Contrôles : lecture Render service + 5 derniers déploiements + logs d'application ; lecture métadonnées PR #52/#55 et branche backend ; lecture métadonnées Vercel avec `decrypt=false`.
+- Résultat sécurité : aucun secret déchiffré ou affiché ; aucune variable, donnée, configuration Render ou déploiement modifié ; aucun merge.
+- Références techniques : Render, « Setting Your Python Version » (consulté le 2026-11-20), https://render.com/docs/python-version ; Vercel, « Environment Variables » (documentation officielle), https://vercel.com/docs/environment-variables.
+- Prochaine étape : faire confirmer l'authentification de `id9_staging_app` dans Atlas et mettre à jour `MONGO_URL` via Render UI ; en parallèle, obtenir la correspondance sûre entre API Staging et API Production avant tout changement Vercel.
