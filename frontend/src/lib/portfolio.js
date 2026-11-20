@@ -8,7 +8,7 @@ const uncachedSanityClient = createClient({...SANITY_CONFIG, useCdn: false})
 // Incomplete Instagram handles are intentionally excluded rather than guessed.
 const VERIFIED_PROJECT_LINKS = [
   {
-    matches: (identity) => /ika[\\s_-]*collections?/i.test(identity),
+    matches: (identity) => /ika[\s_-]*collections?/i.test(identity),
     links: [
       {
         _key: 'ika-facebook',
@@ -34,7 +34,7 @@ const VERIFIED_PROJECT_LINKS = [
     ],
   },
   {
-    matches: (identity) => /ak(?:y|i)a[\\s_-]*dance[\\s_-]*company/i.test(identity),
+    matches: (identity) => /ak(?:y|i)a[\s_-]*dance[\s_-]*company/i.test(identity),
     links: [
       {
         _key: 'akya-facebook',
@@ -109,9 +109,9 @@ export function normalizePortfolio(doc) {
   const tools = Array.isArray(doc.tools) ? doc.tools : []
   const kpis = Array.isArray(doc.kpis) ? doc.kpis : []
   const externalLinks = Array.isArray(doc.externalLinks) ? doc.externalLinks : []
-  const existingExternalUrls = new Set(externalLinks.map((link) => String(link?.url || '').trim().replace(/\\/$/, '')))
+  const existingExternalUrls = new Set(externalLinks.map((link) => String(link?.url || '').trim().replace(/\/$/, '')))
   const verifiedExternalLinks = getVerifiedProjectLinks(doc).filter(
-    (link) => !existingExternalUrls.has(link.url.replace(/\\/$/, ''))
+    (link) => !existingExternalUrls.has(link.url.replace(/\/$/, ''))
   )
   return {
     ...doc,
