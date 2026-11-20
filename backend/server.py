@@ -120,7 +120,7 @@ async def get_current_admin(creds: Optional[HTTPAuthorizationCredentials] = Depe
     now = datetime.now(timezone.utc)
     session = await db.auth_sessions.find_one({
         "id": payload["sid"], "user_id": payload["sub"], "revoked": False,
-        "expires_at": {"$gt": now},
+        "expires_at": {"$gt": now}, "absolute_expires_at": {"$gt": now},
     })
     if not session:
         raise HTTPException(status_code=401, detail="Session expired or revoked")
