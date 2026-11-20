@@ -33,9 +33,10 @@ export default function PortfolioPage() {
     async function loadPortfolio() {
       const founderProjects = safeArray(getFounderProjects(lang));
 
-      // Sanity and the legacy API are complementary sources. Previously, the
-      // presence of even one Sanity document caused every legacy project
-      // (including the existing Akya case study) to disappear from the list.
+      // Sanity is the primary editorial source for public portfolio content.
+      // The legacy API remains a temporary compatibility source so existing
+      // MongoDB projects stay visible until a verified export/migration is complete.
+      // Do not delete or overwrite legacy records as part of this transition.
       const [sanityResult, legacyResult] = await Promise.allSettled([
         fetchPortfolioList(),
         api.get("/portfolio"),
@@ -48,8 +49,8 @@ export default function PortfolioPage() {
           ? safeArray(legacyResult.value?.data)
           : [];
 
-      // Prefer CMS records when a project exists in both sources, then retain
-      // legacy and founder records that have not yet been migrated to Sanity.
+      // Sanity wins on duplicate slugs. Legacy and founder records are retained
+      // only as a compatibility bridge until their records are reconciled in Sanity.
       const merged = [...sanityItems, ...legacyItems, ...founderProjects];
       const seen = new Set();
       const unique = merged.filter((project) => {
