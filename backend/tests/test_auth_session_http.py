@@ -79,7 +79,7 @@ def api(monkeypatch):
     monkeypatch.setenv("JWT_SECRET", "unit-test-only-secret-with-more-than-32-bytes")
     monkeypatch.setenv("APP_ENV", "development")
     admin = {
-        "id": "admin-1", "email": "admin@example.test",
+        "id": "admin-1", "email": "admin@example.com",
         "name": "Test Admin", "role": "admin",
         "password_hash": server.hash_password("correct-test-password"),
     }
@@ -99,7 +99,7 @@ def api(monkeypatch):
 def login(client):
     response = client.post(
         "/api/auth/login",
-        json={"email": "admin@example.test", "password": "correct-test-password"},
+        json={"email": "admin@example.com", "password": "correct-test-password"},
     )
     assert response.status_code == 200, response.text
     assert response.json()["access_token"]
@@ -162,14 +162,14 @@ def test_refresh_without_cookie_is_rejected(api):
 def test_bad_password_and_non_admin_login_are_rejected(api):
     client, database, _ = api
     bad = client.post("/api/auth/login", json={
-        "email": "admin@example.test", "password": "wrong-password"
+        "email": "admin@example.com", "password": "wrong-password"
     })
     assert bad.status_code == 401
 
     awaitable = database.users.docs[0]
     awaitable["role"] = "editor"
     denied = client.post("/api/auth/login", json={
-        "email": "admin@example.test", "password": "correct-test-password"
+        "email": "admin@example.com", "password": "correct-test-password"
     })
     assert denied.status_code == 403
     assert not database.auth_sessions.docs
