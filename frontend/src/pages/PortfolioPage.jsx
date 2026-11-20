@@ -185,8 +185,10 @@ export default function PortfolioPage() {
                         </h2>
                         {p.client && <p className="mt-1 break-words text-xs text-white/55">{p.client}</p>}
                         {p.summary && <p className="mt-2 line-clamp-2 max-w-xl text-sm leading-relaxed text-white/65">{p.summary}</p>}
-                        {Array.isArray(p.services) && p.services.length > 0 && (
-                          <p className="mt-3 text-[11px] text-white/45">{p.services.slice(0, 2).join(" · ")}</p>
+                        {Array.isArray(p.services) && p.services.some((service) => typeof service === "string" && service.trim()) && (
+                          <p className="mt-3 text-[11px] text-white/45">
+                            {p.services.filter((service) => typeof service === "string" && service.trim()).slice(0, 2).join(" · ")}
+                          </p>
                         )}
                       </div>
                       <div className="w-12 h-12 rounded-full bg-white/10 border border-white/20 grid place-items-center group-hover:bg-orange_impact group-hover:text-ink-900 group-hover:border-orange_impact transition-colors shrink-0">
