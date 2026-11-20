@@ -43,8 +43,8 @@ const DETAIL_QUERY = `
 `
 
 const FEATURED_QUERY = `
-*[_type == "portfolioProject" && featured == true && defined(slug.current)]
-| order(year desc) ${PROJECTION}
+*[_type == "portfolioProject" && featured == true && defined(slug.current) && !(_id in path("drafts.**"))]
+| order(year desc, _createdAt desc) ${PROJECTION}
 `
 
 /**
