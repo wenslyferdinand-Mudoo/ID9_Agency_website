@@ -56,3 +56,13 @@ Required Render environment variables:
 - `SEED_DEMO_CONTENT=false`: keep demo content insertion disabled.
 
 The backend exposes its root health response at `/api/`. A successful health response alone does not prove authentication, Atlas index behavior, or frontend integration. Do not create the Render service until the dedicated Atlas staging URI and database name are available; the application imports `MONGO_URL` and `DB_NAME` during startup and will not start without them.
+
+
+## Provisioning credentials (exact GitHub names)
+
+In GitHub repository **Settings → Secrets and variables → Actions**:
+
+- Create the Actions **secret** `ID9_ATLAS_STAGING_URI` with the connection string for a dedicated Atlas staging cluster/user. Do not use a production credential.
+- Create the Actions **variable** `ID9_ATLAS_STAGING_DB` with a disposable database name beginning `id9_staging_test_` (for example, `id9_staging_test_ci`).
+
+The backend workflow maps these exact names into the opt-in Atlas integration test. Until both exist, the Atlas test is intentionally skipped. For Render, set `MONGO_URL` to the same staging-only URI and `DB_NAME` to the same isolated database name. Do not paste either credential into a commit, issue, pull-request comment, or chat message.
