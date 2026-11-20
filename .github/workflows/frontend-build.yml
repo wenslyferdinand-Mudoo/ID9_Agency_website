@@ -43,6 +43,18 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
+      - name: Trace vulnerable dependency paths
+        run: |
+          npm explain proxy-addr || true
+          npm explain shell-quote || true
+          npm explain axios || true
+          npm explain react-router-dom || true
+          npm explain zod || true
+          npm explain postcss || true
+
+      - name: Preview compatible audit fixes (dry run)
+        run: npm audit fix --dry-run --json > npm-audit-fix-plan.json || true
+
       - name: Audit dependency advisories (report only)
         run: |
           npm audit --json > npm-audit-all.json || true
