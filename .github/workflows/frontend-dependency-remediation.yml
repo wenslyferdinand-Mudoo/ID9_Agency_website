@@ -1,0 +1,86 @@
+name: Frontend Dependency Remediation
+
+on:
+  push:
+    branches: [security/frontend-deps-auditfix-2026-11-20]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-dependency-remediation.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-dependency-remediation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontend-dependency-remediation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compatible-updates:
+    name: Non-breaking npm audit remediation
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install baseline locked dependencies
+        run: npm ci
+
+      - name: Apply compatible security updates only
+        run: npm audit fix --no-fund || true
+
+      - name: Report remaining dependency advisories
+        run: |
+          npm audit --json > npm-audit-after.json || true
+          node <<'NODE'
+          const fs = require("node:fs");
+          const report = JSON.parse(fs.readFileSync("npm-audit-after.json", "utf8"));
+          const v = report.metadata?.vulnerabilities || {};
+          const line = `After compatible updates: ${v.total ?? "unknown"} total (critical ${v.critical ?? "?"}, high ${v.high ?? "?"}, moderate ${v.moderate ?? "?"}, low ${v.low ?? "?"})`;
+          console.log(line);
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `- ${line}\n`);
+          NODE
+
+      - name: Verify patched critical and direct packages
+        run: |
+          npm explain proxy-addr || true
+          npm explain shell-quote || true
+          npm explain axios || true
+          npm explain react-router-dom || true
+          npm explain postcss || true
+          npm explain zod || true
+
+      - name: Build frontend and generate static SEO routes
+        env:
+          REACT_APP_SANITY_PROJECT_ID: mqrbsugj
+          REACT_APP_SANITY_DATASET: production
+          REACT_APP_SANITY_API_VERSION: "2024-01-01"
+        run: npm run vercel-build
+
+      - name: Upload candidate lockfile and audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: id9-frontend-dependency-candidate
+          path: |
+            frontend/package.json
+            frontend/package-lock.json
+            frontend/npm-audit-after.json
+          if-no-files-found: error
+          retention-days: 7
