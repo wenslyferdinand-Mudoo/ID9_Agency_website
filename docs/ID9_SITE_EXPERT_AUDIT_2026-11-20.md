@@ -229,3 +229,15 @@ Le JSON de `vercel.json` a été parsé avant l'enregistrement. La prise en comp
 
 ### Décision
 La compilation frontend de la PR #53 et les tests backend isolés de la PR #52 sont réussis sur leurs SHA respectifs. La validation de bout en bout reste incomplète. Les deux PR restent ouvertes et en Draft ; aucun merge ni déploiement production n'est autorisé par cette vérification.
+
+
+## 11. Vérification complémentaire — liens des projets fondateurs
+
+Une revue ciblée des données de portfolio a révélé que l'entrée Mudoo contenait deux propriétés `externalLinks` dans le même objet JavaScript. La seconde écrasait silencieusement la première. L'URL officielle de Mudoo était également mal orthographiée dans ces deux blocs (`wensl-s-projects` au lieu de `wensly-s-projects`).
+
+Correction appliquée sur la branche de la PR #53 :
+- URL officielle corrigée dans les données du projet Mudoo.
+- Propriété `externalLinks` redondante supprimée ; une seule définition explicite reste.
+- Aucun contenu Sanity, aucune donnée backend et aucun environnement de production modifiés.
+
+À revalider : build Preview du nouveau HEAD, puis navigation réelle du lien depuis la fiche Mudoo sur mobile et desktop. Cette correction de code n'est pas encore une preuve de validation visuelle.
