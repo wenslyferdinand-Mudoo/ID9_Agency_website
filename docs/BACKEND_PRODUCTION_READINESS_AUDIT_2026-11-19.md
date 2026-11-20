@@ -175,3 +175,22 @@ Tous les tests mutatifs doivent utiliser exclusivement une base de test jetable.
 - Pull requests #32 (provisionnement admin) et #33 (isolation des tests), encore à valider avant fusion au moment de l'audit.
 
 **Conclusion :** le backend peut être hébergé indépendamment du frontend, mais la publication doit attendre les corrections P0, l'isolation des tests et une validation staging. Cet audit ne modifie aucune fonctionnalité du site.
+
+
+## 11. Revue ciblée des PR backend existantes (19 novembre 2026)
+
+### PR #32 — provisionnement administrateur
+- Le changement de `seed_admin()` est dans la bonne direction : plus de compte par défaut et pas de réinitialisation du mot de passe d'un compte existant.
+- La documentation de cette branche recommande des origines CORS explicites, mais le code runtime de `backend/server.py` conserve encore le fallback `CORS_ORIGINS='*'`. La PR ne ferme donc pas à elle seule le risque CORS.
+- Aucun test unitaire dédié au provisionnement (variables absentes, première création, compte existant préservé) n'a été constaté dans le diff consulté.
+- La branche est divergente par rapport à `main` (4 commits en avance, 2 en retard lors de la comparaison). Ne pas fusionner avant rebase/résolution, revue du diff actualisé et tests ciblés.
+
+### PR #33 — isolation des tests
+- Le retrait de l'URL distante par défaut et des identifiants intégrés est une amélioration nécessaire.
+- Les opérations mutatives sont conditionnées par `ID9_TEST_ALLOW_MUTATIONS=true`, ce qui réduit les risques.
+- Toutefois, le garde-fou ne prouve pas que la base distante est jetable : une URL de production pourrait encore être sélectionnée si les opt-ins distants et mutatifs sont activés. Ajouter une vérification explicite d'environnement/base de test et interdire les hôtes/domaines de production connus.
+- `test_login_invalid` utilise `ADMIN_EMAIL`, qui peut être vide. Dans ce cas, le schéma EmailStr peut rejeter la requête en 422 au lieu du 401 attendu ; le test doit utiliser une adresse de test syntaxiquement valide.
+- Aucun test n'a été exécuté dans cet audit. La PR reste à valider sur une base MongoDB jetable et avec des secrets CI dédiés.
+- La branche est divergente par rapport à `main` (4 commits en avance, 2 en retard lors de la comparaison). Ne pas fusionner avant rebase/résolution et nouvelle validation.
+
+**Décision sur les PR #32 et #33 :** ne pas fusionner dans leur état observé. Elles contiennent des améliorations utiles, mais des critères de sécurité et de validation restent ouverts. Cette conclusion ne remet pas en cause leur objectif ; elle empêche simplement de considérer les risques comme résolus trop tôt.
