@@ -1,15 +1,16 @@
 """Focused unit tests for public blog publication visibility.
 
-These tests mock MongoDB and never connect to or mutate a database.
-Run from the backend directory with: pytest tests/test_blog_visibility_unit.py
+These tests replace the database handle with an in-memory mock. They never
+connect to or mutate MongoDB.
+Run from the backend directory with: pytest -q tests/test_blog_visibility_unit.py
 """
 import asyncio
 import os
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
-# The application module constructs a Motor client at import time, but does not
-# connect until an operation is executed. Supply inert local test configuration.
+# server constructs a Motor client at import time; these inert values ensure
+# importing the module does not depend on production configuration.
 os.environ.setdefault("MONGO_URL", "mongodb://127.0.0.1:27017")
 os.environ.setdefault("DB_NAME", "id9_unit_test")
 os.environ.setdefault("JWT_SECRET", "unit-test-only-not-a-production-secret")
@@ -20,16 +21,26 @@ from fastapi import HTTPException
 import server
 
 
-def test_public_blog_detail_queries_only_published_posts(monkeypatch):
+def install_mock_blog_db(monkeypatch, find_one):
+    """Replace the entire database handle; never patch Motor collection methods."""
+    monkeypatch.setattr(
+        server,
+        "db",
+        SimpleNamespace(blog=SimpleNamespace(find_one=find_one)),
+    )
+
+
+@pytest.mark.parametrize("slug", ["draft-post", "missing-post"])
+def test_public_blog_detail_returns_404_for_unpublished_or_missing(slug, monkeypatch):
     find_one = AsyncMock(return_value=None)
-    monkeypatch.setattr(server, "db", SimpleNamespace(blog=SimpleNamespace(find_one=find_one)))
+    install_mock_blog_db(monkeypatch, find_one)
 
     with pytest.raises(HTTPException) as exc:
-        asyncio.run(server.get_blog("draft-post"))
+        asyncio.run(server.get_blog(slug))
 
     assert exc.value.status_code == 404
     find_one.assert_awaited_once_with(
-        {"slug": "draft-post", "published": True},
+        {"slug": slug, "published": True},
         {"_id": 0},
     )
 
@@ -50,7 +61,7 @@ def test_public_blog_detail_returns_published_post(monkeypatch):
         "created_at": "2026-11-19T12:00:00+00:00",
     }
     find_one = AsyncMock(return_value=published_post)
-    monkeypatch.setattr(server.db.blog, "find_one", find_one)
+    install_mock_blog_db(monkeypatch, find_one)
 
     result = asyncio.run(server.get_blog("published-post"))
 
