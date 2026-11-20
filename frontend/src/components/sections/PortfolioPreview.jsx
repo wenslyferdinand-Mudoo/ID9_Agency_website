@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import api, { safeArray } from "@/lib/api";
-import { fetchPortfolioList } from "@/lib/portfolio";
+import { fetchFeaturedPortfolio } from "@/lib/portfolio";
 import RevealText from "@/components/site/RevealText";
 import { useI18n } from "@/lib/i18n";
 import { getFounderProjects } from "@/lib/founder-projects";
@@ -15,23 +15,44 @@ export default function PortfolioPreview() {
   const { t, lang } = useI18n();
 
   useEffect(() => {
-    const founderProjects = getFounderProjects(lang);
-    fetchPortfolioList()
-      .then((sanityItems) => {
-        const list = safeArray(sanityItems);
-        if (list.length) {
-          setItems([...founderProjects, ...list.filter((item) => !founderProjects.some((project) => project.slug === item.slug))].slice(0, 6));
-          return;
+    let cancelled = false;
+
+    async function loadHomepageProjects() {
+      const founderProjects = getFounderProjects(lang);
+      let homepageProjects = [];
+
+      // The homepage must prioritize published projects explicitly marked Featured in Sanity.
+      try {
+        homepageProjects = orderHomepageProjects(await fetchFeaturedPortfolio());
+      } catch (error) {
+        console.warn("[PortfolioPreview] Sanity featured projects unavailable:", error?.message);
+      }
+
+      // Keep the legacy API as a compatibility fallback, but never promote unfeatured records.
+      if (!homepageProjects.length) {
+        try {
+          const response = await api.get("/portfolio");
+          const legacyFeatured = safeArray(response?.data).filter(
+            (project) => project && project.featured === true
+          );
+          homepageProjects = orderHomepageProjects(legacyFeatured);
+        } catch (error) {
+          console.warn("[PortfolioPreview] Legacy portfolio fallback unavailable:", error?.message);
         }
-        api
-          .get("/portfolio")
-          .then((r) => {
-            const legacy = safeArray(r?.data);
-            setItems([...founderProjects, ...legacy.filter((item) => !founderProjects.some((project) => project.slug === item.slug))].slice(0, 6));
-          })
-          .catch(() => setItems(founderProjects));
-      })
-      .catch(() => setItems(founderProjects));
+      }
+
+      // Founder-owned products remain a final fallback when no client project is featured.
+      if (!homepageProjects.length) {
+        homepageProjects = orderHomepageProjects(founderProjects);
+      }
+
+      if (!cancelled) setItems(homepageProjects);
+    }
+
+    loadHomepageProjects();
+    return () => {
+      cancelled = true;
+    };
   }, [lang]);
 
   return (
@@ -95,8 +116,15 @@ export default function PortfolioPreview() {
                   {p.cover_image ? (
                     <img
                       src={p.cover_image}
-                      alt={p.title}
-                      className="w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+                      alt={p.title || "Impact Digital 9 portfolio project"}
+                      loading={i === 0 ? "eager" : "lazy"}
+                      decoding="async"
+                      data-testid={`portfolio-cover-${p.slug}`}
+                      className={
+                        p.slug === "rtci-brand-identity-visual-communication"
+                          ? "h-full w-full bg-ink-900 object-contain object-center transition-transform duration-700 group-hover:scale-[1.02]"
+                          : "h-full w-full object-cover object-center scale-105 transition-transform duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110"
+                      }
                     />
                   ) : (
                     <div className="w-full h-full grid place-items-center bg-[radial-gradient(circle_at_25%_20%,rgba(255,135,22,0.28),transparent_38%),radial-gradient(circle_at_80%_80%,rgba(111,29,157,0.4),transparent_42%),linear-gradient(135deg,#17131f,#09090d)] group-hover:scale-105 transition-transform duration-700">
@@ -129,4 +157,28 @@ export default function PortfolioPreview() {
       </div>
     </section>
   );
+}
+
+
+function orderHomepageProjects(projects) {
+  const validProjects = safeArray(projects).filter(
+    (project) =>
+      project &&
+      typeof project.slug === "string" &&
+      project.slug.trim() &&
+      typeof project.title === "string" &&
+      project.title.trim()
+  );
+
+  // RTCI is intentionally featured as the lead client case study on the homepage.
+  const rtciIndex = validProjects.findIndex(
+    (project) => project.slug === "rtci-brand-identity-visual-communication"
+  );
+
+  if (rtciIndex > 0) {
+    const [rtciProject] = validProjects.splice(rtciIndex, 1);
+    validProjects.unshift(rtciProject);
+  }
+
+  return validProjects.slice(0, 6);
 }
