@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, Phone, FileText, Home } from "lucide-react";
@@ -16,22 +16,23 @@ export default function MobileBottomBar() {
   const loc = useLocation();
   const { t, lang } = useI18n();
   const [visible, setVisible] = useState(true);
-  const [lastY, setLastY] = useState(0);
+  const lastYRef = useRef(0);
 
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY;
-      // Hide on scroll down past 200px, show on scroll up
-      if (y > 200 && y > lastY) {
-        setVisible(false);
-      } else {
-        setVisible(true);
-      }
-      setLastY(y);
+      const shouldBeVisible = !(y > 200 && y > lastYRef.current);
+
+      // Keep one passive listener mounted; avoid re-subscribing on every scroll.
+      setVisible((current) =>
+        current === shouldBeVisible ? current : shouldBeVisible
+      );
+      lastYRef.current = y;
     };
+
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [lastY]);
+  }, []);
 
   if (loc.pathname.startsWith("/admin")) return null;
 
