@@ -291,3 +291,17 @@ Pour chaque phase :
 - Risques / limites :
 - Prochaine étape :
 ```
+
+
+### 2026-11-20 — P0.1-c — Alignement du runtime Python (implémentation en attente de CI)
+
+- Statut : **EN COURS — CI EN COURS ; PAS ENCORE VALIDÉ**
+- Branche / PR : `security/backend-hardening-staging` / PR #52 (reste Draft).
+- Commit : `c37ab8f22322f7372326002aeea1b05a22aff45e`.
+- Fichiers modifiés : `.python-version` (nouveau, `3.12.16`) ; `.github/workflows/backend-static.yml` (utilise `python-version-file`).
+- Justification : Render utilisait 3.14.10 alors que CI ciblait la série 3.12. Python.org publie 3.12.16 le 25 octobre 2026 ; Render prend en charge le pin via `.python-version` à la racine. Références : https://www.python.org/downloads/release/python-31216/ et https://render.com/docs/python-version.
+- Contrôles exécutés : inspection du workflow, du fichier de dépendances et du test Atlas sur la branche PR #52 ; déclenchement GitHub Actions run `44811200708`.
+- Résultats observés : run `44811200708` était `in_progress` au dernier contrôle. Aucun déploiement Render déclenché ; AutoDeploy reste désactivé.
+- Risques / limites : le pin n'est pas encore effectif sur le service Render avant un déploiement contrôlé. Les versions Motor 3.3.1 et PyMongo 4.5.0 sont toujours épinglées dans `backend/requirements.txt` ; leur compatibilité opérationnelle complète n'est pas encore certifiée. Le problème d'authentification Atlas code 8000 reste bloquant.
+- Prochaine étape : attendre le résultat CI ; si succès, planifier le déploiement Staging uniquement après vérification sécurisée de l'utilisateur/URI Atlas. Ne pas lancer les tests d'intégration ni le déploiement tant que l'authentification n'est pas résolue.
+
