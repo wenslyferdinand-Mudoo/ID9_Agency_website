@@ -33,6 +33,10 @@ const coverPath = input('PROJECT_COVER_PATH')
 const galleryPath = input('PROJECT_GALLERY_PATH')
 const galleryAlt = input('PROJECT_GALLERY_ALT')
 const galleryCaption = input('PROJECT_GALLERY_CAPTION')
+const services = input('PROJECT_SERVICES')
+  .split('|')
+  .map((service) => service.trim())
+  .filter(Boolean)
 
 if (title.length < 3 || title.length > 120) throw new Error('Title must contain 3–120 characters.')
 if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) throw new Error('Slug must be lowercase kebab-case.')
@@ -95,6 +99,7 @@ const document = {
   slug: {_type: 'slug', current: slug},
   category,
   summary,
+  ...(services.length ? {services} : {}),
   featured: false,
   coverImage: {
     _type: 'image',
