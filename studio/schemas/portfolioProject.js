@@ -43,6 +43,7 @@ export default defineType({
         list: [
           {title: 'Branding', value: 'branding'},
           {title: 'Graphic Design', value: 'graphic-design'},
+          {title: 'Flyers', value: 'flyers'},
           {title: 'Web', value: 'web'},
           {title: 'App', value: 'app'},
           {title: 'Marketing', value: 'marketing'},
@@ -52,6 +53,14 @@ export default defineType({
         layout: 'radio',
       },
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'isFlyer',
+      title: 'Also display in Flyers',
+      description: 'Enable this for any project whose deliverable includes a flyer, even when its primary category is Branding or Graphic Design.',
+      type: 'boolean',
+      group: 'main',
+      initialValue: false,
     }),
     defineField({
       name: 'sector',
