@@ -1,3 +1,19 @@
+export const MUDOO_PORTFOLIO_MEDIA = {
+  cover: "https://customer-assets.emergentagent.com/job_smart-audio-player-3/artifacts/bmrw09ww_Screenshot_20260614-170847.jpg",
+  gallery: [
+    {
+      url: "https://customer-assets.emergentagent.com/job_smart-audio-player-3/artifacts/xddxjltb_image-qmtbzd3pgu.png",
+      alt: "Mudoo — interface de lecture musicale",
+      caption: "Écran Now Playing de Mudoo",
+    },
+    {
+      url: "https://customer-assets.emergentagent.com/job_smart-audio-player-3/artifacts/idsroooq_image-q14qj4any1.png",
+      alt: "Mudoo — égaliseur audio",
+      caption: "Égaliseur et réglages audio de Mudoo",
+    },
+  ],
+};
+
 // Founder-led digital products. Status labels are deliberately explicit:
  // they describe product maturity, not marketing availability.
 const PROJECTS = [
@@ -142,8 +158,8 @@ export function getFounderProjects(lang = "en") {
     solution: lang === "fr" ? project.solutionFr : project.solution,
     outcome: lang === "fr" ? project.outcomeFr : project.outcome,
     status: lang === "fr" ? project.statusFr : project.status,
-    cover_image: "",
-    gallery: [],
+    cover_image: project.slug === "mudoo" ? MUDOO_PORTFOLIO_MEDIA.cover : "",
+    gallery: project.slug === "mudoo" ? MUDOO_PORTFOLIO_MEDIA.gallery : [],
     kpis: [],
     featured: true,
     isFounderProject: true,
