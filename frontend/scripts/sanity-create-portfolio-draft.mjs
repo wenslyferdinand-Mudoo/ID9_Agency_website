@@ -9,6 +9,15 @@ for (const key of required) {
   if (!process.env[key]) throw new Error(`Missing required environment variable: ${key}`)
 }
 
+const STAGING_PROJECT_ID = 'xr9ruoim'
+const PRODUCTION_PROJECT_ID = 'mqrbsugj'
+
+if (process.env.SANITY_PROJECT_ID === PRODUCTION_PROJECT_ID) {
+  throw new Error('Safety stop: the ID9 production Sanity project is forbidden.')
+}
+if (process.env.SANITY_PROJECT_ID !== STAGING_PROJECT_ID) {
+  throw new Error('Safety stop: only the dedicated ID9 staging project xr9ruoim is allowed.')
+}
 if (process.env.SANITY_DATASET !== 'staging') {
   throw new Error('Safety stop: this workflow only writes to the Sanity staging dataset. Production is not permitted.')
 }
