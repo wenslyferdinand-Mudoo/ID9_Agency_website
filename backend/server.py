@@ -6,6 +6,7 @@ load_dotenv(ROOT_DIR / '.env')
 
 import os
 import re
+import asyncio
 import uuid
 import logging
 from datetime import datetime, timezone, timedelta
@@ -261,7 +262,7 @@ async def submit_contact(data: ContactCreate):
     # Persist first so a temporary email-provider outage never destroys a submitted brief.
     await db.contacts.insert_one(doc.copy())
     try:
-        send_contact_email(doc)
+        await asyncio.to_thread(send_contact_email, doc)
         await db.contacts.update_one(
             {"id": doc["id"]}, {"$set": {"email_status": "sent", "email_sent_at": utc_now_iso()}}
         )
