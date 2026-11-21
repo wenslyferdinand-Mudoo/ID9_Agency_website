@@ -88,7 +88,11 @@ export default function PortfolioPage() {
     );
     return filter === "all"
       ? list
-      : list.filter((project) => normalizePortfolioCategory(project.category) === filter);
+      : list.filter((project) =>
+          filter === "flyers"
+            ? project.isFlyer === true || normalizePortfolioCategory(project.category) === "flyers"
+            : normalizePortfolioCategory(project.category) === filter
+        );
   }, [items, filter]);
 
   return (
