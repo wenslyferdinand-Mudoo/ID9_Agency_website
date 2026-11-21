@@ -63,6 +63,8 @@ const sanity = createClient({
   apiVersion: '2025-01-01',
   token: process.env.SANITY_API_TOKEN,
   useCdn: false,
+  // Explicit raw perspective is required for the duplicate guard to see existing drafts as well as published documents.
+  perspective: 'raw',
 })
 
 const duplicate = await sanity.fetch(
