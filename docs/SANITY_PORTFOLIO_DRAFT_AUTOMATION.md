@@ -10,7 +10,7 @@ This workflow creates **unpublished drafts in the Sanity `staging` dataset only*
 - It never calls `publish`, `patch().publish()`, or a production dataset.
 - It refuses duplicate portfolio slugs before uploading assets. The duplicate lookup uses the authenticated `raw` perspective so it checks both draft and published document variants.
 - It only accepts image files checked into the selected repository commit (JPG, PNG, WebP).
-- It uses the existing `portfolioProject` schema and category values.
+- It uses the existing `portfolioProject` schema and category values, including optional services (separated by `|` in the workflow input).
 - It creates a document with an ID beginning `drafts.`; no publish mutation is performed.
 - A successful run prints the draft ID and uploaded asset IDs. It does not publish the project or deploy the website.
 
@@ -57,6 +57,7 @@ Optional fields supported by this workflow:
 - `client`
 - `year`
 - `gallery` (one image with `alt` and `caption`)
+- `services` (optional list; separate values with `|` in the workflow input)
 - `featured` is always `false`
 
 Additional case-study, KPI, testimonial and SEO fields are intentionally omitted unless verified content is supplied.
