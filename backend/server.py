@@ -6,6 +6,7 @@ load_dotenv(ROOT_DIR / '.env')
 
 import os
 import re
+import asyncio
 import uuid
 import logging
 from datetime import datetime, timezone, timedelta
@@ -120,6 +121,7 @@ class Contact(BaseModel):
     message: str
     created_at: str
     read: bool = False
+    email_status: str = "pending"
 
 
 class PortfolioCreate(BaseModel):
@@ -192,6 +194,62 @@ async def me(current=Depends(get_current_admin)):
     return current
 
 
+def send_contact_email(contact: dict) -> None:
+    """Send a new brief through Resend; credentials and verified sender stay server-side."""
+    import html
+    import requests
+
+    api_key = os.environ.get("RESEND_API_KEY", "").strip()
+    recipient = os.environ.get("CONTACT_TO_EMAIL", "contact.id9agency@gmail.com").strip()
+    sender = os.environ.get("CONTACT_FROM_EMAIL", "").strip()
+    if not api_key or not sender:
+        raise RuntimeError("Email delivery is not configured. Set RESEND_API_KEY and CONTACT_FROM_EMAIL.")
+
+    fields = [
+        ("Nom", contact["name"]),
+        ("E-mail", contact["email"]),
+        ("WhatsApp", contact.get("whatsapp") or "Non renseigné"),
+        ("Service", contact.get("service") or "Non renseigné"),
+        ("Budget", contact.get("budget") or "Non renseigné"),
+        ("Délai", contact.get("deadline") or "Non renseigné"),
+        ("Message", contact["message"]),
+        ("Reçu le (UTC)", contact["created_at"]),
+        ("Référence", contact["id"]),
+    ]
+    text_body = "\\n".join(f"{label}: {value}" for label, value in fields)
+    html_rows = "".join(
+        "<tr><th style='text-align:left;padding:8px;border-bottom:1px solid #eee'>"
+        + html.escape(label)
+        + "</th><td style='padding:8px;border-bottom:1px solid #eee;white-space:pre-wrap'>"
+        + html.escape(str(value))
+        + "</td></tr>"
+        for label, value in fields
+    )
+    response = requests.post(
+        "https://api.resend.com/emails",
+        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+        json={
+            "from": sender,
+            "to": [recipient],
+            "reply_to": [contact["email"]],
+            "subject": f"Nouveau brief ID9 — {contact['name']}",
+            "text": text_body,
+            "html": (
+                "<div style='font-family:Arial,sans-serif;color:#171717'>"
+                "<h2>Nouveau brief reçu depuis le site ID9 Agency</h2>"
+                "<table style='border-collapse:collapse;width:100%'>"
+                + html_rows
+                + "</table></div>"
+            ),
+        },
+        timeout=15,
+    )
+    if not response.ok:
+        logging.error("[contact-email] Resend rejected delivery: status=%s body=%s", response.status_code, response.text[:500])
+        raise RuntimeError("The email provider rejected the message.")
+    logging.info("[contact-email] Brief email accepted by Resend; contact_id=%s", contact["id"])
+
+
 @api_router.post("/contact", response_model=Contact)
 async def submit_contact(data: ContactCreate):
     doc = {
@@ -199,8 +257,25 @@ async def submit_contact(data: ContactCreate):
         **data.model_dump(),
         "created_at": utc_now_iso(),
         "read": False,
+        "email_status": "pending",
     }
+    # Persist first so a temporary email-provider outage never destroys a submitted brief.
     await db.contacts.insert_one(doc.copy())
+    try:
+        await asyncio.to_thread(send_contact_email, doc)
+        await db.contacts.update_one(
+            {"id": doc["id"]}, {"$set": {"email_status": "sent", "email_sent_at": utc_now_iso()}}
+        )
+        doc["email_status"] = "sent"
+    except Exception as exc:
+        logging.exception("[contact-email] Delivery failed; brief retained in MongoDB. contact_id=%s", doc["id"])
+        await db.contacts.update_one(
+            {"id": doc["id"]}, {"$set": {"email_status": "failed", "email_error": str(exc)[:500]}}
+        )
+        raise HTTPException(
+            status_code=503,
+            detail="Votre brief a été enregistré, mais l'e-mail n'a pas pu être transmis. Veuillez réessayer ou nous contacter par WhatsApp.",
+        ) from exc
     return Contact(**doc)
 
 
