@@ -5,7 +5,8 @@
 This workflow creates **unpublished drafts in the Sanity `staging` dataset only** in a dedicated Sanity staging project. It must never target the production project.
 
 - It is manual-only (`workflow_dispatch`); it does not run on pushes or pull requests.
-- It refuses to run unless `SANITY_DATASET=staging`.
+- It refuses to run unless `SANITY_PROJECT_ID=xr9ruoim` (the dedicated ID9 staging project) and `SANITY_DATASET=staging`.
+- It explicitly rejects the production project ID `mqrbsugj` and any unknown project ID.
 - It never calls `publish`, `patch().publish()`, or a production dataset.
 - It refuses duplicate portfolio slugs before uploading assets.
 - It only accepts image files checked into the selected repository commit (JPG, PNG, WebP).
@@ -16,7 +17,7 @@ This workflow creates **unpublished drafts in the Sanity `staging` dataset only*
 ## One-time GitHub configuration
 
 1. Create a separate Sanity project named `ID9 Agency Staging`. Do not reuse the production project ID `mqrbsugj`.
-2. Create the `staging` dataset in this new project.
+2. Create the `staging` dataset in this new project. The project ID must be exactly `xr9ruoim`; the script rejects every other project ID, including production `mqrbsugj`.
 3. In Sanity Manage for the new project, create a token with the minimum role needed to create documents and upload assets. Keep it private.
 4. In GitHub repository Settings → Secrets and variables → Actions → Variables, create:
    - `SANITY_PROJECT_ID`: the new staging project's project ID (not `mqrbsugj`).
@@ -24,7 +25,11 @@ This workflow creates **unpublished drafts in the Sanity `staging` dataset only*
    - `SANITY_API_TOKEN`: the token value.
 6. Create a GitHub Actions Environment named `sanity-staging`. Add required reviewers if desired. Add the secret to this environment (or make the repository secret available to it).
 7. Verify that the staging token can write to the staging dataset.
-8. Do not create a token in the production project. The workflow requires a project ID variable and hard-fails if the dataset is not exactly `staging`.
+8. Do not create a token in the production project. The script hard-fails unless the project ID is exactly `xr9ruoim` and the dataset is exactly `staging`.
+
+## Dataset visibility note
+
+The current Sanity `staging` dataset reports visibility `public`. Treat its content and uploaded image assets as non-confidential. Draft status prevents normal published-content queries from treating the document as published, but it is not a substitute for private dataset access control. Do not upload personal data, credentials, confidential client material, or assets that must remain private. The staging project is still isolated from the production project.
 
 ## Running the workflow
 
