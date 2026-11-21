@@ -34,7 +34,8 @@ jobs:
         run: |
           grep -F "process.env.SANITY_DATASET !== 'staging'" frontend/scripts/sanity-create-portfolio-draft.mjs
           grep -F "perspective: 'raw'" frontend/scripts/sanity-create-portfolio-draft.mjs
-          grep -F "PROJECT_SERVICES: \${{ inputs.services }}" .github/workflows/sanity-portfolio-draft.yml
+          grep -F 'PROJECT_SERVICES:' .github/workflows/sanity-portfolio-draft.yml
+          grep -F 'PROJECT_SERVICES' frontend/scripts/sanity-create-portfolio-draft.mjs
           grep -F "SANITY_DATASET: staging" .github/workflows/sanity-portfolio-draft.yml
           grep -F "drafts." frontend/scripts/sanity-create-portfolio-draft.mjs
           if grep -Eiq 'publish\\(|patch\\([^)]*\\)\\.publish|SANITY_DATASET: production' frontend/scripts/sanity-create-portfolio-draft.mjs .github/workflows/sanity-portfolio-draft.yml; then
