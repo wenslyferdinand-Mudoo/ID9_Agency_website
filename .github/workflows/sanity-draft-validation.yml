@@ -1,0 +1,44 @@
+name: Validate Sanity draft automation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "frontend/scripts/sanity-create-portfolio-draft.mjs"
+      - ".github/workflows/sanity-portfolio-draft.yml"
+      - ".github/workflows/sanity-draft-validation.yml"
+      - "docs/SANITY_PORTFOLIO_DRAFT_AUTOMATION.md"
+  push:
+    branches: [main]
+    paths:
+      - "frontend/scripts/sanity-create-portfolio-draft.mjs"
+      - ".github/workflows/sanity-portfolio-draft.yml"
+      - ".github/workflows/sanity-draft-validation.yml"
+      - "docs/SANITY_PORTFOLIO_DRAFT_AUTOMATION.md"
+
+permissions:
+  contents: read
+
+jobs:
+  static-safety-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Check JavaScript syntax
+        run: node --check frontend/scripts/sanity-create-portfolio-draft.mjs
+      - name: Verify staging-only, draft-only and duplicate guardrails
+        shell: bash
+        run: |
+          grep -F "process.env.SANITY_DATASET !== 'staging'" frontend/scripts/sanity-create-portfolio-draft.mjs
+          grep -F "perspective: 'raw'" frontend/scripts/sanity-create-portfolio-draft.mjs
+          grep -F 'PROJECT_SERVICES:' .github/workflows/sanity-portfolio-draft.yml
+          grep -F 'PROJECT_SERVICES' frontend/scripts/sanity-create-portfolio-draft.mjs
+          grep -F "SANITY_DATASET: staging" .github/workflows/sanity-portfolio-draft.yml
+          grep -F "drafts." frontend/scripts/sanity-create-portfolio-draft.mjs
+          if grep -Eiq 'publish\\(|patch\\([^)]*\\)\\.publish|SANITY_DATASET: production' frontend/scripts/sanity-create-portfolio-draft.mjs .github/workflows/sanity-portfolio-draft.yml; then
+            echo "Unsafe publish or production target detected."
+            exit 1
+          fi
