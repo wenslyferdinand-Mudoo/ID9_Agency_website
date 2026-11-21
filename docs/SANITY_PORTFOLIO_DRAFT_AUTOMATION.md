@@ -8,10 +8,10 @@ This workflow creates **unpublished drafts in the Sanity `staging` dataset only*
 - It refuses to run unless `SANITY_PROJECT_ID=xr9ruoim` (the dedicated ID9 staging project) and `SANITY_DATASET=staging`.
 - It explicitly rejects the production project ID `mqrbsugj` and any unknown project ID.
 - It never calls `publish`, `patch().publish()`, or a production dataset.
-- It refuses duplicate portfolio slugs before uploading assets.
+- It refuses duplicate portfolio slugs before uploading assets. The duplicate lookup uses the authenticated `raw` perspective so it checks both draft and published document variants.
 - It only accepts image files checked into the selected repository commit (JPG, PNG, WebP).
 - It uses the existing `portfolioProject` schema and category values.
-- It creates a document with an ID beginning `drafts.`; public GROQ queries exclude drafts.
+- It creates a document with an ID beginning `drafts.`; no publish mutation is performed.
 - A successful run prints the draft ID and uploaded asset IDs. It does not publish the project or deploy the website.
 
 ## One-time GitHub configuration
