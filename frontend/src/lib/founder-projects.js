@@ -1,5 +1,5 @@
 export const MUDOO_PORTFOLIO_MEDIA = {
-  cover: "https://customer-assets.emergentagent.com/job_smart-audio-player-3/artifacts/bmrw09ww_Screenshot_20260614-170847.jpg",
+  cover: "/images/mudoo-logo-cover.webp",
   gallery: [
     {
       url: "https://customer-assets.emergentagent.com/job_smart-audio-player-3/artifacts/xddxjltb_image-qmtbzd3pgu.png",
