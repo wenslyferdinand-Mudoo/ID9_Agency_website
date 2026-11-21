@@ -2,7 +2,7 @@
 
 ## Scope and safety
 
-This workflow creates **unpublished drafts in the Sanity `staging` dataset only** for project `mqrbsugj`.
+This workflow creates **unpublished drafts in the Sanity `staging` dataset only** in a dedicated Sanity staging project. It must never target the production project.
 
 - It is manual-only (`workflow_dispatch`); it does not run on pushes or pull requests.
 - It refuses to run unless `SANITY_DATASET=staging`.
@@ -15,12 +15,16 @@ This workflow creates **unpublished drafts in the Sanity `staging` dataset only*
 
 ## One-time GitHub configuration
 
-1. In Sanity Manage, create a token for project `mqrbsugj` with the minimum role needed to create documents and upload assets. Keep it private.
-2. In GitHub repository Settings → Secrets and variables → Actions → Secrets, create:
+1. Create a separate Sanity project named `ID9 Agency Staging`. Do not reuse the production project ID `mqrbsugj`.
+2. Create the `staging` dataset in this new project.
+3. In Sanity Manage for the new project, create a token with the minimum role needed to create documents and upload assets. Keep it private.
+4. In GitHub repository Settings → Secrets and variables → Actions → Variables, create:
+   - `SANITY_PROJECT_ID`: the new staging project's project ID (not `mqrbsugj`).
+5. In GitHub repository Settings → Secrets and variables → Actions → Secrets, create:
    - `SANITY_API_TOKEN`: the token value.
-3. Create a GitHub Actions Environment named `sanity-staging`. Add required reviewers if desired. Add the secret to this environment (or make the repository secret available to it).
-4. Create the Sanity dataset `staging` in project `mqrbsugj` if it does not already exist, and verify that the token can write to it.
-5. Do not create a production-scoped token for this workflow. The workflow hard-fails if the dataset is not exactly `staging`.
+6. Create a GitHub Actions Environment named `sanity-staging`. Add required reviewers if desired. Add the secret to this environment (or make the repository secret available to it).
+7. Verify that the staging token can write to the staging dataset.
+8. Do not create a token in the production project. The workflow requires a project ID variable and hard-fails if the dataset is not exactly `staging`.
 
 ## Running the workflow
 
