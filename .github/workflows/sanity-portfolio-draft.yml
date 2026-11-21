@@ -27,6 +27,10 @@ on:
         description: "Short public card summary (max 280 characters)"
         required: true
         type: string
+      services:
+        description: "Optional services separated by |"
+        required: false
+        type: string
       client:
         description: "Client name (leave blank if not confirmed)"
         required: false
@@ -88,6 +92,7 @@ jobs:
           PROJECT_SLUG: ${{ inputs.slug }}
           PROJECT_CATEGORY: ${{ inputs.category }}
           PROJECT_SUMMARY: ${{ inputs.summary }}
+          PROJECT_SERVICES: ${{ inputs.services }}
           PROJECT_CLIENT: ${{ inputs.client }}
           PROJECT_YEAR: ${{ inputs.year }}
           PROJECT_COVER_PATH: ${{ inputs.cover_image_path }}
