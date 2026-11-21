@@ -16,7 +16,7 @@ const PROJECTS = [
         _key: "mudoo-website",
         label: "Mudoo — Site officiel",
         platform: "website",
-        url: "https://landing-page-mudoo-media-player-wensl-s-projects.vercel.app/",
+        url: "https://landing-page-mudoo-media-player-wensly-s-projects.vercel.app/",
         description: "Présentation officielle de l’application Mudoo.",
       },
       {
@@ -54,7 +54,7 @@ const PROJECTS = [
         _key: "mudoo-website",
         label: "Mudoo — Site officiel",
         platform: "Website",
-        url: "https://landing-page-mudoo-media-player-wensl-s-projects.vercel.app/",
+        url: "https://landing-page-mudoo-media-player-wensly-s-projects.vercel.app/",
         description: "Site officiel de présentation de l’application Mudoo.",
       },
       {
