@@ -20,6 +20,7 @@ export default function PortfolioPage() {
     { k: "all", l: lang === "fr" ? "Tous" : "All" },
     { k: "branding", l: lang === "fr" ? "Image de marque" : "Branding" },
     { k: "graphic-design", l: lang === "fr" ? "Conception graphique" : "Graphic Design" },
+    { k: "flyers", l: "Flyers" },
     { k: "web-design", l: lang === "fr" ? "Conception web" : "Web Design" },
     { k: "app-development", l: lang === "fr" ? "Développement d'applications" : "App Development" },
     { k: "marketing", l: lang === "fr" ? "Commercialisation" : "Marketing" },
@@ -238,6 +239,7 @@ function getCategoryLabel(category, lang) {
   const labels = {
     branding: lang === "fr" ? "Identité de marque" : "Branding",
     "graphic-design": lang === "fr" ? "Design graphique" : "Graphic Design",
+    flyers: "Flyers",
     "web-design": lang === "fr" ? "Design web" : "Web Design",
     "app-development": lang === "fr" ? "Développement d'applications" : "App Development",
     marketing: "Marketing",
