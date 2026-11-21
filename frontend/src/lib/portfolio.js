@@ -164,7 +164,7 @@ export function normalizePortfolio(doc) {
   return {
     ...doc,
     id: doc._id,
-    cover_image: doc.coverImage ? imageUrl(doc.coverImage, 1600) : (isMudoo ? MUDOO_PORTFOLIO_MEDIA.cover : ''),
+    cover_image: isMudoo ? MUDOO_PORTFOLIO_MEDIA.cover : (doc.coverImage ? imageUrl(doc.coverImage, 1600) : ''),
     gallery: gallery.length > 0
       ? gallery.map((g) => ({
           _key: g?._key,
