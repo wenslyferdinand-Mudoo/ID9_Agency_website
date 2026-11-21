@@ -107,6 +107,7 @@ const PROJECTION = `{
   title,
   "slug": slug.current,
   category,
+  isFlyer,
   client,
   sector,
   year,
