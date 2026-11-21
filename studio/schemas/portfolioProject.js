@@ -55,6 +55,14 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'isFlyer',
+      title: 'Also display in Flyers',
+      description: 'Enable this for any project whose deliverable includes a flyer, even when its primary category is Branding or Graphic Design.',
+      type: 'boolean',
+      group: 'main',
+      initialValue: false,
+    }),
+    defineField({
       name: 'sector',
       title: 'Sector (e.g. "Culture · Dance")',
       type: 'string',
