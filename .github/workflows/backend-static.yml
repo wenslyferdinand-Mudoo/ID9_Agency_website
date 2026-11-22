@@ -79,19 +79,37 @@ jobs:
               process.exit(0);
             }
             const totals = report.metadata?.vulnerabilities || {};
+            const vulnerabilities = report.vulnerabilities || {};
             console.log("Dependency audit summary:", JSON.stringify(totals));
-            for (const [name, item] of Object.entries(report.vulnerabilities || {})) {
-              const fix = item.fixAvailable === true ? "available" :
-                item.fixAvailable === false ? "not available" :
-                item.fixAvailable ? "available (potentially breaking)" : "unknown";
+            const fixLabel = (item) => item.fixAvailable === true ? "available" :
+              item.fixAvailable === false ? "not available" :
+              item.fixAvailable ? "available (potentially breaking)" : "unknown";
+            for (const [name, item] of Object.entries(vulnerabilities)) {
               console.log(JSON.stringify({
                 package: name,
                 severity: item.severity,
                 direct: item.isDirect,
                 range: item.range,
-                fix
+                fix: fixLabel(item)
               }));
             }
+            const summary = [
+              "## Frontend dependency audit",
+              "",
+              "| Severity | Count |",
+              "| --- | ---: |",
+              ...["critical", "high", "moderate", "low", "info"].map((level) =>
+                `| ${level} | ${totals[level] || 0} |`),
+              "",
+              "| Package | Severity | Direct | Vulnerable range | Fix |",
+              "| --- | --- | --- | --- | --- |",
+              ...Object.entries(vulnerabilities).map(([name, item]) =>
+                `| ${name} | ${item.severity} | ${item.isDirect ? "yes" : "no"} | ${item.range || "—"} | ${fixLabel(item)} |`),
+              "",
+              "_This audit is informational and does not fail CI. Review and remediation are tracked separately._",
+              ""
+            ].join("\\n");
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary);
           '
       - name: Run frontend regression tests
         working-directory: frontend
