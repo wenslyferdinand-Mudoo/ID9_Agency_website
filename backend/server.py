@@ -383,7 +383,7 @@ async def me(current=Depends(get_current_admin)):
 
 def format_contact_email_text(fields: List[tuple]) -> str:
     """Render contact fields as readable plain text with real line separators."""
-    return "\\n".join(f"{label}: {value}" for label, value in fields)
+    return "\n".join(f"{label}: {value}" for label, value in fields)
 
 
 def send_contact_email(contact: dict) -> None:
