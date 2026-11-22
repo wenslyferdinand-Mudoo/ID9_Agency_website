@@ -9,21 +9,23 @@ import re
 import asyncio
 import uuid
 import logging
+import hashlib
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional
 
 import bcrypt
 import jwt
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, Request, status
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, Request, Response, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
-from pydantic import BaseModel, Field, EmailStr, ConfigDict
+from pymongo import ReturnDocument
+from pydantic import BaseModel, Field, EmailStr, ConfigDict, field_validator
 
 
 # ---------- MongoDB ----------
 mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
+client = AsyncIOMotorClient(mongo_url, serverSelectionTimeoutMS=5000)
 db = client[os.environ['DB_NAME']]
 
 
@@ -34,8 +36,22 @@ api_router = APIRouter(prefix="/api")
 
 # ---------- Auth utils ----------
 JWT_ALGORITHM = "HS256"
-JWT_EXPIRES_MIN = 60 * 24 * 7  # 7 days for admin convenience
+ACCESS_TOKEN_EXPIRES_MIN = 15
+REFRESH_TOKEN_EXPIRES_DAYS = 30
+SESSION_MAX_DAYS = 90
+AUTH_COOKIE_NAME = "id9_refresh"
 security = HTTPBearer(auto_error=False)
+
+
+def _jwt_secret() -> str:
+    secret = os.environ.get("JWT_SECRET", "")
+    if len(secret.encode("utf-8")) < 32:
+        raise RuntimeError("JWT_SECRET must contain at least 32 bytes.")
+    return secret
+
+
+def _token_hash(value: str) -> str:
+    return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
 def hash_password(password: str) -> str:
@@ -49,33 +65,81 @@ def verify_password(plain: str, hashed: str) -> bool:
         return False
 
 
-def create_access_token(user_id: str, email: str) -> str:
-    payload = {
-        "sub": user_id,
-        "email": email,
-        "type": "access",
-        "exp": datetime.now(timezone.utc) + timedelta(minutes=JWT_EXPIRES_MIN),
-    }
-    return jwt.encode(payload, os.environ["JWT_SECRET"], algorithm=JWT_ALGORITHM)
+def _issue_session_tokens(
+    user: dict, session_id: str, absolute_expiry: Optional[datetime] = None
+) -> tuple[str, str, str, datetime]:
+    now = datetime.now(timezone.utc)
+    refresh_jti = str(uuid.uuid4())
+    refresh_exp = now + timedelta(days=REFRESH_TOKEN_EXPIRES_DAYS)
+    if absolute_expiry is not None:
+        refresh_exp = min(refresh_exp, absolute_expiry)
+    common = {"sub": user["id"], "email": user["email"], "sid": session_id}
+    access = jwt.encode(
+        {**common, "jti": str(uuid.uuid4()), "type": "access",
+         "iat": now, "exp": now + timedelta(minutes=ACCESS_TOKEN_EXPIRES_MIN)},
+        _jwt_secret(), algorithm=JWT_ALGORITHM,
+    )
+    refresh = jwt.encode(
+        {**common, "jti": refresh_jti, "type": "refresh", "iat": now, "exp": refresh_exp},
+        _jwt_secret(), algorithm=JWT_ALGORITHM,
+    )
+    return access, refresh, _token_hash(refresh_jti), refresh_exp
+
+
+def _set_refresh_cookie(response: Response, token: str) -> None:
+    production = os.environ.get("APP_ENV", "production").strip().lower() != "development"
+    response.set_cookie(
+        key=AUTH_COOKIE_NAME, value=token, httponly=True, secure=production,
+        samesite="none" if production else "lax", path="/api/auth",
+        max_age=REFRESH_TOKEN_EXPIRES_DAYS * 24 * 60 * 60,
+    )
+
+
+def _clear_refresh_cookie(response: Response) -> None:
+    production = os.environ.get("APP_ENV", "production").strip().lower() != "development"
+    response.delete_cookie(
+        key=AUTH_COOKIE_NAME, path="/api/auth", secure=production,
+        httponly=True, samesite="none" if production else "lax",
+    )
 
 
 async def get_current_admin(creds: Optional[HTTPAuthorizationCredentials] = Depends(security)):
     if creds is None or not creds.credentials:
         raise HTTPException(status_code=401, detail="Not authenticated")
-    token = creds.credentials
     try:
-        payload = jwt.decode(token, os.environ["JWT_SECRET"], algorithms=[JWT_ALGORITHM])
+        payload = jwt.decode(
+            creds.credentials, _jwt_secret(), algorithms=[JWT_ALGORITHM],
+            options={"require": ["exp", "sub", "type", "sid", "jti"]},
+        )
         if payload.get("type") != "access":
             raise HTTPException(status_code=401, detail="Invalid token type")
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
-    user = await db.users.find_one({"id": payload["sub"]}, {"_id": 0, "password_hash": 0})
-    if not user or user.get("role") != "admin":
-        raise HTTPException(status_code=401, detail="Admin not found")
+
+    now = datetime.now(timezone.utc)
+    session = await db.auth_sessions.find_one({
+        "id": payload["sid"], "user_id": payload["sub"], "revoked": False,
+        "expires_at": {"$gt": now}, "absolute_expires_at": {"$gt": now},
+    })
+    if not session:
+        raise HTTPException(status_code=401, detail="Session expired or revoked")
+    user = await db.users.find_one(
+        {"id": payload["sub"]}, {"_id": 0, "password_hash": 0}
+    )
+    if not user:
+        raise HTTPException(status_code=401, detail="Account unavailable")
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Administrator access required")
     return user
 
+
+async def _revoke_session(session_id: str) -> None:
+    await db.auth_sessions.update_one(
+        {"id": session_id, "revoked": False},
+        {"$set": {"revoked": True, "revoked_at": datetime.now(timezone.utc)}},
+    )
 
 # ---------- Helpers ----------
 def slugify(text: str) -> str:
@@ -90,7 +154,7 @@ def utc_now_iso() -> str:
 # ---------- Models ----------
 class LoginRequest(BaseModel):
     email: EmailStr
-    password: str
+    password: str = Field(min_length=1, max_length=128)
 
 
 class LoginResponse(BaseModel):
@@ -100,13 +164,30 @@ class LoginResponse(BaseModel):
 
 
 class ContactCreate(BaseModel):
-    name: str
+    name: str = Field(min_length=2, max_length=120)
     email: EmailStr
-    whatsapp: Optional[str] = None
-    budget: Optional[str] = None
-    service: Optional[str] = None
-    deadline: Optional[str] = None
-    message: str
+    whatsapp: Optional[str] = Field(default=None, max_length=40)
+    budget: Optional[str] = Field(default=None, max_length=80)
+    service: Optional[str] = Field(default=None, max_length=120)
+    deadline: Optional[str] = Field(default=None, max_length=80)
+    message: str = Field(min_length=10, max_length=5000)
+
+    @field_validator("name", "message", mode="before")
+    @classmethod
+    def strip_required_text(cls, value):
+        if isinstance(value, str):
+            value = value.strip()
+            if not value:
+                raise ValueError("Field must not contain only whitespace.")
+        return value
+
+    @field_validator("whatsapp", "budget", "service", "deadline", mode="before")
+    @classmethod
+    def normalize_optional_text(cls, value):
+        if isinstance(value, str):
+            value = value.strip()
+            return value or None
+        return value
 
 
 class Contact(BaseModel):
@@ -125,24 +206,24 @@ class Contact(BaseModel):
 
 
 class PortfolioCreate(BaseModel):
-    title: str
-    category: str  # branding | web | app | marketing | motion | photo
-    client: Optional[str] = None
-    year: Optional[str] = None
-    sector: Optional[str] = None
-    summary: str
-    description: Optional[str] = None
-    cover_image: str
-    gallery: List[str] = Field(default_factory=list)
-    services: List[str] = Field(default_factory=list)
-    tools: List[str] = Field(default_factory=list)
-    challenge: Optional[str] = None
-    approach: Optional[str] = None
-    strategy: Optional[str] = None
-    solution: Optional[str] = None
-    outcome: Optional[str] = None
-    kpis: List[dict] = Field(default_factory=list)
-    testimonial: Optional[str] = None
+    title: str = Field(min_length=2, max_length=160)
+    category: str = Field(min_length=2, max_length=40)
+    client: Optional[str] = Field(default=None, max_length=160)
+    year: Optional[str] = Field(default=None, max_length=12)
+    sector: Optional[str] = Field(default=None, max_length=120)
+    summary: str = Field(min_length=5, max_length=2000)
+    description: Optional[str] = Field(default=None, max_length=12000)
+    cover_image: str = Field(min_length=1, max_length=2048)
+    gallery: List[str] = Field(default_factory=list, max_length=40)
+    services: List[str] = Field(default_factory=list, max_length=30)
+    tools: List[str] = Field(default_factory=list, max_length=30)
+    challenge: Optional[str] = Field(default=None, max_length=5000)
+    approach: Optional[str] = Field(default=None, max_length=5000)
+    strategy: Optional[str] = Field(default=None, max_length=5000)
+    solution: Optional[str] = Field(default=None, max_length=5000)
+    outcome: Optional[str] = Field(default=None, max_length=5000)
+    kpis: List[dict] = Field(default_factory=list, max_length=30)
+    testimonial: Optional[str] = Field(default=None, max_length=3000)
     featured: bool = False
 
 
@@ -153,13 +234,13 @@ class PortfolioItem(PortfolioCreate):
 
 
 class BlogCreate(BaseModel):
-    title: str
-    category: str
-    excerpt: str
-    content: str
-    cover_image: str
-    author: str = "ID9 Editorial"
-    read_time: str = "5 min read"
+    title: str = Field(min_length=3, max_length=180)
+    category: str = Field(min_length=2, max_length=80)
+    excerpt: str = Field(min_length=5, max_length=1200)
+    content: str = Field(min_length=1, max_length=30000)
+    cover_image: str = Field(min_length=1, max_length=2048)
+    author: str = Field(default="ID9 Editorial", max_length=120)
+    read_time: str = Field(default="5 min read", max_length=40)
     published: bool = True
     featured: bool = False
 
@@ -170,6 +251,28 @@ class BlogPost(BlogCreate):
     created_at: str
 
 
+# ---------- Abuse protection ----------
+async def enforce_rate_limit(request: Request, action: str, limit: int, window_seconds: int):
+    # MongoDB-backed fixed windows work across multiple Render instances and restarts.
+    client_host = request.client.host if request.client else "unknown"
+    now = datetime.now(timezone.utc)
+    bucket = int(now.timestamp()) // window_seconds
+    key = f"{action}:{client_host}:{bucket}"
+    expires_at = datetime.fromtimestamp((bucket + 2) * window_seconds, timezone.utc)
+    record = await db.rate_limits.find_one_and_update(
+        {"_id": key},
+        {"$inc": {"count": 1}, "$setOnInsert": {"expires_at": expires_at}},
+        upsert=True,
+        return_document=ReturnDocument.AFTER,
+    )
+    if record and record.get("count", 0) > limit:
+        raise HTTPException(
+            status_code=429,
+            detail="Too many requests. Please try again later.",
+            headers={"Retry-After": str(window_seconds)},
+        )
+
+
 # ---------- Public endpoints ----------
 @api_router.get("/")
 async def root():
@@ -177,16 +280,100 @@ async def root():
 
 
 @api_router.post("/auth/login", response_model=LoginResponse)
-async def login(data: LoginRequest):
+async def login(data: LoginRequest, request: Request, response: Response):
+    await enforce_rate_limit(request, "login", limit=10, window_seconds=300)
     email = data.email.lower().strip()
     user = await db.users.find_one({"email": email})
-    if not user:
+    if not user or not verify_password(data.password, user.get("password_hash", "")):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    if not verify_password(data.password, user["password_hash"]):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-    token = create_access_token(user["id"], user["email"])
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Administrator access required")
+
+    session_id = str(uuid.uuid4())
+    absolute_expiry = datetime.now(timezone.utc) + timedelta(days=SESSION_MAX_DAYS)
+    access, refresh, refresh_hash, refresh_exp = _issue_session_tokens(
+        user, session_id, absolute_expiry
+    )
+    await db.auth_sessions.insert_one({
+        "id": session_id, "user_id": user["id"], "refresh_jti_hash": refresh_hash,
+        "revoked": False, "created_at": datetime.now(timezone.utc),
+        "last_used_at": datetime.now(timezone.utc), "expires_at": refresh_exp,
+        "absolute_expires_at": absolute_expiry,
+    })
+    _set_refresh_cookie(response, refresh)
     safe_user = {"id": user["id"], "email": user["email"], "name": user.get("name"), "role": user.get("role")}
-    return LoginResponse(access_token=token, user=safe_user)
+    return LoginResponse(access_token=access, user=safe_user)
+
+
+@api_router.post("/auth/refresh", response_model=LoginResponse)
+async def refresh_session(request: Request, response: Response):
+    refresh_token = request.cookies.get(AUTH_COOKIE_NAME)
+    if not refresh_token:
+        raise HTTPException(status_code=401, detail="Refresh session missing")
+    try:
+        payload = jwt.decode(
+            refresh_token, _jwt_secret(), algorithms=[JWT_ALGORITHM],
+            options={"require": ["exp", "sub", "type", "sid", "jti"]},
+        )
+        if payload.get("type") != "refresh":
+            raise HTTPException(status_code=401, detail="Invalid token type")
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Refresh session expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
+
+    now = datetime.now(timezone.utc)
+    current = await db.auth_sessions.find_one({
+        "id": payload["sid"], "user_id": payload["sub"], "revoked": False,
+        "expires_at": {"$gt": now}, "absolute_expires_at": {"$gt": now},
+    })
+    if not current:
+        raise HTTPException(status_code=401, detail="Session expired or revoked")
+
+    user = await db.users.find_one({"id": payload["sub"]}, {"_id": 0, "password_hash": 0})
+    if not user or user.get("role") != "admin":
+        await _revoke_session(payload["sid"])
+        raise HTTPException(status_code=401, detail="Account unavailable")
+
+    access, rotated_refresh, next_hash, next_exp = _issue_session_tokens(
+        user, payload["sid"], current.get("absolute_expires_at")
+    )
+    rotated = await db.auth_sessions.find_one_and_update(
+        {"id": payload["sid"], "user_id": payload["sub"], "revoked": False,
+         "refresh_jti_hash": _token_hash(payload["jti"]), "expires_at": {"$gt": now},
+         "absolute_expires_at": {"$gt": now}},
+        {"$set": {"refresh_jti_hash": next_hash, "last_used_at": now, "expires_at": next_exp}},
+        return_document=ReturnDocument.AFTER,
+    )
+    if not rotated:
+        # A previously rotated refresh token was replayed. Revoke the whole session.
+        await _revoke_session(payload["sid"])
+        raise HTTPException(status_code=401, detail="Refresh token reuse detected; session revoked")
+
+    _set_refresh_cookie(response, rotated_refresh)
+    safe_user = {"id": user["id"], "email": user["email"], "name": user.get("name"), "role": user.get("role")}
+    return LoginResponse(access_token=access, user=safe_user)
+
+
+@api_router.post("/auth/logout")
+async def logout(request: Request, response: Response):
+    token = request.cookies.get(AUTH_COOKIE_NAME)
+    if not token:
+        authorization = request.headers.get("authorization", "")
+        if authorization.lower().startswith("bearer "):
+            token = authorization[7:].strip()
+    if token:
+        try:
+            payload = jwt.decode(
+                token, _jwt_secret(), algorithms=[JWT_ALGORITHM],
+                options={"verify_exp": False, "require": ["sub", "type", "sid", "jti"]},
+            )
+            if payload.get("type") in {"refresh", "access"}:
+                await _revoke_session(payload["sid"])
+        except jwt.InvalidTokenError:
+            pass
+    _clear_refresh_cookie(response)
+    return {"ok": True}
 
 
 @api_router.get("/auth/me")
@@ -196,11 +383,11 @@ async def me(current=Depends(get_current_admin)):
 
 def format_contact_email_text(fields: List[tuple]) -> str:
     """Render contact fields as readable plain text with real line separators."""
-    return "\n".join(f"{label}: {value}" for label, value in fields)
+    return "\\n".join(f"{label}: {value}" for label, value in fields)
 
 
 def send_contact_email(contact: dict) -> None:
-    """Send a new brief through Resend; credentials and verified sender stay server-side."""
+    """Send a persisted contact brief through Resend using server-side credentials."""
     import html
     import requests
 
@@ -208,18 +395,18 @@ def send_contact_email(contact: dict) -> None:
     recipient = os.environ.get("CONTACT_TO_EMAIL", "contact.id9agency@gmail.com").strip()
     sender = os.environ.get("CONTACT_FROM_EMAIL", "").strip()
     if not api_key or not sender:
-        raise RuntimeError("Email delivery is not configured. Set RESEND_API_KEY and CONTACT_FROM_EMAIL.")
+        raise RuntimeError("Email delivery is not configured.")
 
     fields = [
-        ("Nom", contact["name"]),
-        ("E-mail", contact["email"]),
-        ("WhatsApp", contact.get("whatsapp") or "Non renseigné"),
-        ("Service", contact.get("service") or "Non renseigné"),
-        ("Budget", contact.get("budget") or "Non renseigné"),
-        ("Délai", contact.get("deadline") or "Non renseigné"),
+        ("Name", contact["name"]),
+        ("Email", contact["email"]),
+        ("WhatsApp", contact.get("whatsapp") or "Not provided"),
+        ("Service", contact.get("service") or "Not provided"),
+        ("Budget", contact.get("budget") or "Not provided"),
+        ("Deadline", contact.get("deadline") or "Not provided"),
         ("Message", contact["message"]),
-        ("Reçu le (UTC)", contact["created_at"]),
-        ("Référence", contact["id"]),
+        ("Received (UTC)", contact["created_at"]),
+        ("Reference", contact["id"]),
     ]
     text_body = format_contact_email_text(fields)
     html_rows = "".join(
@@ -237,11 +424,11 @@ def send_contact_email(contact: dict) -> None:
             "from": sender,
             "to": [recipient],
             "reply_to": [contact["email"]],
-            "subject": f"Nouveau brief ID9 — {contact['name']}",
+            "subject": f"New ID9 brief — {contact['name']}",
             "text": text_body,
             "html": (
                 "<div style='font-family:Arial,sans-serif;color:#171717'>"
-                "<h2>Nouveau brief reçu depuis le site ID9 Agency</h2>"
+                "<h2>New brief received from ID9 Agency website</h2>"
                 "<table style='border-collapse:collapse;width:100%'>"
                 + html_rows
                 + "</table></div>"
@@ -250,13 +437,15 @@ def send_contact_email(contact: dict) -> None:
         timeout=15,
     )
     if not response.ok:
-        logging.error("[contact-email] Resend rejected delivery: status=%s body=%s", response.status_code, response.text[:500])
+        logging.error("[contact-email] Resend rejected delivery: status=%s", response.status_code)
         raise RuntimeError("The email provider rejected the message.")
-    logging.info("[contact-email] Brief email accepted by Resend; contact_id=%s", contact["id"])
+    logging.info("[contact-email] Brief notification accepted; contact_id=%s", contact["id"])
 
 
-@api_router.post("/contact", response_model=Contact)
-async def submit_contact(data: ContactCreate):
+@api_router.post("/contact", response_model=Contact, status_code=status.HTTP_201_CREATED)
+async def submit_contact(data: ContactCreate, request: Request, response: Response):
+    await enforce_rate_limit(request, "contact", limit=5, window_seconds=600)
+    response.status_code = status.HTTP_201_CREATED
     doc = {
         "id": str(uuid.uuid4()),
         **data.model_dump(),
@@ -264,23 +453,42 @@ async def submit_contact(data: ContactCreate):
         "read": False,
         "email_status": "pending",
     }
-    # Persist first so a temporary email-provider outage never destroys a submitted brief.
+    # Persist first: a mail-provider outage must never destroy a submitted brief.
     await db.contacts.insert_one(doc.copy())
+
     try:
         await asyncio.to_thread(send_contact_email, doc)
-        await db.contacts.update_one(
-            {"id": doc["id"]}, {"$set": {"email_status": "sent", "email_sent_at": utc_now_iso()}}
+    except Exception:
+        logging.exception(
+            "[contact-email] Notification failed after the brief was saved; contact_id=%s",
+            doc["id"],
         )
-        doc["email_status"] = "sent"
-    except Exception as exc:
-        logging.exception("[contact-email] Delivery failed; brief retained in MongoDB. contact_id=%s", doc["id"])
+        doc["email_status"] = "failed"
+        response.status_code = status.HTTP_202_ACCEPTED
+        try:
+            await db.contacts.update_one(
+                {"id": doc["id"]},
+                {"$set": {"email_status": "failed", "email_error": "notification_delivery_failed"}},
+            )
+        except Exception:
+            logging.exception(
+                "[contact-email] Could not persist notification failure state; contact_id=%s",
+                doc["id"],
+            )
+        return Contact(**doc)
+
+    doc["email_status"] = "sent"
+    try:
         await db.contacts.update_one(
-            {"id": doc["id"]}, {"$set": {"email_status": "failed", "email_error": str(exc)[:500]}}
+            {"id": doc["id"]},
+            {"$set": {"email_status": "sent", "email_sent_at": utc_now_iso()}},
         )
-        raise HTTPException(
-            status_code=503,
-            detail="Votre brief a été enregistré, mais l'e-mail n'a pas pu être transmis. Veuillez réessayer ou nous contacter par WhatsApp.",
-        ) from exc
+    except Exception:
+        # Delivery succeeded; do not tell the visitor to resubmit a saved brief.
+        logging.exception(
+            "[contact-email] Notification sent but delivery state could not be persisted; contact_id=%s",
+            doc["id"],
+        )
     return Contact(**doc)
 
 
@@ -578,28 +786,69 @@ async def seed_content():
 # ---------- App setup ----------
 app.include_router(api_router)
 
+def get_allowed_origins() -> list[str]:
+    raw_origins = os.environ.get(
+        "CORS_ORIGINS",
+        "https://id9-agency-website.vercel.app",
+    )
+    origins = [origin.strip().rstrip("/") for origin in raw_origins.split(",") if origin.strip()]
+    if not origins or "*" in origins:
+        raise RuntimeError("CORS_ORIGINS must contain explicit trusted origins; wildcard CORS is disabled.")
+    return origins
+
+
+def should_seed_demo_content() -> bool:
+    app_env = os.environ.get("APP_ENV", "production").strip().lower()
+    seed_flag = os.environ.get("SEED_DEMO_CONTENT", "").strip().lower()
+    return app_env != "production" and seed_flag in {"1", "true", "yes"}
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=False,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_credentials=True,
+    allow_origins=get_allowed_origins(),
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 
+@app.get("/health/live", include_in_schema=False)
+async def health_live():
+    """Process liveness; does not depend on external services."""
+    return {"status": "ok"}
+
+
+@app.get("/health/ready", include_in_schema=False)
+async def health_ready():
+    """Readiness probe; returns 503 when the required database is unavailable."""
+    try:
+        await db.command("ping")
+    except Exception:
+        logger.warning("[health] readiness check failed: database ping unavailable")
+        raise HTTPException(status_code=503, detail="Service not ready")
+    return {"status": "ready"}
+
+
 @app.on_event("startup")
 async def on_startup():
-    try:
-        await db.users.create_index("email", unique=True)
-        await db.portfolio.create_index("slug", unique=True)
-        await db.blog.create_index("slug", unique=True)
-    except Exception as e:
-        logger.warning(f"[startup] index creation: {e}")
+    # Fail fast in staging/production if MongoDB is unavailable or required indexes
+    # cannot be established. No collections or existing documents are dropped.
+    await db.command("ping")
+    await db.users.create_index("email", unique=True)
+    await db.portfolio.create_index("slug", unique=True)
+    await db.blog.create_index("slug", unique=True)
+    await db.rate_limits.create_index("expires_at", expireAfterSeconds=0)
+    await db.auth_sessions.create_index("id", unique=True)
+    await db.auth_sessions.create_index("expires_at", expireAfterSeconds=0)
     await seed_admin()
-    await seed_content()
+    if should_seed_demo_content():
+        await seed_content()
+        logger.warning("[startup] demo content seed explicitly enabled outside production.")
+    else:
+        logger.info("[startup] demo content seeding skipped; existing records are preserved.")
     logger.info("ID9 backend ready.")
 
 
