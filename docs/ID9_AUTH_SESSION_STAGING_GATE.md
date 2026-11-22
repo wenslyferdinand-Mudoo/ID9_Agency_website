@@ -71,9 +71,9 @@ The backend workflow maps these exact names into the opt-in Atlas integration te
 ## Consolidated PR #74 validation — 2026-11-22
 
 - Current PR: #74, branch `security/backend-hardening-consolidated-2026-11-22`, based on current `main`.
-- Exact validated HEAD: `4eb4638eeca2f52c921618f43fde2de0420afb92`.
+- Exact validated HEAD: `d1066831abbadd061174b84c96203b9852dea8ba`.
 - Backend: **43 passed, 1 skipped, 5 warnings**.
-- Frontend: **1 test suite, 11 tests passed**; production build completed and `build/` is ready.
+- Frontend: **14 tests passed**; production build completed and `build/` is ready.
 - Third-party action pin verification: **success**.
 - The single skipped backend test is the opt-in Atlas Staging integration test because `ID9_ATLAS_STAGING_URI` and `ID9_ATLAS_STAGING_DB` are not configured in the workflow environment. This does not prove Atlas connectivity.
 - GitHub reports the PR branch as mergeable against current main. The PR remains Draft because Staging, browser-level auth/contact tests, and real Resend mailbox receipt are not verified.
