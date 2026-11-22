@@ -45,13 +45,14 @@ test("static route structured data is valid JSON-LD", () => {
 test("portfolio sitemap generation input removes invalid and duplicate slugs with Sanity-first precedence", () => {
   const projects = dedupeProjectsBySlug([
     { slug: "shared", title: "Sanity version" },
+    { slug: "SHARED", title: "Case-only duplicate" },
     { slug: "shared", title: "Duplicate Sanity version" },
     { slug: "local-only", title: "Founder project" },
     { slug: "../bad", title: "Invalid path" },
     { slug: "Upper-Case", title: "Valid case-insensitive slug" },
   ]);
   assert.deepEqual(projects.map((project) => project.title), [
-    "Sanity version", "Founder project", "Valid case-insensitive slug",
+    "Sanity version", "Founder project",
   ]);
 });
 
