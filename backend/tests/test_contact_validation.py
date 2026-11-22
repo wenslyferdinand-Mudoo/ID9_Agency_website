@@ -1,14 +1,17 @@
 import os
+import sys
+from pathlib import Path
 
 # Keep model tests independent from a live database; server.py only constructs
 # the Motor client at import time and does not connect until startup.
 os.environ.setdefault("MONGO_URL", "mongodb://127.0.0.1:27017")
 os.environ.setdefault("DB_NAME", "id9_test")
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import pytest
 from pydantic import ValidationError
 
-from backend.server import ContactCreate
+from server import ContactCreate
 
 
 def test_contact_create_trims_text_fields():
