@@ -25,7 +25,7 @@
 
 ## Deployment gate
 
-PR #52 must remain Draft/open. No Render service creation, production deployment, Atlas production access, or merge is authorized by this change. Production readiness requires:
+PR #74 must remain Draft/open. No Render service creation, production deployment, Atlas production access, or merge is authorized by this change. Production readiness requires:
 - passing CI on the current PR head;
 - a successful Vercel Preview build;
 - isolated Render + Atlas staging with staging-only secrets and database;
@@ -39,7 +39,7 @@ The first deployment of a new Render Web Service starts a build/deploy. Do not c
 ## Render staging service template
 
 Repository: `wenslyferdinand-Mudoo/ID9_Agency_website`  
-Branch: `security/backend-hardening-staging`  
+Branch: `security/backend-hardening-consolidated-2026-11-22`  
 Runtime: Python  
 Build command: `pip install -r backend/requirements.txt`  
 Start command: `cd backend && uvicorn server:app --host 0.0.0.0 --port $PORT`  
@@ -66,3 +66,15 @@ In GitHub repository **Settings → Secrets and variables → Actions**:
 - Create the Actions **variable** `ID9_ATLAS_STAGING_DB` with a disposable database name beginning `id9_staging_test_` (for example, `id9_staging_test_ci`).
 
 The backend workflow maps these exact names into the opt-in Atlas integration test. Until both exist, the Atlas test is intentionally skipped. For Render, set `MONGO_URL` to the same staging-only URI and `DB_NAME` to the same isolated database name. Do not paste either credential into a commit, issue, pull-request comment, or chat message.
+
+
+## Consolidated PR #74 validation — 2026-11-22
+
+- Current PR: #74, branch `security/backend-hardening-consolidated-2026-11-22`, based on current `main`.
+- Exact validated HEAD: `4eb4638eeca2f52c921618f43fde2de0420afb92`.
+- Backend: **43 passed, 1 skipped, 5 warnings**.
+- Frontend: **1 test suite, 11 tests passed**; production build completed and `build/` is ready.
+- Third-party action pin verification: **success**.
+- The single skipped backend test is the opt-in Atlas Staging integration test because `ID9_ATLAS_STAGING_URI` and `ID9_ATLAS_STAGING_DB` are not configured in the workflow environment. This does not prove Atlas connectivity.
+- GitHub reports the PR branch as mergeable against current main. The PR remains Draft because Staging, browser-level auth/contact tests, and real Resend mailbox receipt are not verified.
+- The previous PR #52 branch is retained only as a historical source; the consolidated branch is the active candidate. Do not merge #52, #50, or #32 separately.
