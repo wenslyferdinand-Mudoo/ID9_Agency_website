@@ -58,6 +58,17 @@ function safeSlug(value) {
   return typeof value === "string" && /^[a-z0-9]+(?:-[a-z0-9]+)*$/i.test(value);
 }
 
+function safeImageUrl(value) {
+  if (typeof value !== "string" || !value.trim()) return DEFAULT_SHARE_IMAGE;
+  try {
+    const parsed = new URL(value);
+    if (parsed.protocol !== "https:" || parsed.username || parsed.password) return DEFAULT_SHARE_IMAGE;
+    return parsed.href;
+  } catch {
+    return DEFAULT_SHARE_IMAGE;
+  }
+}
+
 export function buildSitemapXml(urls) {
   if (!Array.isArray(urls)) throw new TypeError("Sitemap URLs must be provided as an array.");
   const uniqueUrls = new Set();
@@ -150,9 +161,10 @@ export function applyStaticRouteMetadata(template, route) {
 }
 
 export function applyProjectMetadata(template, project) {
+  if (!safeSlug(project?.slug)) throw new Error("Project SEO metadata requires a valid URL-safe slug.");
   const title = (project.seoTitle || "").trim() || `${project.title || "Project"} | Impact Digital 9 Agency`;
   const description = (project.seoDescription || "").trim() || (project.summary || "").trim() || `Selected work by Impact Digital 9 Agency: ${project.title || "project"}.`;
-  const image = project.image || DEFAULT_SHARE_IMAGE;
+  const image = safeImageUrl(project.image);
   const url = `${SITE_URL}/portfolio/${project.slug}`;
   let html = template.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(title)}</title>`);
   html = replaceMeta(html, 'name="description"', "content", description);
