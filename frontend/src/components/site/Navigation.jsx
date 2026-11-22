@@ -63,8 +63,9 @@ export default function Navigation() {
   useEffect(() => {
     if (!open) return undefined;
 
-    const panel = document.querySelector('[data-testid="nav-mobile-panel"]');
+    const panel = document.getElementById("nav-mobile-panel");
     const closeButton = panel?.querySelector('[data-testid="nav-mobile-close"]');
+    const trigger = document.querySelector('[data-testid="nav-mobile-toggle"]');
     closeButton?.focus();
 
     const handleKeyDown = (event) => {
@@ -92,7 +93,11 @@ export default function Navigation() {
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      // Return keyboard focus to the menu trigger after dismissal.
+      if (trigger?.isConnected) trigger.focus();
+    };
   }, [open]);
 
   // Auto-close on route change.
@@ -192,6 +197,7 @@ export default function Navigation() {
             role="dialog"
             aria-modal="true"
             aria-label={lang === "fr" ? "Menu principal" : "Main navigation"}
+            id="nav-mobile-panel"
             data-testid="nav-mobile-panel"
           >
             {/* Background — solid + mesh + blur layers */}
