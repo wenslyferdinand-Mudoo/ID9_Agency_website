@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import { ArrowUpRight, Languages, Instagram, Facebook, Mail, MessageCircle } from "lucide-react";
 import Logo from "@/components/site/Logo";
 import AnimatedHamburger from "@/components/site/AnimatedHamburger";
+import { handleMobileMenuKeyDown } from "@/components/site/mobileMenuKeyboard";
 import { useI18n } from "@/lib/i18n";
 import { BRAND, whatsappLink } from "@/lib/brand";
 
@@ -11,6 +12,9 @@ export default function Navigation() {
   const [open, setOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [compact, setCompact] = useState(false);
+  const toggleRef = useRef(null);
+  const closeRef = useRef(null);
+  const panelRef = useRef(null);
   const loc = useLocation();
   const { t, lang, toggle } = useI18n();
   const { scrollY } = useScroll();
@@ -59,57 +63,28 @@ export default function Navigation() {
     };
   }, [open, loc.pathname]);
 
-  // Keep keyboard users inside the modal menu and support Escape dismissal.
+  // Keep keyboard users inside the mobile dialog and recover focus if it escapes.
   useEffect(() => {
     if (!open) return undefined;
 
-    const panel = document.getElementById("nav-mobile-panel");
-    const trigger = document.querySelector('[data-testid="nav-mobile-toggle"]');
-    const getFocusableElements = () =>
-      panel?.querySelectorAll(
-        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
-      ) ?? [];
+    const panel = panelRef.current;
+    closeRef.current?.focus();
 
-    // The logo link precedes the close button in DOM order. Focus the first
-    // tabbable element so Shift+Tab is trapped on the very first keystroke.
-    getFocusableElements()[0]?.focus();
+    const handleKeyDown = (event) =>
+      handleMobileMenuKeyDown(event, panel, () => setOpen(false));
 
-    const handleKeyDown = (event) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        setOpen(false);
-        return;
-      }
-
-      if (event.key !== "Tab" || !panel) return;
-      const focusable = getFocusableElements();
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (!first || !last) return;
-
-      if (event.shiftKey && (document.activeElement === first || !panel.contains(document.activeElement))) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && (document.activeElement === last || !panel.contains(document.activeElement))) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    // Also recover focus if scripts or browser extensions move it outside the modal.
     const handleFocusIn = (event) => {
       if (panel && !panel.contains(event.target)) {
-        getFocusableElements()[0]?.focus();
+        closeRef.current?.focus();
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("focusin", handleFocusIn);
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("focusin", handleFocusIn);
-      // Return keyboard focus to the menu trigger after dismissal.
-      if (trigger?.isConnected) trigger.focus();
+      if (toggleRef.current?.isConnected) toggleRef.current.focus();
     };
   }, [open]);
 
@@ -188,6 +163,8 @@ export default function Navigation() {
               <ArrowUpRight className="w-4 h-4" />
             </Link>
             <AnimatedHamburger
+              buttonRef={toggleRef}
+              controlsId="nav-mobile-panel"
               open={open}
               onClick={() => setOpen((v) => !v)}
               label={open ? (lang === "fr" ? "Fermer le menu" : "Close menu") : (lang === "fr" ? "Ouvrir le menu" : "Open menu")}
@@ -211,6 +188,7 @@ export default function Navigation() {
             aria-modal="true"
             aria-label={lang === "fr" ? "Menu principal" : "Main navigation"}
             id="nav-mobile-panel"
+            ref={panelRef}
             data-testid="nav-mobile-panel"
           >
             {/* Background — solid + mesh + blur layers */}
@@ -251,6 +229,8 @@ export default function Navigation() {
                 </div>
               </Link>
               <AnimatedHamburger
+                buttonRef={closeRef}
+                controlsId="nav-mobile-panel"
                 open={true}
                 onClick={() => setOpen(false)}
                 label={lang === "fr" ? "Fermer le menu" : "Close menu"}
