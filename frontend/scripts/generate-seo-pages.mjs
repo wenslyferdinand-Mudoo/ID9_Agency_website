@@ -58,6 +58,30 @@ function safeSlug(value) {
   return typeof value === "string" && /^[a-z0-9]+(?:-[a-z0-9]+)*$/i.test(value);
 }
 
+export function buildSitemapXml(urls) {
+  if (!Array.isArray(urls)) throw new TypeError("Sitemap URLs must be provided as an array.");
+  const uniqueUrls = new Set();
+  for (const value of urls) {
+    if (typeof value !== "string" || !value.trim()) {
+      throw new TypeError("Sitemap URLs must be non-empty strings.");
+    }
+    let parsed;
+    try {
+      parsed = new URL(value);
+    } catch {
+      throw new Error(`Malformed sitemap URL: ${value}`);
+    }
+    if (parsed.protocol !== "https:" || parsed.origin !== SITE_URL || parsed.search || parsed.hash) {
+      throw new Error(`Sitemap URL is not a valid canonical ID9 URL: ${value}`);
+    }
+    if (parsed.pathname !== "/" && parsed.pathname.endsWith("/")) {
+      throw new Error(`Sitemap URL contains a non-canonical trailing slash: ${value}`);
+    }
+    uniqueUrls.add(parsed.href);
+  }
+  const entries = [...uniqueUrls].map((url) => `  <url><loc>${escapeHtml(url)}</loc></url>`);
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join("\n")}\n</urlset>\n`;
+}
 export function dedupeProjectsBySlug(projects) {
   const seen = new Set();
   return projects.filter((project) => {
@@ -188,10 +212,7 @@ async function main() {
   const projects = dedupeProjectsBySlug([...sanityProjects, ...localProjects]);
   const template = await readFile(path.resolve("build/index.html"), "utf8");
   const sitemapPath = path.resolve("build/sitemap.xml");
-  const sitemapEntries = Object.keys(STATIC_ROUTES).map((route) => {
-    const url = route === "/" ? `${SITE_URL}/` : `${SITE_URL}${route}`;
-    return `  <url><loc>${escapeHtml(url)}</loc></url>`;
-  });
+  const sitemapUrls = Object.keys(STATIC_ROUTES).map((route) => route === "/" ? `${SITE_URL}/` : `${SITE_URL}${route}`);
 
   for (const [route] of Object.entries(STATIC_ROUTES)) {
     const { html } = applyStaticRouteMetadata(template, route);
@@ -206,15 +227,11 @@ async function main() {
     const outputDir = path.resolve("build/portfolio", project.slug);
     await mkdir(outputDir, { recursive: true });
     await writeFile(path.join(outputDir, "index.html"), html, "utf8");
-    sitemapEntries.push(`  <url><loc>${escapeHtml(url)}</loc></url>`);
+    sitemapUrls.push(url);
     generatedProjects += 1;
   }
 
-  await writeFile(
-    sitemapPath,
-    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapEntries.join("\n")}\n</urlset>\n`,
-    "utf8"
-  );
+  await writeFile(sitemapPath, buildSitemapXml(sitemapUrls), "utf8");
   console.log(`[SEO] Generated ${Object.keys(STATIC_ROUTES).length} static route metadata page(s), ${generatedProjects} portfolio route(s), and sitemap entries.`);
 }
 
