@@ -61,6 +61,15 @@ test("unknown routes fail instead of receiving misleading metadata", () => {
   assert.throws(() => applyStaticRouteMetadata(template, "/not-a-real-page"), /No static SEO metadata/);
 });
 
+test("project metadata rejects unsafe slugs and falls back from unsafe image URLs", () => {
+  assert.throws(() => applyProjectMetadata(template, { slug: "../escape", title: "Invalid" }), /valid URL-safe slug/);
+  for (const image of ["javascript:alert(1)", "data:image/svg+xml,<svg>", "http://example.com/image.jpg", "not-a-url"]) {
+    const { html } = applyProjectMetadata(template, { slug: "safe-project", title: "Safe", image });
+    assert.ok(html.includes(`content="${SITE_URL}/wensly-founder.jpg"`));
+    assert.ok(!html.includes(image));
+  }
+});
+
 test("project metadata keeps canonical URLs and escapes untrusted text", () => {
   const { html, url } = applyProjectMetadata(template, {
     slug: "case-study",
