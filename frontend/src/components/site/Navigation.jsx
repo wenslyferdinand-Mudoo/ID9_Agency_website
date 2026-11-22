@@ -64,9 +64,15 @@ export default function Navigation() {
     if (!open) return undefined;
 
     const panel = document.getElementById("nav-mobile-panel");
-    const closeButton = panel?.querySelector('[data-testid="nav-mobile-close"]');
     const trigger = document.querySelector('[data-testid="nav-mobile-toggle"]');
-    closeButton?.focus();
+    const getFocusableElements = () =>
+      panel?.querySelectorAll(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      ) ?? [];
+
+    // The logo link precedes the close button in DOM order. Focus the first
+    // tabbable element so Shift+Tab is trapped on the very first keystroke.
+    getFocusableElements()[0]?.focus();
 
     const handleKeyDown = (event) => {
       if (event.key === "Escape") {
@@ -76,25 +82,32 @@ export default function Navigation() {
       }
 
       if (event.key !== "Tab" || !panel) return;
-      const focusable = panel.querySelectorAll(
-        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
-      );
+      const focusable = getFocusableElements();
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
       if (!first || !last) return;
 
-      if (event.shiftKey && document.activeElement === first) {
+      if (event.shiftKey && (document.activeElement === first || !panel.contains(document.activeElement))) {
         event.preventDefault();
         last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
+      } else if (!event.shiftKey && (document.activeElement === last || !panel.contains(document.activeElement))) {
         event.preventDefault();
         first.focus();
       }
     };
 
+    // Also recover focus if scripts or browser extensions move it outside the modal.
+    const handleFocusIn = (event) => {
+      if (panel && !panel.contains(event.target)) {
+        getFocusableElements()[0]?.focus();
+      }
+    };
+
     window.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("focusin", handleFocusIn);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("focusin", handleFocusIn);
       // Return keyboard focus to the menu trigger after dismissal.
       if (trigger?.isConnected) trigger.focus();
     };
