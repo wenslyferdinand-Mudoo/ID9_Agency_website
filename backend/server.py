@@ -440,6 +440,7 @@ def send_contact_email(contact: dict) -> None:
 @api_router.post("/contact", response_model=Contact, status_code=status.HTTP_201_CREATED)
 async def submit_contact(data: ContactCreate, request: Request, response: Response):
     await enforce_rate_limit(request, "contact", limit=5, window_seconds=600)
+    response.status_code = status.HTTP_201_CREATED
     doc = {
         "id": str(uuid.uuid4()),
         **data.model_dump(),
