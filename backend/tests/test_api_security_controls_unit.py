@@ -40,6 +40,39 @@ def test_contact_fields_have_bounded_lengths():
         )
 
 
+def test_contact_required_text_rejects_whitespace_only():
+    with pytest.raises(ValidationError):
+        server.ContactCreate(
+            name="   ",
+            email="person@example.com",
+            message="This message is long enough.",
+        )
+    with pytest.raises(ValidationError):
+        server.ContactCreate(
+            name="Valid Name",
+            email="person@example.com",
+            message="          ",
+        )
+
+
+def test_contact_optional_text_is_trimmed_and_empty_values_become_none():
+    contact = server.ContactCreate(
+        name="  Valid Name  ",
+        email="person@example.com",
+        whatsapp="  +50900000000  ",
+        budget="   ",
+        service="  Branding  ",
+        deadline="  ",
+        message="  This message is long enough.  ",
+    )
+    assert contact.name == "Valid Name"
+    assert contact.message == "This message is long enough."
+    assert contact.whatsapp == "+50900000000"
+    assert contact.budget is None
+    assert contact.service == "Branding"
+    assert contact.deadline is None
+
+
 def test_blog_content_is_bounded():
     with pytest.raises(Exception):
         server.BlogCreate(
