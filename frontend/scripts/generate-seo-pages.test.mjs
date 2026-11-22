@@ -154,7 +154,7 @@ test("JSON-LD serialization is script-safe and generation is idempotent", () => 
   const second = applyProjectMetadata(first.html, hostile);
   const blocks = second.html.match(/<script type="application\\/ld\\+json" data-route-seo="project">/g) || [];
   assert.equal(blocks.length, 1, "reprocessing must not accumulate generated JSON-LD blocks");
-  const match = second.html.match(/<script type="application\\/ld\\+json" data-route-seo="project">([\\s\\S]*?)<\\/script>/);
+  const match = second.html.match(/<script type="application\/ld\+json" data-route-seo="project">([\s\S]*?)<\/script>/);
   assert.ok(match, "Expected one generated project JSON-LD block");
   assert.ok(!match[1].includes("</script>"), "Untrusted text must not terminate the JSON-LD script element");
   const data = JSON.parse(match[1]);
