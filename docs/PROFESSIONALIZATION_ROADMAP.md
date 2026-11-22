@@ -575,7 +575,7 @@ Aucun PR n'a été fusionné pendant cette consolidation. Les PR de référence 
 
 ### 2026-11-22 — État courant des PR consolidées
 
-- PR #73 : nouveau HEAD `f7331ed` ajoute le traitement partagé noindex des articles et projets introuvables. Backend isolé et audit npm sont en cours ; frontend build/test en file d'attente. La Preview Vercel actuelle reste sur `53c2b4b`, sans la fonction HTTP 404. Le quota Vercel empêche actuellement une nouvelle Preview.
+- PR #73 : nouveau HEAD `f7331ed` ajoute le traitement partagé noindex des articles et projets introuvables. **Tous les checks GitHub sont verts** (tests SEO, tests frontend, build production, backend isolé, audit workflow et pins d'actions). La Preview Vercel actuelle reste sur `53c2b4b`, sans la fonction HTTP 404. Le quota Vercel empêche actuellement une nouvelle Preview.
 - PR #74 : dernier commit `05d0916` est documentaire uniquement ; le code au HEAD `d106683` a passé 43 tests backend (1 skip Atlas), 14 tests frontend, le build production et les pins d'actions. La gate Staging reste non exécutée.
 - PR #75 : CI et audit complets/production réussis ; 0 critique, 17 élevées restantes. Le candidat ne doit pas être décrit comme exempt de vulnérabilités.
 - PR #76 : tests frontend et build réussis ; recette clavier et lecteur d'écran manuelle en attente.
