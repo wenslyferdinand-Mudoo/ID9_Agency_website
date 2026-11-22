@@ -42,44 +42,102 @@ jobs:
           FULL_EXIT=$?
           npm audit --omit=dev --json > npm-audit-production.json
           PROD_EXIT=$?
-          printf "Full audit exit code: %s\nProduction audit exit code: %s\n" "$FULL_EXIT" "$PROD_EXIT" > npm-audit-exit-codes.txt
+          printf "Full audit exit code: %s\\nProduction audit exit code: %s\\n" "$FULL_EXIT" "$PROD_EXIT" > npm-audit-exit-codes.txt
           exit 0
 
-      - name: Summarize findings without hiding audit failures
+      - name: Publish actionable audit summary
+        if: always()
         working-directory: frontend
         run: |
           node <<'NODE'
           const fs = require('fs');
-          for (const file of ['npm-audit-full.json', 'npm-audit-production.json']) {
+          const path = require('path');
+          const files = [
+            { label: 'All dependencies', file: 'npm-audit-full.json' },
+            { label: 'Production dependencies', file: 'npm-audit-production.json' }
+          ];
+          const levels = ['critical', 'high', 'moderate', 'low', 'info'];
+          const lines = [
+            '## Frontend dependency security audit',
+            '',
+            '> Informational security report. Findings are not automatically fixed and this workflow does not treat an audit finding as a CI test failure.',
+            ''
+          ];
+          let parseFailures = 0;
+
+          for (const entry of files) {
+            const fullPath = path.join(process.cwd(), entry.file);
             let report;
             try {
-              report = JSON.parse(fs.readFileSync(file, 'utf8'));
+              report = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
             } catch (error) {
-              console.error(`Could not parse ${file}: ${error.message}`);
-              process.exitCode = 1;
+              parseFailures++;
+              lines.push(`### ${entry.label}`, '', `Could not parse report: ${error.message}`, '');
               continue;
             }
+
             const counts = report.metadata?.vulnerabilities || {};
-            console.log(`\n=== ${file} ===`);
-            console.log(JSON.stringify(counts, null, 2));
-            for (const [name, item] of Object.entries(report.vulnerabilities || {})) {
-              console.log(JSON.stringify({
-                package: name,
-                severity: item.severity,
-                direct: item.isDirect,
-                range: item.range,
-                fixAvailable: item.fixAvailable,
-                via: (item.via || []).map(v => typeof v === 'string' ? v : {
-                  name: v.name, title: v.title, range: v.range, url: v.url
-                }),
-                effects: item.effects,
-                nodes: item.nodes
-              }));
+            const vulnerabilities = Object.entries(report.vulnerabilities || {});
+            lines.push(
+              `### ${entry.label}`,
+              '',
+              '| Critical | High | Moderate | Low | Total |',
+              '| ---: | ---: | ---: | ---: | ---: |',
+              `| ${counts.critical || 0} | ${counts.high || 0} | ${counts.moderate || 0} | ${counts.low || 0} | ${counts.total || 0} |`,
+              ''
+            );
+
+            if (report.error) {
+              lines.push(`npm audit reported an error: ${report.error.summary || report.error.code || 'see JSON artifact'}`, '');
             }
+
+            if (vulnerabilities.length) {
+              lines.push(
+                '| Package | Severity | Direct dependency | Fix information |',
+                '| --- | --- | --- | --- |'
+              );
+              vulnerabilities
+                .sort((a, b) => levels.indexOf(a[1].severity) - levels.indexOf(b[1].severity) || a[0].localeCompare(b[0]))
+                .forEach(([name, item]) => {
+                  const fix = item.fixAvailable === true ? 'Available' :
+                    item.fixAvailable === false ? 'No compatible fix reported' :
+                    item.fixAvailable && typeof item.fixAvailable === 'object'
+                      ? `Update to ${item.fixAvailable.version || item.fixAvailable.name || 'review required'}${item.fixAvailable.isSemVerMajor ? ' (major)' : ''}`
+                      : 'Unknown';
+                  lines.push(`| ${name} | ${item.severity} | ${item.isDirect ? 'Yes' : 'No'} | ${fix} |`);
+                });
+              lines.push('');
+            } else {
+              lines.push('No package vulnerabilities were reported.', '');
+            }
+          }
+
+          try {
+            const exitCodes = fs.readFileSync('npm-audit-exit-codes.txt', 'utf8').trim();
+            lines.push('### npm audit process status', '', '```text', exitCodes, '```', '');
+          } catch {
+            lines.push('Audit process exit-code file was unavailable.', '');
+          }
+
+          lines.push(
+            '### Remediation policy',
+            '',
+            '- Review production-impacting critical and high findings first.',
+            '- Prefer targeted, lockfile-preserving updates and validate the complete test/build suite.',
+            '- Do not use `npm audit fix --force` as an unattended remediation strategy.',
+            '- Keep dependency migrations separate from CI action/runtime maintenance when they require broader compatibility work.',
+            ''
+          );
+
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join('\\n'));
+          if (parseFailures) {
+            console.error(`Failed to parse ${parseFailures} audit report(s).`);
+            process.exitCode = 1;
           }
           NODE
 
       - name: Upload machine-readable audit reports
+        if: always()
         # actions/upload-artifact v6.0.0 — immutable commit pin.
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
