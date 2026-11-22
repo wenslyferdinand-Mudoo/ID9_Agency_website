@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { applyProjectMetadata, applyStaticRouteMetadata, STATIC_ROUTES, SITE_URL } from "./generate-seo-pages.mjs";
+import { applyProjectMetadata, applyStaticRouteMetadata, escapeHtml, STATIC_ROUTES, SITE_URL } from "./generate-seo-pages.mjs";
 
 const template = `<!doctype html>
 <html lang="en"><head>
@@ -23,7 +23,7 @@ test("every public static route receives unique canonical and social metadata", 
     const result = applyStaticRouteMetadata(template, route);
     const expectedUrl = route === "/" ? `${SITE_URL}/` : `${SITE_URL}${route}`;
     assert.equal(result.url, expectedUrl);
-    assert.ok(result.html.includes(`<title>${metadata.title}</title>`));
+    assert.ok(result.html.includes(`<title>${escapeHtml(metadata.title)}</title>`));
     assert.ok(result.html.includes(`href="${expectedUrl}"`));
     assert.ok(result.html.includes(`content="${expectedUrl}"`));
     assert.ok(result.html.includes('property="og:type" content="website"'));
