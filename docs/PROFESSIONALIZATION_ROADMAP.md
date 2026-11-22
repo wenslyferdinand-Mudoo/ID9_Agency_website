@@ -520,3 +520,21 @@ Aucune PR de ce lot n'est considérée comme prête à fusionner sur la seule ba
 - PR actives de référence pour les lots en cours : **#69 (portfolio), #73 (SEO/routing), #74 (backend sécurité)**.
 - PR #50, #32 et #52 : à fermer comme doublons seulement après validation complète du lot #74.
 - PR #21 et #34 restent ouvertes jusqu'à extraction et vérification de toutes leurs fonctionnalités SEO uniques ; ne pas fusionner leurs branches en bloc.
+
+
+### 2026-11-22 — Clôture des branches P0 redondantes
+
+Après comparaison et transfert des fonctionnalités, les PR suivantes sont maintenant fermées **sans merge** :
+
+- **#50** — protections CORS et seed : intégrées dans #74.
+- **#32** — provisioning explicite admin : intégré dans #74 ; les améliorations de guide ont été préservées dans `docs/SETUP_GUIDE.md` sur #55.
+- **#52** — branche de sécurité ancienne, 47 commits derrière main : remplacée par la branche propre #74.
+- **#61** — règles métier contact et Resend : réintégrées dans #74 ; roadmap commercial préservé sur #55.
+- **#66** — normalisation whitespace : réintégrée dans #74.
+- **#62** — doublon portfolio : remplacé par #69.
+
+PR #74 reste l'unique branche de référence backend sécurité. Le HEAD actuel est `0f3b9465cf4c2bc679a8d27073a6814e03ed5337`; les tests backend sont verts, les contrôles d'actions sont verts, et le build frontend est en cours après la mise à jour documentaire. PR #74 reste Draft jusqu'à la validation complète de ce HEAD et des gates Staging.
+
+Les PR #69 et #73 restent Draft. #69 conserve la résolution portfolio de référence. #73 a des checks GitHub verts sur `07c1258`, mais la Preview READY disponible est encore sur `53c2b4b`, donc antérieure au fallback HTTP 404. Une nouvelle Preview n'a pas pu être créée car Vercel a renvoyé le quota `api-deployments-free-per-day` (>100, délai annoncé 24 h). Le statut HTTP 404 réel reste à valider dès que le quota le permettra.
+
+Le nombre de PR ouvertes a été réduit en fermant les doublons ; aucun code n'a été fusionné vers main et aucun déploiement Production n'a été déclenché.
