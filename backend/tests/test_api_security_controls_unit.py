@@ -136,3 +136,51 @@ def test_contact_keeps_saved_brief_when_resend_notification_fails(monkeypatch):
     contacts.update_one.assert_awaited_once()
     assert contacts.update_one.await_args.args[1]["$set"]["email_status"] == "failed"
     send_email.assert_called_once()
+
+
+def test_contact_required_text_is_trimmed_and_whitespace_only_is_rejected():
+    contact = server.ContactCreate(
+        name="  Valid Name  ",
+        email="person@example.com",
+        message="  This message is long enough.  ",
+    )
+    assert contact.name == "Valid Name"
+    assert contact.message == "This message is long enough."
+
+    with pytest.raises(ValidationError):
+        server.ContactCreate(name="   ", email="person@example.com", message="This message is long enough.")
+    with pytest.raises(ValidationError):
+        server.ContactCreate(name="Valid Name", email="person@example.com", message="          ")
+
+
+def test_contact_optional_text_is_trimmed_and_empty_values_become_none():
+    contact = server.ContactCreate(
+        name="Valid Name",
+        email="person@example.com",
+        whatsapp="  +50900000000  ",
+        budget="   ",
+        service="  Branding  ",
+        deadline="  ",
+        message="This message is long enough.",
+    )
+    assert contact.whatsapp == "+50900000000"
+    assert contact.budget is None
+    assert contact.service == "Branding"
+    assert contact.deadline is None
+
+
+@pytest.mark.parametrize(
+    ("field", "limit"),
+    [("whatsapp", 40), ("budget", 80), ("service", 120), ("deadline", 80)],
+)
+def test_contact_optional_text_length_limits(field, limit):
+    payload = {
+        "name": "Valid Name",
+        "email": "person@example.com",
+        "message": "This message is long enough.",
+        field: "X" * limit,
+    }
+    assert getattr(server.ContactCreate(**payload), field) == "X" * limit
+    payload[field] = "X" * (limit + 1)
+    with pytest.raises(ValidationError):
+        server.ContactCreate(**payload)
