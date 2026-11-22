@@ -126,7 +126,7 @@ export default function Navigation() {
         data-testid="site-navigation"
       >
         <nav
-          className={`glass-strong rounded-full max-w-6xl mx-auto flex items-center justify-between pl-3 pr-3 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+          className={`glass-strong rounded-full max-w-6xl mx-auto flex items-center justify-between pl-3 pr-3 transition-all duration-500 ease-premium ${
             compact
               ? "py-1.5 mt-2 md:mt-3 lg:mt-9 shadow-[0_16px_48px_-12px_rgba(0,0,0,0.65)]"
               : "py-2 mt-4 md:mt-6 lg:mt-10 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.4)]"
@@ -272,10 +272,10 @@ export default function Navigation() {
                       }
                       data-testid={`nav-mobile-link-${l.to === "/" ? "home" : l.to.replace("/", "")}`}
                     >
-                      <span className="relative inline-flex items-center gap-3 sm:gap-5 font-display font-black tracking-tighter text-[clamp(1.75rem,7vw,3rem)] leading-none transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-2 sm:group-hover:translate-x-3">
+                      <span className="relative inline-flex items-center gap-3 sm:gap-5 font-display font-black tracking-tighter text-[clamp(1.75rem,7vw,3rem)] leading-none transition-transform duration-500 ease-premium group-hover:translate-x-2 sm:group-hover:translate-x-3">
                         <span aria-hidden="true" className="font-ui text-[10px] sm:text-xs font-semibold tracking-[0.2em] text-white/25 tabular-nums">{String(i + 1).padStart(2, "0")}</span>
                         {l.label}
-                        <span className="absolute left-0 -bottom-1 h-[3px] w-full rounded-full bg-gradient-to-r from-orange_impact to-gold_light origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" />
+                        <span className="absolute left-0 -bottom-1 h-[3px] w-full rounded-full bg-gradient-to-r from-orange_impact to-gold_light origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-premium" />
                       </span>
                       <motion.span
                         className="text-white/30 group-hover:text-orange_impact transition-colors"
@@ -406,7 +406,7 @@ function DesktopNavItem({ to, label, end, testId }) {
               {label}
             </span>
             {/* sliding underline */}
-            <span className="absolute left-4 right-4 bottom-1 h-[2px] rounded-full bg-gradient-to-r from-orange_impact to-gold_light origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" />
+            <span className="absolute left-4 right-4 bottom-1 h-[2px] rounded-full bg-gradient-to-r from-orange_impact to-gold_light origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-premium" />
           </motion.span>
         )}
       </NavLink>
