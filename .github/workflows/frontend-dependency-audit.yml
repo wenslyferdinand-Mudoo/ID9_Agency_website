@@ -9,11 +9,17 @@ on:
       - ".github/workflows/frontend-dependency-audit.yml"
   workflow_dispatch:
 
+# Cancel superseded CI runs for the same PR/branch to reduce queue time.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
 jobs:
   dependency-audit:
+    timeout-minutes: 15
     name: Audit locked frontend dependency tree
     runs-on: ubuntu-latest
     steps:
