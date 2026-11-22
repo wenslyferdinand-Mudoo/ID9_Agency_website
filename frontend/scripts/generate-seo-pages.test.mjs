@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { applyProjectMetadata, applyStaticRouteMetadata, escapeHtml, STATIC_ROUTES, SITE_URL } from "./generate-seo-pages.mjs";
+import { applyProjectMetadata, applyStaticRouteMetadata, dedupeProjectsBySlug, escapeHtml, STATIC_ROUTES, SITE_URL } from "./generate-seo-pages.mjs";
 
 const template = `<!doctype html>
 <html lang="en"><head>
@@ -40,6 +40,19 @@ test("static route structured data is valid JSON-LD", () => {
   const data = JSON.parse(match[1]);
   assert.equal(data["@type"], "WebPage");
   assert.equal(data.url, `${SITE_URL}/services`);
+});
+
+test("portfolio sitemap generation input removes invalid and duplicate slugs with Sanity-first precedence", () => {
+  const projects = dedupeProjectsBySlug([
+    { slug: "shared", title: "Sanity version" },
+    { slug: "shared", title: "Duplicate Sanity version" },
+    { slug: "local-only", title: "Founder project" },
+    { slug: "../bad", title: "Invalid path" },
+    { slug: "Upper-Case", title: "Valid case-insensitive slug" },
+  ]);
+  assert.deepEqual(projects.map((project) => project.title), [
+    "Sanity version", "Founder project", "Valid case-insensitive slug",
+  ]);
 });
 
 test("unknown routes fail instead of receiving misleading metadata", () => {
