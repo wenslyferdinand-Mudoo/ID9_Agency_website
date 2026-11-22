@@ -112,6 +112,10 @@ function replaceMeta(html, selector, attribute, value) {
   return html.replace("</head>", `<meta ${selector} ${attribute}="${escaped}" />\n</head>`);
 }
 
+function replaceGeneratedStructuredData(html) {
+  return html.replace(/<script\\b(?=[^>]*data-route-seo=)[^>]*>[\\s\\S]*?<\\/script>/gi, "");
+}
+
 function replaceCanonical(html, url) {
   const escaped = escapeHtml(url);
   const canonicalPattern = /<link\b[^>]*rel=["']canonical["'][^>]*>/i;
@@ -192,7 +196,7 @@ export function applyProjectMetadata(template, project) {
     creator: { "@type": "Organization", name: "Impact Digital 9 Agency", url: SITE_URL },
     publisher: { "@type": "Organization", name: "Impact Digital 9 Agency", url: SITE_URL },
   };
-  html = html.replace("</head>", `<script type="application/ld+json" data-route-seo="project">${JSON.stringify(structuredData).replace(/</g, "\\u003c")}</script>\n</head>`);
+  html = replaceGeneratedStructuredData(html);\n  html = html.replace("</head>", `<script type="application/ld+json" data-route-seo="project">${JSON.stringify(structuredData).replace(/</g, "\\u003c")}</script>\n</head>`);
   return { html, url, title };
 }
 
