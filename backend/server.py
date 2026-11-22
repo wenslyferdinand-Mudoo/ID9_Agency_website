@@ -20,7 +20,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import ReturnDocument
-from pydantic import BaseModel, Field, EmailStr, ConfigDict
+from pydantic import BaseModel, Field, EmailStr, ConfigDict, field_validator
 
 
 # ---------- MongoDB ----------
@@ -171,6 +171,23 @@ class ContactCreate(BaseModel):
     service: Optional[str] = Field(default=None, max_length=120)
     deadline: Optional[str] = Field(default=None, max_length=80)
     message: str = Field(min_length=10, max_length=5000)
+
+    @field_validator("name", "message", mode="before")
+    @classmethod
+    def strip_required_text(cls, value):
+        if isinstance(value, str):
+            value = value.strip()
+            if not value:
+                raise ValueError("Field must not contain only whitespace.")
+        return value
+
+    @field_validator("whatsapp", "budget", "service", "deadline", mode="before")
+    @classmethod
+    def normalize_optional_text(cls, value):
+        if isinstance(value, str):
+            value = value.strip()
+            return value or None
+        return value
 
 
 class Contact(BaseModel):
