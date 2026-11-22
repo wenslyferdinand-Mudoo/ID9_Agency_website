@@ -128,7 +128,9 @@ test("Vercel routing serves prerendered routes and limits SPA rewrites to known 
   const config = JSON.parse(await readFile(new URL("../vercel.json", import.meta.url), "utf8"));
   const rewrites = config.rewrites;
   assert.deepEqual(config.redirects, [{ source: "/journal", destination: "/blog", permanent: true }]);
-  assert.ok(!rewrites.some((rule) => rule.source === "/(.*)"), "A catch-all SPA rewrite would turn unknown URLs into soft 404s");
+  const fallback = rewrites.at(-1);
+  assert.equal(fallback.source, "/(.*)", "The final fallback must handle only unmatched requests");
+  assert.equal(fallback.destination, "/api/not-found", "Unknown requests must reach a server response that can return HTTP 404");
 
   for (const route of Object.keys(STATIC_ROUTES).filter((value) => value !== "/")) {
     const rule = rewrites.find((item) => item.source === route);
@@ -151,6 +153,13 @@ test("Vercel routing serves prerendered routes and limits SPA rewrites to known 
     assert.ok(rule, `Missing noindex response header for ${route}`);
     assert.ok(rule.headers.some((header) => header.key === "X-Robots-Tag" && header.value === "noindex, nofollow"));
   }
+});
+
+test("Vercel unmatched-route function returns a real 404 response", async () => {
+  const source = await readFile(new URL("../api/not-found.js", import.meta.url), "utf8");
+  assert.ok(source.includes('response.status(404)'));
+  assert.ok(source.includes('X-Robots-Tag'));
+  assert.ok(source.includes("Cache-Control"));
 });
 
 test("static branded 404 document is available for unmatched Vercel routes", async () => {
