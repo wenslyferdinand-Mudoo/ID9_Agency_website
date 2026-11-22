@@ -67,9 +67,8 @@ jobs:
         working-directory: frontend
         env:
           CI: "true"
-        # The current main branch has no Jest test files yet. Keep CI green
-        # for this baseline while ensuring any discovered tests must pass.
-        run: npm test -- --watchAll=false --runInBand --passWithNoTests
+        # Fail closed: a missing test suite must not be reported as a passing gate.
+        run: npm test -- --watchAll=false --runInBand
       - name: Build frontend for production
         if: always() && !cancelled()
         working-directory: frontend
