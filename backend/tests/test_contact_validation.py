@@ -61,3 +61,59 @@ def test_contact_create_keeps_optional_fields_optional():
     assert contact.budget is None
     assert contact.service is None
     assert contact.deadline is None
+
+
+
+@pytest.mark.parametrize(
+    ("field", "limit"),
+    [
+        ("whatsapp", 40),
+        ("budget", 80),
+        ("service", 100),
+        ("deadline", 120),
+    ],
+)
+def test_contact_create_enforces_optional_field_length_limits(field, limit):
+    payload = {
+        "name": "Valid Name",
+        "email": "contact@example.com",
+        "message": "A sufficiently detailed project brief.",
+        field: "X" * limit,
+    }
+    contact = ContactCreate(**payload)
+    assert getattr(contact, field) == "X" * limit
+
+    payload[field] = "X" * (limit + 1)
+    with pytest.raises(ValidationError):
+        ContactCreate(**payload)
+
+
+@pytest.mark.parametrize("field", ["name", "message"])
+def test_contact_create_rejects_whitespace_only_required_fields(field):
+    payload = {
+        "name": "Valid Name",
+        "email": "contact@example.com",
+        "message": "A sufficiently detailed project brief.",
+    }
+    payload[field] = " " * 10
+
+    with pytest.raises(ValidationError):
+        ContactCreate(**payload)
+
+
+def test_contact_create_trims_all_optional_text_fields():
+    contact = ContactCreate(
+        name="Valid Name",
+        email="contact@example.com",
+        whatsapp=" +509 3163 4848 ",
+        budget="  500-1000 USD ",
+        service=" Branding ",
+        deadline="  Next month ",
+        message=" A sufficiently detailed project brief. ",
+    )
+
+    assert contact.whatsapp == "+509 3163 4848"
+    assert contact.budget == "500-1000 USD"
+    assert contact.service == "Branding"
+    assert contact.deadline == "Next month"
+    assert contact.message == "A sufficiently detailed project brief."
