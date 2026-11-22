@@ -1,24 +1,26 @@
-name: Backend Static Validation
+name: Repository Quality Gates
 
 on:
   pull_request:
     branches: [main]
     paths:
       - "backend/**"
-      - ".github/workflows/backend-static.yml"
+      - "frontend/**"
+      - ".github/workflows/**"
   push:
     branches: [main]
     paths:
       - "backend/**"
-      - ".github/workflows/backend-static.yml"
+      - "frontend/**"
+      - ".github/workflows/**"
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  python-validation:
-    name: Python syntax and isolated unit tests
+  backend-validation:
+    name: Backend syntax and isolated regression tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -27,9 +29,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Compile backend source and tests
+      - name: Compile backend
         run: python -m compileall -q backend
-      - name: Install minimal isolated test dependencies
+      - name: Install backend test dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install \
@@ -42,7 +44,30 @@ jobs:
             "pydantic>=2.6.4" \
             "email-validator>=2.2.0" \
             "pytest>=8.0.0"
-      # Tests replace the database handle with mocks; no MongoDB service or secrets are used.
       - name: Run isolated backend regression tests
         working-directory: backend
         run: python -m pytest -q tests/test_admin_provisioning_unit.py tests/test_blog_visibility_unit.py tests/test_model_defaults_unit.py
+
+  frontend-validation:
+    name: Frontend tests and production build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies reproducibly
+        working-directory: frontend
+        run: npm ci
+      - name: Run frontend regression tests
+        working-directory: frontend
+        env:
+          CI: "true"
+        run: npm test -- --watchAll=false --runInBand
+      - name: Build frontend for production
+        working-directory: frontend
+        run: npm run build
