@@ -114,6 +114,15 @@ export default defineType({
       type: 'image',
       group: 'media',
       options: {hotspot: true},
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alternative Text',
+          type: 'string',
+          description: 'Describe the meaningful content of the cover image. If left blank, the project title is used as a fallback.',
+          validation: (Rule) => Rule.max(180),
+        }),
+      ],
       validation: (Rule) => Rule.required(),
     }),
     defineField({
