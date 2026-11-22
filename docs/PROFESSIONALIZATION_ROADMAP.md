@@ -571,3 +571,18 @@ PR supplémentaires fermées comme doublons ou fonctionnalités déjà intégré
 Le candidat #75 réduit l'audit complet de 53 à 35 alertes et l'audit production de 52 à 34 ; les critiques passent de 2 à 0 et les élevées de 31 à 17. La chaîne CRA/react-scripts et Zod exigent une stratégie séparée pour les alertes restantes. Ne pas annoncer « audit propre » et ne pas utiliser --force.
 
 Aucun PR n'a été fusionné pendant cette consolidation. Les PR de référence restent en Draft jusqu'aux gates spécifiques ci-dessus.
+
+
+### 2026-11-22 — État courant des PR consolidées
+
+- PR #73 : nouveau HEAD `f7331ed` ajoute le traitement partagé noindex des articles et projets introuvables. Backend isolé et audit npm sont en cours ; frontend build/test en file d'attente. La Preview Vercel actuelle reste sur `53c2b4b`, sans la fonction HTTP 404. Le quota Vercel empêche actuellement une nouvelle Preview.
+- PR #74 : dernier commit `05d0916` est documentaire uniquement ; le code au HEAD `d106683` a passé 43 tests backend (1 skip Atlas), 14 tests frontend, le build production et les pins d'actions. La gate Staging reste non exécutée.
+- PR #75 : CI et audit complets/production réussis ; 0 critique, 17 élevées restantes. Le candidat ne doit pas être décrit comme exempt de vulnérabilités.
+- PR #76 : tests frontend et build réussis ; recette clavier et lecteur d'écran manuelle en attente.
+- PR #77 : tests frontend et build réussis ; validation du build Sanity Studio encore manuelle car le lockfile Studio n'est pas versionné.
+- PR #69 : toujours Draft ; aucune fusion tant que la recette visuelle et les contrôles de source precedence ne sont pas terminés.
+- PR #53 : Draft et explicitement limitée aux remédiations UX non dupliquées par #69/#73/#77.
+- PR #55 : contient désormais le roadmap courant, le guide de provisioning sécurisé, le guide média portfolio, l'exemple d'environnement frontend et l'audit expert daté.
+- PR #4 reste ouverte mais obsolète et en conflit ; ne pas fusionner en bloc. Les workflows actuels sont déjà couverts par main/#74 et les documents utiles ont été préservés dans #55.
+
+Au dernier relevé, **9 PR sont ouvertes** : #77, #76, #75, #74, #73, #69, #55, #53 et #4. Toutes sauf #4 sont Draft. Les branches redondantes ont été fermées sans merge.
