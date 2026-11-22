@@ -61,8 +61,11 @@ function safeSlug(value) {
 export function dedupeProjectsBySlug(projects) {
   const seen = new Set();
   return projects.filter((project) => {
-    if (!safeSlug(project?.slug) || seen.has(project.slug)) return false;
-    seen.add(project.slug);
+    if (!safeSlug(project?.slug)) return false;
+    // Treat slugs case-insensitively to avoid case-only path collisions on hosting/CDN layers.
+    const normalizedSlug = project.slug.toLowerCase();
+    if (seen.has(normalizedSlug)) return false;
+    seen.add(normalizedSlug);
     return true;
   });
 }
