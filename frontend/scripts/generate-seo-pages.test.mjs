@@ -124,22 +124,40 @@ test("sitemap builder XML-escapes paths and rejects malformed or noncanonical UR
   assert.throws(() => buildSitemapXml("not-an-array"), /array/i);
 });
 
-test("Vercel rewrites resolve every prerendered route before the SPA fallback", async () => {
+test("Vercel routing serves prerendered routes and limits SPA rewrites to known dynamic paths", async () => {
   const config = JSON.parse(await readFile(new URL("../vercel.json", import.meta.url), "utf8"));
   const rewrites = config.rewrites;
   assert.deepEqual(config.redirects, [{ source: "/journal", destination: "/blog", permanent: true }]);
-  const fallbackIndex = rewrites.findIndex((rule) => rule.source === "/(.*)");
-  assert.ok(fallbackIndex >= 0, "Expected a final SPA fallback");
+  assert.ok(!rewrites.some((rule) => rule.source === "/(.*)"), "A catch-all SPA rewrite would turn unknown URLs into soft 404s");
+
   for (const route of Object.keys(STATIC_ROUTES).filter((value) => value !== "/")) {
     const rule = rewrites.find((item) => item.source === route);
     assert.ok(rule, `Missing explicit rewrite for ${route}`);
     assert.equal(rule.destination, `${route}/index.html`);
-    assert.ok(rewrites.indexOf(rule) < fallbackIndex, `Rewrite for ${route} must precede fallback`);
   }
+
   const projectRule = rewrites.find((item) => item.source === "/portfolio/:slug");
-  assert.ok(projectRule, "Missing portfolio detail rewrite");
+  assert.ok(projectRule, "Missing generated portfolio detail rewrite");
   assert.equal(projectRule.destination, "/portfolio/:slug/index.html");
-  assert.ok(rewrites.indexOf(projectRule) < fallbackIndex, "Portfolio detail rewrite must precede fallback");
+
+  for (const route of ["/blog/:slug", "/admin", "/admin/:path*"]) {
+    const rule = rewrites.find((item) => item.source === route);
+    assert.ok(rule, `Missing explicit SPA rewrite for ${route}`);
+    assert.equal(rule.destination, "/index.html");
+  }
+
+  for (const route of ["/admin", "/admin/:path*"]) {
+    const rule = config.headers.find((item) => item.source === route);
+    assert.ok(rule, `Missing noindex response header for ${route}`);
+    assert.ok(rule.headers.some((header) => header.key === "X-Robots-Tag" && header.value === "noindex, nofollow"));
+  }
+});
+
+test("static branded 404 document is available for unmatched Vercel routes", async () => {
+  const html = await readFile(new URL("../public/404.html", import.meta.url), "utf8");
+  assert.ok(html.includes("<title>404 — Page not found | Impact Digital 9 Agency</title>"));
+  assert.ok(html.includes('name="robots" content="noindex, follow"'));
+  assert.ok(html.includes("Retour à l’accueil"));
 });
 
 test("JSON-LD serialization is script-safe and generation is idempotent", () => {
