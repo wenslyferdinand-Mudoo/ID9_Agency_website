@@ -28,7 +28,7 @@ test("every public static route receives unique canonical and social metadata", 
     assert.ok(result.html.includes(`content="${expectedUrl}"`));
     assert.ok(result.html.includes('property="og:type" content="website"'));
     assert.ok(result.html.includes('name="twitter:card" content="summary_large_image"'));
-    assert.equal((result.html.match(/<link\\b[^>]*rel="canonical"/gi) || []).length, 1);
+    assert.equal((result.html.match(/<link\b[^>]*rel="canonical"/gi) || []).length, 1);
     assert.equal((result.html.match(/property="og:url"/gi) || []).length, 1);
     assert.equal((result.html.match(/name="twitter:title"/gi) || []).length, 1);
     assert.ok(result.html.includes('data-route-seo="static-page"'));
