@@ -73,7 +73,9 @@ describe("handleMobileMenuKeyDown", () => {
     inertParent.setAttribute("inert", "");
     const inertButton = document.createElement("button");
     inertParent.append(inertButton);
-    panel.append(hidden, disabled, inertParent);
+    const ariaHidden = document.createElement("button");
+    ariaHidden.setAttribute("aria-hidden", "true");
+    panel.append(hidden, disabled, inertParent, ariaHidden);
 
     first.focus();
     const event = keyEvent("Tab", true);
