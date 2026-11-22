@@ -17,6 +17,7 @@ on:
         type: choice
         options:
           - graphic-design
+          - flyers
           - branding
           - web
           - app
