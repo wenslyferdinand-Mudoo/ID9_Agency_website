@@ -133,6 +133,9 @@ jobs:
           path: frontend/npm-audit.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Test static SEO metadata generation
+        working-directory: frontend
+        run: npm run test:seo
       - name: Run frontend regression tests
         working-directory: frontend
         env:
