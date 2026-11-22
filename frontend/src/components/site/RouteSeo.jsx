@@ -1,7 +1,11 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
+import api from "@/lib/api";
 import { fetchPortfolioBySlug } from "@/lib/portfolio";
+import { getFounderProjectBySlug } from "@/lib/founder-projects";
+import { resolvePortfolioProject } from "@/lib/portfolio-resolution";
+import { getPortfolioSeoMetadata } from "@/lib/portfolio-seo";
 
 // Production canonical host until id9agency.com is purchased and attached to Vercel.
 const SITE_URL = "https://id9-agency-website.vercel.app";
@@ -63,14 +67,31 @@ function applyMeta({ title, description, image = DEFAULT_SHARE_IMAGE, url, type 
   setMeta('meta[name="twitter:image"]', "content", image);
 }
 
+function setProjectSchema(schema) {
+  let script = document.querySelector('script[data-route-seo="project"]');
+  if (!script) {
+    script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.dataset.routeSeo = "project";
+    document.head.appendChild(script);
+  }
+  script.textContent = JSON.stringify(schema);
+}
+
+function clearProjectSchema() {
+  document.querySelector('script[data-route-seo="project"]')?.remove();
+}
+
 export default function RouteSeo() {
   const { pathname } = useLocation();
   const { lang } = useI18n();
 
   useEffect(() => {
+    let cancelled = false;
+    clearProjectSchema();
+
     if (pathname.startsWith("/admin")) return undefined;
 
-    let cancelled = false;
     const canonicalUrl = SITE_URL + pathname;
     document.documentElement.lang = lang;
     setCanonical(pathname);
@@ -79,50 +100,42 @@ export default function RouteSeo() {
       const slug = pathname.split("/").filter(Boolean)[1];
       if (!slug) return undefined;
 
-      fetchPortfolioBySlug(slug).then((project) => {
-        if (cancelled || !project) return;
-        const title =
-          (typeof project.seoTitle === "string" && project.seoTitle.trim()) ||
-          `${project.title || "Project"} | Impact Digital 9 Agency`;
-        const description =
-          (typeof project.seoDescription === "string" && project.seoDescription.trim()) ||
-          (typeof project.summary === "string" && project.summary.trim()) ||
-          "A selected project by Impact Digital 9 Agency.";
-        const image = project.cover_image || DEFAULT_SHARE_IMAGE;
-
-        applyMeta({ title, description, image, url: canonicalUrl });
-        const schema = {
-          "@context": "https://schema.org",
-          "@type": "CreativeWork",
-          name: project.title || title,
-          description,
-          url: canonicalUrl,
-          image,
-          creator: {
-            "@type": "Organization",
-            name: "Impact Digital 9 Agency",
-            url: SITE_URL,
-          },
-        };
-        let script = document.querySelector('script[data-route-seo="project"]');
-        if (!script) {
-          script = document.createElement("script");
-          script.type = "application/ld+json";
-          script.dataset.routeSeo = "project";
-          document.head.appendChild(script);
-        }
-        script.textContent = JSON.stringify(schema);
-      }).catch(() => {
-        // Static prerendered metadata remains available if the CMS is temporarily unavailable.
+      // Keep SEO resolution aligned with the visible detail page:
+      // published Sanity -> legacy API compatibility -> founder-owned fallback.
+      applyMeta({
+        title: "Project | Impact Digital 9 Agency",
+        description: "Explore a selected project by Impact Digital 9 Agency.",
+        url: canonicalUrl,
       });
 
-      return () => { cancelled = true; };
+      resolvePortfolioProject({
+        slug,
+        lang,
+        fetchSanity: () => fetchPortfolioBySlug(slug),
+        fetchLegacy: async () => {
+          const response = await api.get(`/portfolio/${encodeURIComponent(slug)}`);
+          return response?.data;
+        },
+        fetchFounder: () => getFounderProjectBySlug(slug, lang),
+      }).then((project) => {
+        if (cancelled || !project) return;
+        const metadata = getPortfolioSeoMetadata(project, canonicalUrl, DEFAULT_SHARE_IMAGE);
+        applyMeta(metadata);
+        setProjectSchema(metadata.schema);
+      });
+
+      return () => {
+        cancelled = true;
+      };
     }
 
     const entry = META[pathname] || META["/" + (pathname.split("/")[1] || "")] || META["/"];
     const [title, description] = entry[lang] || entry.en;
     applyMeta({ title, description, url: canonicalUrl });
-    return () => { cancelled = true; };
+
+    return () => {
+      cancelled = true;
+    };
   }, [pathname, lang]);
 
   return null;
