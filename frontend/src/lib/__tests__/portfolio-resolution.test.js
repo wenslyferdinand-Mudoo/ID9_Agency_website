@@ -124,6 +124,34 @@ describe("resolvePortfolioProject", () => {
     expect(result).toBe(founder);
   });
 
+  test("merges listing sources with the same Sanity > legacy > founder precedence", () => {
+    const sanity = source("Sanity", "shared");
+    const legacy = source("Legacy", "shared");
+    const legacyOnly = source("Legacy only", "legacy-only");
+    const founder = source("Founder", "shared");
+    const founderOnly = source("Founder only", "founder-only");
+
+    expect(mergePortfolioProjects([sanity], [legacy, legacyOnly], [founder, founderOnly])).toEqual([
+      sanity,
+      legacyOnly,
+      founderOnly,
+    ]);
+  });
+
+  test("normalizes slug casing and excludes malformed listing records", () => {
+    const canonical = source("Sanity", "Project-A");
+    const duplicate = source("Legacy duplicate", " project-a ");
+    const malformed = [
+      null,
+      [],
+      { slug: "missing-title" },
+      { title: "Missing slug" },
+      { slug: " ", title: "Blank slug" },
+    ];
+
+    expect(mergePortfolioProjects([canonical, ...malformed], [duplicate], [])).toEqual([canonical]);
+  });
+
   test("returns null when no source contains the project", async () => {
     const result = await resolvePortfolioProject({
       slug: "missing",

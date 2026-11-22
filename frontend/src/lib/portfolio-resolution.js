@@ -4,14 +4,41 @@
  * projects (local fallback). A failed or malformed source must not block the
  * next source.
  */
-function isProject(value, requestedSlug) {
+export function isValidPortfolioProject(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const slug = typeof value.slug === "string" ? value.slug.trim() : "";
+  const title = typeof value.title === "string" ? value.title.trim() : "";
+  return Boolean(slug && title);
+}
 
-  const candidateSlug = typeof value.slug === "string" ? value.slug.trim().toLowerCase() : "";
-  const candidateTitle = typeof value.title === "string" ? value.title.trim() : "";
+function isProject(value, requestedSlug) {
+  if (!isValidPortfolioProject(value)) return false;
+  const candidateSlug = value.slug.trim().toLowerCase();
   const expectedSlug = typeof requestedSlug === "string" ? requestedSlug.trim().toLowerCase() : "";
+  return Boolean(expectedSlug && candidateSlug === expectedSlug);
+}
 
-  return Boolean(expectedSlug && candidateSlug === expectedSlug && candidateTitle);
+/**
+ * Merge portfolio sources using the exact same precedence as detail lookup.
+ * Records without a usable slug/title are excluded because they cannot produce
+ * a stable public detail route. The first valid record for a slug wins.
+ */
+export function mergePortfolioProjects(sanityItems, legacyItems, founderItems) {
+  const seenSlugs = new Set();
+  const merged = [];
+
+  for (const source of [sanityItems, legacyItems, founderItems]) {
+    if (!Array.isArray(source)) continue;
+    for (const project of source) {
+      if (!isValidPortfolioProject(project)) continue;
+      const key = project.slug.trim().toLowerCase();
+      if (seenSlugs.has(key)) continue;
+      seenSlugs.add(key);
+      merged.push(project);
+    }
+  }
+
+  return merged;
 }
 
 export async function resolvePortfolioProject({

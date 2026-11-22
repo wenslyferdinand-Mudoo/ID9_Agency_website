@@ -9,6 +9,7 @@ import RevealText from "@/components/site/RevealText";
 import FinalCTA from "@/components/sections/FinalCTA";
 import { useI18n } from "@/lib/i18n";
 import { getFounderProjects } from "@/lib/founder-projects";
+import { mergePortfolioProjects } from "@/lib/portfolio-resolution";
 
 export default function PortfolioPage() {
   const [items, setItems] = useState([]);
@@ -50,21 +51,8 @@ export default function PortfolioPage() {
           ? safeArray(legacyResult.value?.data)
           : [];
 
-      // Sanity wins on duplicate slugs. Legacy and founder records are retained
-      // only as a compatibility bridge until their records are reconciled in Sanity.
-      const merged = [...sanityItems, ...legacyItems, ...founderProjects];
-      const seen = new Set();
-      const unique = merged.filter((project) => {
-        if (!project || typeof project !== "object") return false;
-        const key = project.slug
-          ? String(project.slug).trim().toLowerCase()
-          : project.id
-            ? String(project.id).trim().toLowerCase()
-            : [String(project.client || "").trim().toLowerCase(), String(project.title || "").trim().toLowerCase()].join("::");
-        if (!key || key === "::" || seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      });
+      // Use the same validation and source precedence as project detail routes.
+      const unique = mergePortfolioProjects(sanityItems, legacyItems, founderProjects);
 
       if (!cancelled) setItems(unique);
     }

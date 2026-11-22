@@ -74,3 +74,14 @@ The following require live access or a controlled environment and are intentiona
 - Les tests de résolution couvrent également les tableaux reçus comme faux enregistrements et les titres de type invalide.
 
 Cette protection est vérifiée par la CI de la PR ; elle ne remplace pas la recette navigateur des routes réelles.
+
+
+## Alignement listing / détail — 2026-11-22
+
+- Le listing et les routes de détail partagent maintenant la même validation minimale d'identité : objet, titre non vide et slug non vide.
+- Le listing applique explicitement la même priorité que la page détail : Sanity publié, API historique, puis projets du fondateur.
+- Les doublons de slug (insensibles à la casse et aux espaces périphériques) sont résolus en faveur de la première source valide.
+- Les enregistrements sans slug exploitable sont exclus du listing puisqu'ils ne peuvent pas ouvrir une route détail stable.
+- Des tests unitaires couvrent la priorité des sources, les collisions de slugs et les enregistrements invalides.
+
+La vérification runtime des données réelles et la recette visuelle restent des étapes distinctes.
