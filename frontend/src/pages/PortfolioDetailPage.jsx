@@ -110,7 +110,7 @@ export default function PortfolioDetailPage() {
           {item.cover_image ? (
             <img
               src={item.cover_image}
-              alt={item.title || ""}
+              alt={item.cover_image_alt || item.title || ""}
               className="h-full w-full object-cover"
               loading="eager"
               decoding="async"
