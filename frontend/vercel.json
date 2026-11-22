@@ -75,5 +75,12 @@
         }
       ]
     }
+  ],
+  "redirects": [
+    {
+      "source": "/journal",
+      "destination": "/blog",
+      "permanent": true
+    }
   ]
 }
