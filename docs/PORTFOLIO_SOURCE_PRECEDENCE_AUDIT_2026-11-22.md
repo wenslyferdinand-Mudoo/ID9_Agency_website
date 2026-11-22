@@ -47,7 +47,7 @@ A failed remote source no longer prevents the next source from being checked. Th
 ## Not yet verified
 
 The following require live access or a controlled environment and are intentionally not inferred from static code:
-- actual published Sanity document count, draft count, duplicate slugs, asset availability, and content completeness;
+- draft count, duplicate slugs, asset availability, and content completeness remain unverified. The latest Vercel Preview build's SEO generation step reported 8 published portfolio routes from Sanity; this is build-time evidence, not a complete CMS export or reconciliation;
 - actual legacy MongoDB record count and content quality;
 - cross-source project identity reconciliation;
 - external-link reachability and publication permissions;
