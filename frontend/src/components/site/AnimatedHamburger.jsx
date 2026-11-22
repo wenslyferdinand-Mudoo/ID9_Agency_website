@@ -32,7 +32,10 @@ export default function AnimatedHamburger({ open, onClick, label, testId, classN
 
   return (
     <motion.button
-      ref={(node) => {\n        ref.current = node;\n        if (buttonRef) buttonRef.current = node;\n      }}
+      ref={(node) => {
+        ref.current = node;
+        if (buttonRef) buttonRef.current = node;
+      }}
       onClick={onClick}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
