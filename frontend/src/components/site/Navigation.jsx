@@ -272,7 +272,7 @@ export default function Navigation() {
                       }
                       data-testid={`nav-mobile-link-${l.to === "/" ? "home" : l.to.replace("/", "")}`}
                     >
-                      <span className="relative inline-flex items-center gap-3 sm:gap-5 font-display font-black tracking-tighter text-[clamp(2rem,9vw,3.5rem)] leading-none transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-2 sm:group-hover:translate-x-3">
+                      <span className="relative inline-flex items-center gap-3 sm:gap-5 font-display font-black tracking-tighter text-[clamp(1.75rem,7vw,3rem)] leading-none transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-2 sm:group-hover:translate-x-3">
                         <span aria-hidden="true" className="font-ui text-[10px] sm:text-xs font-semibold tracking-[0.2em] text-white/25 tabular-nums">{String(i + 1).padStart(2, "0")}</span>
                         {l.label}
                         <span className="absolute left-0 -bottom-1 h-[3px] w-full rounded-full bg-gradient-to-r from-orange_impact to-gold_light origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" />
