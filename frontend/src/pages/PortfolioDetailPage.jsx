@@ -14,7 +14,9 @@ export default function PortfolioDetailPage() {
   const { slug } = useParams();
   const [item, setItem] = useState(null);
   const [notFound, setNotFound] = useState(false);
+  const [loadedRequestKey, setLoadedRequestKey] = useState(null);
   const { lang } = useI18n();
+  const requestKey = `${lang}:${slug || ""}`;
   const heroRef = useRef(null);
   const reduceMotion = useReducedMotion();
 
@@ -51,6 +53,7 @@ export default function PortfolioDetailPage() {
       } else {
         setNotFound(true);
       }
+      setLoadedRequestKey(requestKey);
     }
 
     loadProject();
@@ -58,7 +61,12 @@ export default function PortfolioDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, [slug, lang]);
+  }, [slug, lang, requestKey]);
+
+  // Do not render a previous project's content during the render before the
+  // next effect runs (route changes and language switches both create a new key).
+  if (loadedRequestKey !== requestKey)
+    return <main className="min-h-screen pt-40 text-center text-white/50">Loading…</main>;
 
   if (notFound)
     return (

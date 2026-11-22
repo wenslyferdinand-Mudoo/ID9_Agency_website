@@ -64,3 +64,13 @@ The following require live access or a controlled environment and are intentiona
 3. Run a live, read-only Sanity inventory and export a backup of legacy records before any data mutation.
 4. Produce a slug and project-identity reconciliation table.
 5. Obtain owner approval before changing the source-of-truth read/write architecture or removing legacy records.
+
+
+## Complément de robustesse — cycle de navigation (2026-11-22)
+
+- La page de détail associe désormais chaque chargement à une clé route + langue.
+- Tant que la réponse correspondant à cette clé n'est pas disponible, l'interface conserve l'état de chargement au lieu d'afficher brièvement le projet précédent lors d'une navigation rapide ou d'un changement de langue.
+- Les réponses asynchrones obsolètes restent ignorées via le mécanisme d'annulation existant.
+- Les tests de résolution couvrent également les tableaux reçus comme faux enregistrements et les titres de type invalide.
+
+Cette protection est vérifiée par la CI de la PR ; elle ne remplace pas la recette navigateur des routes réelles.

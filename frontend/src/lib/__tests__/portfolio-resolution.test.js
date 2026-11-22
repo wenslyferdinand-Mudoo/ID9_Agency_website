@@ -98,6 +98,32 @@ describe("resolvePortfolioProject", () => {
     expect(result).toBe(founder);
   });
 
+  test("rejects array payloads and continues to the next source", async () => {
+    const legacy = source("Legacy");
+    const result = await resolvePortfolioProject({
+      slug: "shared-slug",
+      lang: "en",
+      fetchSanity: jest.fn().mockResolvedValue([source("Invalid array payload")]),
+      fetchLegacy: jest.fn().mockResolvedValue(legacy),
+      fetchFounder: jest.fn(),
+    });
+
+    expect(result).toBe(legacy);
+  });
+
+  test("rejects records with a non-string title", async () => {
+    const founder = source("Founder");
+    const result = await resolvePortfolioProject({
+      slug: "shared-slug",
+      lang: "en",
+      fetchSanity: jest.fn().mockResolvedValue({ slug: "shared-slug", title: 42 }),
+      fetchLegacy: jest.fn().mockResolvedValue(null),
+      fetchFounder: jest.fn().mockResolvedValue(founder),
+    });
+
+    expect(result).toBe(founder);
+  });
+
   test("returns null when no source contains the project", async () => {
     const result = await resolvePortfolioProject({
       slug: "missing",
