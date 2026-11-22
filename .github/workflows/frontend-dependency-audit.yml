@@ -1,0 +1,89 @@
+name: Frontend Dependency Security Audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "frontend/package.json"
+      - "frontend/package-lock.json"
+      - ".github/workflows/frontend-dependency-audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-audit:
+    name: Audit locked frontend dependency tree
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install locked dependency graph without lifecycle scripts
+        working-directory: frontend
+        run: npm ci --ignore-scripts
+
+      - name: Capture full and production dependency audits
+        working-directory: frontend
+        shell: bash
+        run: |
+          set +e
+          npm audit --json > npm-audit-full.json
+          FULL_EXIT=$?
+          npm audit --omit=dev --json > npm-audit-production.json
+          PROD_EXIT=$?
+          printf "Full audit exit code: %s\nProduction audit exit code: %s\n" "$FULL_EXIT" "$PROD_EXIT" > npm-audit-exit-codes.txt
+          exit 0
+
+      - name: Summarize findings without hiding audit failures
+        working-directory: frontend
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          for (const file of ['npm-audit-full.json', 'npm-audit-production.json']) {
+            let report;
+            try {
+              report = JSON.parse(fs.readFileSync(file, 'utf8'));
+            } catch (error) {
+              console.error(`Could not parse ${file}: ${error.message}`);
+              process.exitCode = 1;
+              continue;
+            }
+            const counts = report.metadata?.vulnerabilities || {};
+            console.log(`\n=== ${file} ===`);
+            console.log(JSON.stringify(counts, null, 2));
+            for (const [name, item] of Object.entries(report.vulnerabilities || {})) {
+              console.log(JSON.stringify({
+                package: name,
+                severity: item.severity,
+                direct: item.isDirect,
+                range: item.range,
+                fixAvailable: item.fixAvailable,
+                via: (item.via || []).map(v => typeof v === 'string' ? v : {
+                  name: v.name, title: v.title, range: v.range, url: v.url
+                }),
+                effects: item.effects,
+                nodes: item.nodes
+              }));
+            }
+          }
+          NODE
+
+      - name: Upload machine-readable audit reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-npm-audit-reports
+          path: |
+            frontend/npm-audit-full.json
+            frontend/npm-audit-production.json
+            frontend/npm-audit-exit-codes.txt
+          if-no-files-found: error
+          retention-days: 14
