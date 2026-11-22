@@ -538,3 +538,36 @@ PR #74 reste l'unique branche de référence backend sécurité. Le HEAD actuel 
 Les PR #69 et #73 restent Draft. #69 conserve la résolution portfolio de référence. #73 a des checks GitHub verts sur `07c1258`, mais la Preview READY disponible est encore sur `53c2b4b`, donc antérieure au fallback HTTP 404. Une nouvelle Preview n'a pas pu être créée car Vercel a renvoyé le quota `api-deployments-free-per-day` (>100, délai annoncé 24 h). Le statut HTTP 404 réel reste à valider dès que le quota le permettra.
 
 Le nombre de PR ouvertes a été réduit en fermant les doublons ; aucun code n'a été fusionné vers main et aucun déploiement Production n'a été déclenché.
+
+
+### 2026-11-22 — Consolidation P1/P2 supplémentaire
+
+PR supplémentaires fermées comme doublons ou fonctionnalités déjà intégrées :
+
+- **#7** — API URL configuration : remplacée par la normalisation sûre de l'URL backend et ses tests dans #74.
+- **#8** — proportions médias : comportement object-contain et cadres centrés déjà présent dans main.
+- **#21** — SEO/routing : fonctionnalités reprises dans #73.
+- **#34** — SEO portfolio : remplacé par la génération statique/RouteSeo de #73 ; noindex des slugs portfolio non résolus intégré à #73.
+- **#54** — lockfile ancien : candidat réévalué dans #75.
+- **#67** — accessibilité navigation : nouvelle branche propre #76.
+- **#61, #62, #66, #50, #52, #32** — consolidées dans les PR de référence et fermées précédemment.
+
+#### PR de référence restantes
+
+| PR | Domaine | État | Gate restant |
+|---|---|---|---|
+| #69 | Source precedence portfolio | Draft | Recette visuelle et tests d'intégration |
+| #73 | SEO, prerender, routing, 404 | Draft, CI vert sur HEAD 462576f | Nouvelle Preview Vercel ; quota de déploiement actuel bloque le test HTTP réel |
+| #74 | Sécurité backend, sessions, contact | Draft, code validé sur HEAD d106683 ; dernier commit 05d0916 documentaire | Atlas/Render Staging, Resend réel, recette auth/contact |
+| #75 | Corrections npm compatibles | Draft, CI et audits verts | Revue des 17 vulnérabilités élevées restantes et stratégie CRA/Zod |
+| #76 | Accessibilité clavier mobile | Draft, CI/build verts | Recette clavier manuelle et lecteur d'écran |
+| #77 | Alt text cover portfolio + schéma Sanity | Draft, CI/build frontend verts | Build Studio (pas de lockfile Studio versionné) et recette CMS sans écriture de contenu |
+| #53 | Audit UX/SEO/média | Draft, périmètre réduit | Retirer les duplications avec #69/#73/#77 et conserver uniquement les remédiations uniques |
+| #55 | Documentation/professionalisation | Draft | Revue finale des documents conservés et alignement des statuts |
+| #4 | Ancienne qualité/roadmap | Ouverte, branche obsolète | Diff restant à examiner ; workflows modernes déjà présents dans main |
+
+#### Dépendances npm — décision
+
+Le candidat #75 réduit l'audit complet de 53 à 35 alertes et l'audit production de 52 à 34 ; les critiques passent de 2 à 0 et les élevées de 31 à 17. La chaîne CRA/react-scripts et Zod exigent une stratégie séparée pour les alertes restantes. Ne pas annoncer « audit propre » et ne pas utiliser --force.
+
+Aucun PR n'a été fusionné pendant cette consolidation. Les PR de référence restent en Draft jusqu'aux gates spécifiques ci-dessus.
