@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { applyProjectMetadata, applyStaticRouteMetadata, dedupeProjectsBySlug, escapeHtml, STATIC_ROUTES, SITE_URL } from "./generate-seo-pages.mjs";
+import { applyProjectMetadata, applyStaticRouteMetadata, buildSitemapXml, dedupeProjectsBySlug, escapeHtml, STATIC_ROUTES, SITE_URL } from "./generate-seo-pages.mjs";
 
 const template = `<!doctype html>
 <html lang="en"><head>
@@ -75,4 +75,35 @@ test("project metadata keeps canonical URLs and escapes untrusted text", () => {
   assert.ok(html.includes('property="og:type" content="article"'));
   assert.ok(html.includes(`href="${url}"`));
   assert.ok(!html.includes("<script>case</script>"));
+});
+
+test("sitemap builder emits XML envelope and unique canonical URLs", () => {
+  const xml = buildSitemapXml([
+    `${SITE_URL}/`, `${SITE_URL}/about`, `${SITE_URL}/about`,
+    `${SITE_URL}/portfolio/case-study`,
+  ]);
+  assert.ok(xml.startsWith('<?xml version="1.0" encoding="UTF-8"?>'));
+  assert.ok(xml.includes('xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"'));
+  assert.equal((xml.match(/<url>/g) || []).length, 3);
+  assert.equal((xml.match(/<loc>/g) || []).length, 3);
+  assert.ok(xml.includes(`<loc>${SITE_URL}/portfolio/case-study</loc>`));
+  assert.ok(xml.endsWith("</urlset>\\n"));
+});
+
+test("sitemap builder XML-escapes paths and rejects malformed or noncanonical URLs", () => {
+  const xml = buildSitemapXml([`${SITE_URL}/portfolio/brand&design`]);
+  assert.ok(xml.includes("<loc>https://id9-agency-website.vercel.app/portfolio/brand&amp;design</loc>"));
+  for (const invalid of [
+    "not-a-url",
+    "http://id9-agency-website.vercel.app/about",
+    "https://example.com/external",
+    `${SITE_URL}/about?campaign=1`,
+    `${SITE_URL}/about#section`,
+    `${SITE_URL}/about/`,
+    "",
+    null,
+  ]) {
+    assert.throws(() => buildSitemapXml([invalid]), /Sitemap|Malformed/i);
+  }
+  assert.throws(() => buildSitemapXml("not-an-array"), /array/i);
 });
