@@ -216,7 +216,7 @@ def send_contact_email(contact: dict) -> None:
         ("Reçu le (UTC)", contact["created_at"]),
         ("Référence", contact["id"]),
     ]
-    text_body = "\\n".join(f"{label}: {value}" for label, value in fields)
+    text_body = "\n".join(f"{label}: {value}" for label, value in fields)
     html_rows = "".join(
         "<tr><th style='text-align:left;padding:8px;border-bottom:1px solid #eee'>"
         + html.escape(label)
