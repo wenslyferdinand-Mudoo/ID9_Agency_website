@@ -59,7 +59,17 @@ export default function Navigation() {
     };
   }, [open, loc.pathname]);
 
-  // Auto-close on route change
+  // Close the mobile menu with Escape and keep keyboard dismissal predictable.
+  useEffect(() => {
+    if (!open) return undefined;
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open]);
+
+  // Auto-close on route change.
   useEffect(() => {
     setOpen(false);
   }, [loc.pathname]);
@@ -152,15 +162,18 @@ export default function Navigation() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-[60] safe-x"
+            className="fixed inset-0 z-[60] safe-x overflow-hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-label={lang === "fr" ? "Menu principal" : "Main navigation"}
             data-testid="nav-mobile-panel"
           >
             {/* Background — solid + mesh + blur layers */}
             <motion.div
-              initial={{ scale: 1.05, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 1.02, opacity: 0 }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              initial={{ scale: 1.035, opacity: 0, filter: "blur(10px)" }}
+              animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
+              exit={{ scale: 1.015, opacity: 0, filter: "blur(8px)" }}
+              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
               className="absolute inset-0 bg-ink-900"
             >
               <div
@@ -202,18 +215,18 @@ export default function Navigation() {
             </div>
 
             {/* Main menu items — staggered cinematic reveal */}
-            <nav className="absolute inset-x-0 top-24 bottom-[11.5rem] min-h-0 overflow-y-auto overscroll-contain px-5 sm:px-6 md:px-12 lg:px-20">
+            <nav aria-label={lang === "fr" ? "Navigation mobile" : "Mobile navigation"} className="absolute inset-x-0 top-24 bottom-[11.5rem] min-h-0 overflow-y-auto overscroll-contain px-5 sm:px-6 md:px-12 lg:px-20">
               <ul className="flex flex-col gap-0 max-w-5xl">
                 {links.map((l, i) => (
                   <motion.li
                     key={l.to}
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
+                    initial={{ opacity: 0, y: 28, filter: "blur(6px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, y: -14, filter: "blur(4px)" }}
                     transition={{
-                      duration: 0.7,
-                      delay: 0.15 + i * 0.07,
-                      ease: [0.16, 1, 0.3, 1],
+                      duration: 0.48,
+                      delay: 0.1 + i * 0.065,
+                      ease: [0.22, 1, 0.36, 1],
                     }}
                     className="border-b border-white/[0.07]"
                   >
@@ -227,7 +240,8 @@ export default function Navigation() {
                       }
                       data-testid={`nav-mobile-link-${l.to === "/" ? "home" : l.to.replace("/", "")}`}
                     >
-                      <span className="relative inline-block font-display font-black tracking-tighter text-[clamp(2rem,9vw,3.5rem)] leading-none transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-3">
+                      <span className="relative inline-flex items-center gap-3 sm:gap-5 font-display font-black tracking-tighter text-[clamp(2rem,9vw,3.5rem)] leading-none transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-2 sm:group-hover:translate-x-3">
+                        <span aria-hidden="true" className="font-ui text-[10px] sm:text-xs font-semibold tracking-[0.2em] text-white/25 tabular-nums">{String(i + 1).padStart(2, "0")}</span>
                         {l.label}
                         <span className="absolute left-0 -bottom-1 h-[3px] w-full rounded-full bg-gradient-to-r from-orange_impact to-gold_light origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" />
                       </span>
@@ -235,7 +249,7 @@ export default function Navigation() {
                         className="text-white/30 group-hover:text-orange_impact transition-colors"
                         initial={false}
                       >
-                        <ArrowUpRight className="w-7 h-7" />
+                        <ArrowUpRight className="w-6 h-6 sm:w-7 sm:h-7" />
                       </motion.span>
                     </NavLink>
                   </motion.li>
