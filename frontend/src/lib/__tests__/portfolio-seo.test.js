@@ -13,7 +13,7 @@ describe("getPortfolioSeoMetadata", () => {
 
     expect(result.title).toBe("Mudoo | Impact Digital 9 Agency");
     expect(result.description).toBe("Private offline music player.");
-    expect(result.image).toBe("/mudoo.webp");
+    expect(result.image).toBe("https://id9-agency-website.vercel.app/mudoo.webp");
     expect(result.schema.name).toBe("Mudoo");
     expect(result.schema.url).toBe(canonicalUrl);
   });
