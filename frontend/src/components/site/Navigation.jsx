@@ -68,6 +68,7 @@ export default function Navigation() {
     if (!open) return undefined;
 
     const panel = panelRef.current;
+    const toggleButton = toggleRef.current;
     closeRef.current?.focus();
 
     const handleKeyDown = (event) =>
@@ -84,7 +85,7 @@ export default function Navigation() {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("focusin", handleFocusIn);
-      if (toggleRef.current?.isConnected) toggleRef.current.focus();
+      if (toggleButton?.isConnected) toggleButton.focus();
     };
   }, [open]);
 
