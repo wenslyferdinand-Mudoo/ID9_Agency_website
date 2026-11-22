@@ -459,3 +459,14 @@ Aucune PR de ce lot n'est considérée comme prête à fusionner sur la seule ba
 - Limite : une page 404 côté React et un `noindex` après hydratation ne garantissent pas à eux seuls un véritable statut HTTP 404 pour les URL inconnues. La configuration Vercel doit être testée pour distinguer routes publiques valides, détails blog, détails portfolio générés et routes inconnues ; ne pas déclarer ce point résolu tant que le code HTTP 404 est vérifié.
 - Contrôle des en-têtes : le sitemap public a renvoyé `access-control-allow-origin: *` ; c'est une réponse d'asset public servie par Vercel et non la configuration CORS du backend FastAPI.
 - Prochaine étape : traiter la redirection et le rendu 404 dans une modification ciblée de #73, avec tests de routing/SEO et nouvelle recette HTTP des routes connues et inconnues. Garder #21 ouvert jusqu'à extraction et validation de toutes ses fonctionnalités uniques.
+
+
+### 2026-11-22 — P0 — Régression métier contact à résoudre avant consolidation backend
+
+- Statut : **BLOQUÉ — réconciliation fonctionnelle requise**.
+- Comparaison source effectuée entre `main`, #52 et #61 : `main` et #61 conservent `send_contact_email()` et le flux de notification Resend après persistance du brief ; la tête #52 a supprimé ce mécanisme et `submit_contact()` se limite à insérer le document MongoDB puis renvoyer la réponse.
+- Conséquence : intégrer #52 tel quel pourrait préserver le stockage des briefs mais supprimer l'e-mail de notification attendu par l'équipe ID9. Le changement n'est pas couvert par les tests de validation Pydantic.
+- #61 apporte également `str_strip_whitespace=True`, des limites de longueur sur les champs obligatoires/facultatifs, ainsi que des tests dédiés. #66 apporte le rejet explicite des champs obligatoires composés uniquement d'espaces et le nettoyage des champs facultatifs, mais son test backend n'a pas encore été observé sur le HEAD de #66.
+- Décision : ne pas fermer #61 et ne pas intégrer #52 sans rétablir ou remplacer explicitement le flux de notification, conserver le rate limiting MongoDB de #52, ajouter des tests d'endpoint pour succès Resend, indisponibilité Resend, persistance du brief et statut de notification, puis aligner le message frontend pour éviter les soumissions en double lorsqu'un brief est déjà sauvegardé.
+- Point métier à trancher dans l'implémentation : lorsque l'enregistrement MongoDB réussit mais que Resend échoue, le backend doit signaler clairement que le brief est sauvegardé et que seule la notification a échoué. Ne pas répondre par un échec ambigu qui incite à renvoyer le même brief sans mécanisme d'idempotence.
+- Aucune donnée, aucun secret, aucune variable Render ou service Resend n'a été modifié pendant cet audit.
