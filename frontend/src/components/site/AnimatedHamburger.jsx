@@ -37,7 +37,8 @@ export default function AnimatedHamburger({ open, onClick, label, testId, classN
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{ x: mx, y: my, perspective: 600 }}
-      whileHover={{ scale: 1.045, y: -1 }}
+      // Keep the vertical spring free to follow the pointer's magnetic offset.
+      whileHover={{ scale: 1.045 }}
       whileTap={{ scale: 0.94 }}
       animate={{
         boxShadow: open
