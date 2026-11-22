@@ -75,7 +75,9 @@ jobs:
             try {
               report = JSON.parse(fs.readFileSync("npm-audit.json", "utf8"));
             } catch (error) {
-              console.log("Dependency audit report unavailable or invalid:", error.message);
+              const message = "Dependency audit report unavailable or invalid: " + error.message;
+              console.log(message);
+              fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, "## Frontend dependency audit\\n\\n" + message + "\\n\\n_Audit is informational; this did not fail CI._\\n");
               process.exit(0);
             }
             const totals = report.metadata?.vulnerabilities || {};
@@ -108,7 +110,7 @@ jobs:
               "",
               "_This audit is informational and does not fail CI. Review and remediation are tracked separately._",
               ""
-            ].join("\\n");
+            ].join("\n");
             fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary);
           '
       - name: Run frontend regression tests
