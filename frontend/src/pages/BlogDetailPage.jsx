@@ -101,6 +101,24 @@ export default function BlogDetailPage() {
     };
   }, [slug, retryCount]);
 
+  // Blog slugs are routed through the SPA; an API 404 must not remain indexable.
+  useEffect(() => {
+    if (!notFound) return;
+
+    document.title = lang === "fr"
+      ? "Article introuvable — Impact Digital 9 Agency"
+      : "Article not found — Impact Digital 9 Agency";
+
+    let robots = document.querySelector('meta[name="robots"]');
+    if (!robots) {
+      robots = document.createElement("meta");
+      robots.setAttribute("name", "robots");
+      document.head.appendChild(robots);
+    }
+    robots.setAttribute("content", "noindex, follow");
+    document.querySelector('link[rel="canonical"]')?.remove();
+  }, [notFound, lang]);
+
   if (loading)
     return (
       <main className="min-h-screen pt-32 md:pt-40 px-4 text-center text-white/50" aria-live="polite" aria-busy="true">
