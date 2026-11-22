@@ -113,6 +113,14 @@ jobs:
             ].join("\n");
             fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary);
           '
+      - name: Upload dependency audit report
+        if: always() && steps.install-dependencies.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-npm-audit-${{ github.run_id }}
+          path: frontend/npm-audit.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Run frontend regression tests
         working-directory: frontend
         env:
