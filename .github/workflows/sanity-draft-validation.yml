@@ -16,11 +16,17 @@ on:
       - ".github/workflows/sanity-draft-validation.yml"
       - "docs/SANITY_PORTFOLIO_DRAFT_AUTOMATION.md"
 
+# Cancel superseded CI runs for the same PR/branch to reduce queue time.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
 jobs:
   static-safety-check:
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
