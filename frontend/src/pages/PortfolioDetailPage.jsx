@@ -71,19 +71,9 @@ export default function PortfolioDetailPage() {
   // Keep that final not-found state out of search indexes without overriding project SEO.
   useEffect(() => {
     if (!notFound) return;
-
-    document.title = lang === "fr"
+    markPageNoindex(lang === "fr"
       ? "Projet introuvable — Impact Digital 9 Agency"
-      : "Project not found — Impact Digital 9 Agency";
-
-    let robots = document.querySelector('meta[name="robots"]');
-    if (!robots) {
-      robots = document.createElement("meta");
-      robots.setAttribute("name", "robots");
-      document.head.appendChild(robots);
-    }
-    robots.setAttribute("content", "noindex, follow");
-    document.querySelector('link[rel="canonical"]')?.remove();
+      : "Project not found — Impact Digital 9 Agency");
   }, [notFound, lang]);
 
   if (notFound)
