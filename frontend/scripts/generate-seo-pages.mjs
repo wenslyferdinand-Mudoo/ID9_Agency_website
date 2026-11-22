@@ -58,6 +58,15 @@ function safeSlug(value) {
   return typeof value === "string" && /^[a-z0-9]+(?:-[a-z0-9]+)*$/i.test(value);
 }
 
+export function dedupeProjectsBySlug(projects) {
+  const seen = new Set();
+  return projects.filter((project) => {
+    if (!safeSlug(project?.slug) || seen.has(project.slug)) return false;
+    seen.add(project.slug);
+    return true;
+  });
+}
+
 function replaceMeta(html, selector, attribute, value) {
   const escaped = escapeHtml(value);
   const pattern = new RegExp(`(<meta[^>]*${selector}[^>]*${attribute}=")[^"]*("[^>]*>)`, "i");
@@ -172,7 +181,8 @@ async function main() {
       year: item.year,
       category: item.category,
     }));
-  const projects = [...sanityProjects, ...localProjects];
+  // Sanity is authoritative; duplicate slugs are discarded deterministically (first source wins).
+  const projects = dedupeProjectsBySlug([...sanityProjects, ...localProjects]);
   const template = await readFile(path.resolve("build/index.html"), "utf8");
   const sitemapPath = path.resolve("build/sitemap.xml");
   const sitemapEntries = Object.keys(STATIC_ROUTES).map((route) => {
