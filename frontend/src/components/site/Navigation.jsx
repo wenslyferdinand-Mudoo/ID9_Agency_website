@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import { ArrowUpRight, Languages, Instagram, Facebook, Mail, MessageCircle } from "lucide-react";
@@ -11,6 +11,9 @@ export default function Navigation() {
   const [open, setOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [compact, setCompact] = useState(false);
+  const toggleRef = useRef(null);
+  const closeRef = useRef(null);
+  const panelRef = useRef(null);
   const loc = useLocation();
   const { t, lang, toggle } = useI18n();
   const { scrollY } = useScroll();
@@ -59,7 +62,56 @@ export default function Navigation() {
     };
   }, [open]);
 
-  // Auto-close on route change
+  // Keep keyboard interaction inside the mobile navigation dialog.
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const panel = panelRef.current;
+    const getFocusable = () =>
+      Array.from(
+        panel?.querySelectorAll(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        ) || []
+      ).filter((element) => !element.hasAttribute("hidden") && element.getAttribute("aria-hidden") !== "true");
+
+    closeRef.current?.focus();
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setOpen(false);
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+
+      const focusable = getFocusable();
+      if (focusable.length === 0) {
+        event.preventDefault();
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey && (active === first || !panel?.contains(active))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (active === last || !panel?.contains(active))) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      toggleRef.current?.focus();
+    };
+  }, [open]);
+
+  // Auto-close on route change.
   useEffect(() => {
     setOpen(false);
   }, [loc.pathname]);
@@ -134,10 +186,12 @@ export default function Navigation() {
               <ArrowUpRight className="w-4 h-4" />
             </Link>
             <AnimatedHamburger
+              buttonRef={toggleRef}
               open={open}
               onClick={() => setOpen((v) => !v)}
               label={open ? (lang === "fr" ? "Fermer le menu" : "Close menu") : (lang === "fr" ? "Ouvrir le menu" : "Open menu")}
               testId="nav-mobile-toggle"
+              controlsId="nav-mobile-panel"
               className="lg:hidden"
             />
           </div>
@@ -152,6 +206,11 @@ export default function Navigation() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            id="nav-mobile-panel"
+            ref={panelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={lang === "fr" ? "Menu principal" : "Main menu"}
             className="fixed inset-0 z-[60] safe-x"
             data-testid="nav-mobile-panel"
           >
@@ -193,6 +252,7 @@ export default function Navigation() {
                 </div>
               </Link>
               <AnimatedHamburger
+                buttonRef={closeRef}
                 open={true}
                 onClick={() => setOpen(false)}
                 label={lang === "fr" ? "Fermer le menu" : "Close menu"}
@@ -202,7 +262,10 @@ export default function Navigation() {
             </div>
 
             {/* Main menu items — staggered cinematic reveal */}
-            <nav className="absolute inset-x-0 top-24 bottom-[11.5rem] min-h-0 overflow-y-auto overscroll-contain px-5 sm:px-6 md:px-12 lg:px-20">
+            <nav
+              aria-label={lang === "fr" ? "Navigation mobile" : "Mobile navigation"}
+              className="absolute inset-x-0 top-24 bottom-[11.5rem] min-h-0 overflow-y-auto overscroll-contain px-5 sm:px-6 md:px-12 lg:px-20"
+            >
               <ul className="flex flex-col gap-0 max-w-5xl">
                 {links.map((l, i) => (
                   <motion.li
