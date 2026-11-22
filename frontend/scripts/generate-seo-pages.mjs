@@ -174,6 +174,7 @@ export function applyProjectMetadata(template, project) {
   html = replaceMeta(html, 'property="og:url"', "content", url);
   html = replaceMeta(html, 'property="og:type"', "content", "article");
   html = replaceMeta(html, 'property="og:image"', "content", image);
+  html = replaceMeta(html, 'name="twitter:card"', "content", "summary_large_image");
   html = replaceMeta(html, 'name="twitter:title"', "content", title);
   html = replaceMeta(html, 'name="twitter:description"', "content", description);
   html = replaceMeta(html, 'name="twitter:image"', "content", image);
