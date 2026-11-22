@@ -57,7 +57,7 @@ export default function Navigation() {
       // ScrollToTop may run while the body is still fixed, so apply the reset after unlock.
       window.scrollTo(0, window.location.pathname === lockedPathname ? scrollY : 0);
     };
-  }, [open]);
+  }, [open, loc.pathname]);
 
   // Auto-close on route change
   useEffect(() => {
