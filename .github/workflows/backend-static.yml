@@ -64,6 +64,29 @@ jobs:
         id: install-dependencies
         working-directory: frontend
         run: npm ci
+      - name: Report dependency security audit
+        working-directory: frontend
+        shell: bash
+        run: |
+          npm audit --json > npm-audit.json || true
+          node -e '
+            const fs = require("fs");
+            const report = JSON.parse(fs.readFileSync("npm-audit.json", "utf8"));
+            const totals = report.metadata?.vulnerabilities || {};
+            console.log("Dependency audit summary:", JSON.stringify(totals));
+            for (const [name, item] of Object.entries(report.vulnerabilities || {})) {
+              const fix = item.fixAvailable === true ? "available" :
+                item.fixAvailable === false ? "not available" :
+                item.fixAvailable ? "available (potentially breaking)" : "unknown";
+              console.log(JSON.stringify({
+                package: name,
+                severity: item.severity,
+                direct: item.isDirect,
+                range: item.range,
+                fix
+              }));
+            }
+          '
       - name: Run frontend regression tests
         working-directory: frontend
         env:
