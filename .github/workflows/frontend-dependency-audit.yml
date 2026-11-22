@@ -42,7 +42,7 @@ jobs:
           FULL_EXIT=$?
           npm audit --omit=dev --json > npm-audit-production.json
           PROD_EXIT=$?
-          printf "Full audit exit code: %s\\nProduction audit exit code: %s\\n" "$FULL_EXIT" "$PROD_EXIT" > npm-audit-exit-codes.txt
+          printf "Full audit exit code: %s\nProduction audit exit code: %s\n" "$FULL_EXIT" "$PROD_EXIT" > npm-audit-exit-codes.txt
           exit 0
 
       - name: Publish actionable audit summary
@@ -129,7 +129,7 @@ jobs:
             ''
           );
 
-          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join('\\n'));
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join('\n'));
           if (parseFailures) {
             console.error(`Failed to parse ${parseFailures} audit report(s).`);
             process.exitCode = 1;
