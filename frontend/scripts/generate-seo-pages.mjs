@@ -113,7 +113,7 @@ function replaceMeta(html, selector, attribute, value) {
 }
 
 function replaceGeneratedStructuredData(html) {
-  return html.replace(/<script\\b(?=[^>]*data-route-seo=)[^>]*>[\\s\\S]*?<\\/script>/gi, "");
+  return html.replace(/<script\b(?=[^>]*data-route-seo=)[^>]*>[\s\S]*?<\/script>/gi, "");
 }
 
 function replaceCanonical(html, url) {
