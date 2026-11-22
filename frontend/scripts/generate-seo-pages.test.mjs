@@ -127,6 +127,7 @@ test("sitemap builder XML-escapes paths and rejects malformed or noncanonical UR
 test("Vercel rewrites resolve every prerendered route before the SPA fallback", async () => {
   const config = JSON.parse(await readFile(new URL("../vercel.json", import.meta.url), "utf8"));
   const rewrites = config.rewrites;
+  assert.deepEqual(config.redirects, [{ source: "/journal", destination: "/blog", permanent: true }]);
   const fallbackIndex = rewrites.findIndex((rule) => rule.source === "/(.*)");
   assert.ok(fallbackIndex >= 0, "Expected a final SPA fallback");
   for (const route of Object.keys(STATIC_ROUTES).filter((value) => value !== "/")) {
