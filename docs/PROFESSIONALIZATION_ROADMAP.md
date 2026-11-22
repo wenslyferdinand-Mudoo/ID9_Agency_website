@@ -447,3 +447,15 @@ Cette mise à jour remplace les états antérieurs uniquement pour les PR et com
 ### 11.6 Politique de fusion
 
 Aucune PR de ce lot n'est considérée comme prête à fusionner sur la seule base d'un statut Preview vert. Une fusion exige : HEAD vérifié, branche sans conflit, Draft levé après revue, checks requis verts sur le HEAD exact, tests adaptés, recette fonctionnelle et absence de risque de perte de données. Les dépendances backend/Atlas et les PR SEO/UX qui se chevauchent doivent être consolidées dans l'ordre indiqué. Aucun merge Production n'est exécuté dans cette mise à jour.
+
+
+### 2026-11-22 — P1 — Doublon portfolio fermé et défaut de routing identifié sur Preview #73
+
+- Statut : **#62 FERMÉ COMME DOUBLON ; #69 CONSERVÉ ; #73 À COMPLÉTER AVANT SORTIE DU DRAFT**.
+- PR #62 : fermée sans merge le 2026-11-22 après comparaison de `portfolio-resolution.js` et des tests avec #69. La branche #69 ajoute des validations plus strictes (slug/titre obligatoires, correspondance exacte du slug demandé, rejet des tableaux et enregistrements malformés), attend le fallback fondateur asynchrone et couvre également la fusion des sources de listing. #69 possède des tests/build frontend verts et une Preview READY. Aucun code ou contenu CMS supprimé.
+- PR #73 : HEAD `179c9d5d1c10cde2cef64d3cf557612a3311b69f`, contrôles CI verts, Preview READY. La recette HTTP confirme les routes publiques statiques et les pages projet générées.
+- Défaut reproduit sur Preview #73 : `/journal` et `/this-route-should-404` renvoient tous deux HTTP 200 avec le document HTML d'accueil et son canonical `/`. Le fallback SPA ne distingue donc pas les routes inconnues et l'ancien chemin journal n'est pas redirigé côté serveur.
+- Décision : intégrer sélectivement les fonctionnalités uniques de #21 (redirection permanente `/journal → /blog`, page 404 et `noindex` des routes admin/inconnues) dans le socle #73, sans remplacer aveuglément le RouteSeo existant : la logique SEO actuelle de détail projet doit continuer à préserver les titres, descriptions, images et JSON-LD pré-rendus.
+- Limite : une page 404 côté React et un `noindex` après hydratation ne garantissent pas à eux seuls un véritable statut HTTP 404 pour les URL inconnues. La configuration Vercel doit être testée pour distinguer routes publiques valides, détails blog, détails portfolio générés et routes inconnues ; ne pas déclarer ce point résolu tant que le code HTTP 404 est vérifié.
+- Contrôle des en-têtes : le sitemap public a renvoyé `access-control-allow-origin: *` ; c'est une réponse d'asset public servie par Vercel et non la configuration CORS du backend FastAPI.
+- Prochaine étape : traiter la redirection et le rendu 404 dans une modification ciblée de #73, avec tests de routing/SEO et nouvelle recette HTTP des routes connues et inconnues. Garder #21 ouvert jusqu'à extraction et validation de toutes ses fonctionnalités uniques.
