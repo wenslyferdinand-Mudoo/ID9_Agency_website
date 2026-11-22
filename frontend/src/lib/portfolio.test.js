@@ -1,3 +1,18 @@
+jest.mock("@sanity/client", () => ({
+  createClient: () => ({ fetch: jest.fn() }),
+}));
+
+jest.mock("./sanity", () => ({
+  SANITY_CONFIG: {
+    projectId: "mqrbsugj",
+    dataset: "production",
+    apiVersion: "2024-01-01",
+    useCdn: true,
+  },
+  sanityClient: { fetch: jest.fn() },
+  imageUrl: jest.fn(() => "https://cdn.sanity.io/test-image.webp"),
+}));
+
 import { normalizePortfolio } from "./portfolio";
 
 describe("normalizePortfolio image accessibility metadata", () => {
