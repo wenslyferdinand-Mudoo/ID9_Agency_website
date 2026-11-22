@@ -100,13 +100,17 @@ class LoginResponse(BaseModel):
 
 
 class ContactCreate(BaseModel):
-    name: str
+    # Normalize whitespace before persistence and enforce bounded input sizes.
+    # These limits protect storage/email payloads without changing the existing form fields.
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    name: str = Field(min_length=2, max_length=120)
     email: EmailStr
-    whatsapp: Optional[str] = None
-    budget: Optional[str] = None
-    service: Optional[str] = None
-    deadline: Optional[str] = None
-    message: str
+    whatsapp: Optional[str] = Field(default=None, max_length=40)
+    budget: Optional[str] = Field(default=None, max_length=80)
+    service: Optional[str] = Field(default=None, max_length=100)
+    deadline: Optional[str] = Field(default=None, max_length=120)
+    message: str = Field(min_length=5, max_length=5000)
 
 
 class Contact(BaseModel):
