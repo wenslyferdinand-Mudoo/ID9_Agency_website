@@ -52,8 +52,9 @@ test("portfolio sitemap generation input removes invalid and duplicate slugs wit
     { slug: "Upper-Case", title: "Valid case-insensitive slug" },
   ]);
   assert.deepEqual(projects.map((project) => project.title), [
-    "Sanity version", "Founder project",
+    "Sanity version", "Founder project", "Valid case-insensitive slug",
   ]);
+  assert.equal(projects.at(-1).slug, "Upper-Case", "valid mixed-case slugs remain supported");
 });
 
 test("unknown routes fail instead of receiving misleading metadata", () => {
