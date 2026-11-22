@@ -41,7 +41,7 @@ const services = input('PROJECT_SERVICES')
 if (title.length < 3 || title.length > 120) throw new Error('Title must contain 3–120 characters.')
 if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) throw new Error('Slug must be lowercase kebab-case.')
 if (!summary || summary.length > 280) throw new Error('Summary is required and must not exceed 280 characters.')
-if (!['branding', 'graphic-design', 'web', 'app', 'marketing', 'motion', 'photo'].includes(category)) throw new Error('Unsupported portfolio category.')
+if (!['branding', 'graphic-design', 'flyers', 'web', 'app', 'marketing', 'motion', 'photo'].includes(category)) throw new Error('Unsupported portfolio category.')
 if (!coverPath) throw new Error('A cover image path is required.')
 
 function resolveImage(relativePath) {
@@ -98,6 +98,7 @@ const document = {
   title,
   slug: {_type: 'slug', current: slug},
   category,
+  ...(category === 'flyers' ? {isFlyer: true} : {}),
   summary,
   ...(services.length ? {services} : {}),
   featured: false,
