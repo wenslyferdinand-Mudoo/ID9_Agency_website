@@ -4,6 +4,7 @@ import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-
 import { ArrowUpRight, Languages, Instagram, Facebook, Mail, MessageCircle } from "lucide-react";
 import Logo from "@/components/site/Logo";
 import AnimatedHamburger from "@/components/site/AnimatedHamburger";
+import { handleMobileMenuKeyDown } from "@/components/site/mobileMenuKeyboard";
 import { useI18n } from "@/lib/i18n";
 import { BRAND, whatsappLink } from "@/lib/brand";
 
@@ -67,42 +68,10 @@ export default function Navigation() {
     if (!open) return undefined;
 
     const panel = panelRef.current;
-    const getFocusable = () =>
-      Array.from(
-        panel?.querySelectorAll(
-          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
-        ) || []
-      ).filter((element) => !element.hasAttribute("hidden") && element.getAttribute("aria-hidden") !== "true");
-
     closeRef.current?.focus();
 
-    const handleKeyDown = (event) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        setOpen(false);
-        return;
-      }
-
-      if (event.key !== "Tab") return;
-
-      const focusable = getFocusable();
-      if (focusable.length === 0) {
-        event.preventDefault();
-        return;
-      }
-
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      const active = document.activeElement;
-
-      if (event.shiftKey && (active === first || !panel?.contains(active))) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && (active === last || !panel?.contains(active))) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
+    const handleKeyDown = (event) =>
+      handleMobileMenuKeyDown(event, panel, () => setOpen(false));
 
     document.addEventListener("keydown", handleKeyDown);
     return () => {
