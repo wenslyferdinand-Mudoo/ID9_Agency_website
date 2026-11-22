@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import { applyProjectMetadata, applyStaticRouteMetadata, buildSitemapXml, dedupeProjectsBySlug, escapeHtml, STATIC_ROUTES, SITE_URL } from "./generate-seo-pages.mjs";
 
 const template = `<!doctype html>
@@ -86,6 +87,7 @@ test("project metadata keeps canonical URLs and escapes untrusted text", () => {
   assert.equal(url, `${SITE_URL}/portfolio/case-study`);
   assert.ok(html.includes("A &lt;script&gt;case&lt;/script&gt;"));
   assert.ok(html.includes('property="og:type" content="article"'));
+  assert.ok(html.includes('name="twitter:card" content="summary_large_image"'));
   assert.ok(html.includes(`href="${url}"`));
   assert.ok(!html.includes("<script>case</script>"));
 });
@@ -120,4 +122,21 @@ test("sitemap builder XML-escapes paths and rejects malformed or noncanonical UR
     assert.throws(() => buildSitemapXml([invalid]), /Sitemap|Malformed/i);
   }
   assert.throws(() => buildSitemapXml("not-an-array"), /array/i);
+});
+
+test("Vercel rewrites resolve every prerendered route before the SPA fallback", async () => {
+  const config = JSON.parse(await readFile(new URL("../vercel.json", import.meta.url), "utf8"));
+  const rewrites = config.rewrites;
+  const fallbackIndex = rewrites.findIndex((rule) => rule.source === "/(.*)");
+  assert.ok(fallbackIndex >= 0, "Expected a final SPA fallback");
+  for (const route of Object.keys(STATIC_ROUTES).filter((value) => value !== "/")) {
+    const rule = rewrites.find((item) => item.source === route);
+    assert.ok(rule, `Missing explicit rewrite for ${route}`);
+    assert.equal(rule.destination, `${route}/index.html`);
+    assert.ok(rewrites.indexOf(rule) < fallbackIndex, `Rewrite for ${route} must precede fallback`);
+  }
+  const projectRule = rewrites.find((item) => item.source === "/portfolio/:slug");
+  assert.ok(projectRule, "Missing portfolio detail rewrite");
+  assert.equal(projectRule.destination, "/portfolio/:slug/index.html");
+  assert.ok(rewrites.indexOf(projectRule) < fallbackIndex, "Portfolio detail rewrite must precede fallback");
 });
