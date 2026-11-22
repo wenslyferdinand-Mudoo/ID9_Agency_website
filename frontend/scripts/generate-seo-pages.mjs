@@ -62,12 +62,12 @@ function replaceMeta(html, selector, attribute, value) {
   const escaped = escapeHtml(value);
   const pattern = new RegExp(`(<meta[^>]*${selector}[^>]*${attribute}=")[^"]*("[^>]*>)`, "i");
   if (pattern.test(html)) return html.replace(pattern, (_match, prefix, suffix) => `${prefix}${escaped}${suffix}`);
-  return html.replace("</head>", `<meta ${selector} ${attribute}="${escaped}" />\\n</head>`);
+  return html.replace("</head>", `<meta ${selector} ${attribute}="${escaped}" />\n</head>`);
 }
 
 function replaceCanonical(html, url) {
   const escaped = escapeHtml(url);
-  const canonicalPattern = /<link\\b[^>]*rel=["']canonical["'][^>]*>/i;
+  const canonicalPattern = /<link\b[^>]*rel=["']canonical["'][^>]*>/i;
   if (canonicalPattern.test(html)) {
     return html.replace(canonicalPattern, (tag) => {
       if (/href=["'][^"']*["']/i.test(tag)) {
@@ -76,7 +76,7 @@ function replaceCanonical(html, url) {
       return tag.replace(/>$/, ` href="${escaped}">`);
     });
   }
-  return html.replace("</head>", `<link rel="canonical" href="${escaped}" />\\n</head>`);
+  return html.replace("</head>", `<link rel="canonical" href="${escaped}" />\n</head>`);
 }
 
 export function applyStaticRouteMetadata(template, route) {
@@ -85,7 +85,7 @@ export function applyStaticRouteMetadata(template, route) {
 
   const url = route === "/" ? `${SITE_URL}/` : `${SITE_URL}${route}`;
   const { title, description } = metadata;
-  let html = template.replace(/<title>[\\s\\S]*?<\\/title>/i, `<title>${escapeHtml(title)}</title>`);
+  let html = template.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(title)}</title>`);
   html = replaceMeta(html, 'name="description"', "content", description);
   html = replaceMeta(html, 'property="og:title"', "content", title);
   html = replaceMeta(html, 'property="og:description"', "content", description);
@@ -108,7 +108,7 @@ export function applyStaticRouteMetadata(template, route) {
   };
   html = html.replace(
     "</head>",
-    `<script type="application/ld+json" data-route-seo="static-page">${JSON.stringify(structuredData).replace(/</g, "\\\\u003c")}</script>\\n</head>`
+    `<script type="application/ld+json" data-route-seo="static-page">${JSON.stringify(structuredData).replace(/</g, "\\u003c")}</script>\n</head>`
   );
   return { html, url, title };
 }
@@ -118,7 +118,7 @@ export function applyProjectMetadata(template, project) {
   const description = (project.seoDescription || "").trim() || (project.summary || "").trim() || `Selected work by Impact Digital 9 Agency: ${project.title || "project"}.`;
   const image = project.image || DEFAULT_SHARE_IMAGE;
   const url = `${SITE_URL}/portfolio/${project.slug}`;
-  let html = template.replace(/<title>[\\s\\S]*?<\\/title>/i, `<title>${escapeHtml(title)}</title>`);
+  let html = template.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(title)}</title>`);
   html = replaceMeta(html, 'name="description"', "content", description);
   html = replaceMeta(html, 'property="og:title"', "content", title);
   html = replaceMeta(html, 'property="og:description"', "content", description);
@@ -142,7 +142,7 @@ export function applyProjectMetadata(template, project) {
     creator: { "@type": "Organization", name: "Impact Digital 9 Agency", url: SITE_URL },
     publisher: { "@type": "Organization", name: "Impact Digital 9 Agency", url: SITE_URL },
   };
-  html = html.replace("</head>", `<script type="application/ld+json" data-route-seo="project">${JSON.stringify(structuredData).replace(/</g, "\\\\u003c")}</script>\\n</head>`);
+  html = html.replace("</head>", `<script type="application/ld+json" data-route-seo="project">${JSON.stringify(structuredData).replace(/</g, "\\u003c")}</script>\n</head>`);
   return { html, url, title };
 }
 
@@ -156,7 +156,7 @@ async function main() {
   const sanityProjects = Array.isArray(payload.result) ? payload.result.filter((item) => safeSlug(item?.slug)) : [];
 
   const founderSource = await readFile(path.resolve("src/lib/founder-projects.js"), "utf8");
-  const founderMatch = founderSource.match(/const PROJECTS = (\\[[\\s\\S]*?\\]);\\s*\\n\\s*export function/);
+  const founderMatch = founderSource.match(/const PROJECTS = (\[[\s\S]*?\]);\s*\n\s*export function/);
   if (!founderMatch) throw new Error("Could not locate the founder project data array for SEO generation.");
   const founderProjects = runInNewContext("(" + founderMatch[1] + ")");
   const sanitySlugs = new Set(sanityProjects.map((item) => item.slug));
@@ -199,7 +199,7 @@ async function main() {
 
   await writeFile(
     sitemapPath,
-    `<?xml version="1.0" encoding="UTF-8"?>\\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\\n${sitemapEntries.join("\\n")}\\n</urlset>\\n`,
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapEntries.join("\n")}\n</urlset>\n`,
     "utf8"
   );
   console.log(`[SEO] Generated ${Object.keys(STATIC_ROUTES).length} static route metadata page(s), ${generatedProjects} portfolio route(s), and sitemap entries.`);
