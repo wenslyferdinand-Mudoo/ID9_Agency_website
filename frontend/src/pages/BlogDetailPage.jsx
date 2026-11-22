@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { markPageNoindex } from "@/lib/seo";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import api from "@/lib/api";
@@ -104,19 +105,9 @@ export default function BlogDetailPage() {
   // Blog slugs are routed through the SPA; an API 404 must not remain indexable.
   useEffect(() => {
     if (!notFound) return;
-
-    document.title = lang === "fr"
+    markPageNoindex(lang === "fr"
       ? "Article introuvable — Impact Digital 9 Agency"
-      : "Article not found — Impact Digital 9 Agency";
-
-    let robots = document.querySelector('meta[name="robots"]');
-    if (!robots) {
-      robots = document.createElement("meta");
-      robots.setAttribute("name", "robots");
-      document.head.appendChild(robots);
-    }
-    robots.setAttribute("content", "noindex, follow");
-    document.querySelector('link[rel="canonical"]')?.remove();
+      : "Article not found — Impact Digital 9 Agency");
   }, [notFound, lang]);
 
   if (loading)
