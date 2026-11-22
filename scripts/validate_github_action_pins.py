@@ -5,8 +5,9 @@ import re
 import sys
 
 WORKFLOWS_DIR = Path(".github/workflows")
-USES_PATTERN = re.compile(r"^\\s*uses:\\s*([^\\s#]+)", re.MULTILINE)
+USES_PATTERN = re.compile(r"^\s*uses:\s*([^\s#]+)", re.MULTILINE)
 SHA_PATTERN = re.compile(r"^[0-9a-fA-F]{40}$")
+
 
 def main() -> int:
     workflow_files = sorted(WORKFLOWS_DIR.glob("*.yml")) + sorted(WORKFLOWS_DIR.glob("*.yaml"))
@@ -20,7 +21,7 @@ def main() -> int:
         content = workflow.read_text(encoding="utf-8")
         for match in USES_PATTERN.finditer(content):
             reference = match.group(1).strip("\\\"'")
-            line_number = content.count("\\n", 0, match.start()) + 1
+            line_number = content.count("\n", 0, match.start()) + 1
             if reference.startswith("./") or reference.startswith("docker://"):
                 continue
             checked += 1
@@ -33,10 +34,11 @@ def main() -> int:
 
     print(f"Checked {checked} external action reference(s) across {len(workflow_files)} workflow file(s).")
     if failures:
-        print("\\n".join(failures), file=sys.stderr)
+        print("\n".join(failures), file=sys.stderr)
         return 1
     print("All external GitHub Actions are pinned to immutable full commit SHAs.")
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())
