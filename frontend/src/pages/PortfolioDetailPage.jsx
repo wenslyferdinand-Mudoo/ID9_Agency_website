@@ -4,6 +4,7 @@ import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion
 import { ArrowLeft, ArrowUpRight, Quote, Wrench, Target, Lightbulb, Rocket, TrendingUp } from "lucide-react";
 import api from "@/lib/api";
 import { fetchPortfolioBySlug } from "@/lib/portfolio";
+import { resolvePortfolioProject } from "@/lib/portfolio-resolution";
 import FinalCTA from "@/components/sections/FinalCTA";
 import RevealText from "@/components/site/RevealText";
 import { useI18n } from "@/lib/i18n";
@@ -33,30 +34,22 @@ export default function PortfolioDetailPage() {
     setNotFound(false);
 
     async function loadProject() {
-      try {
-        // Founder products have local case-study content; CMS projects remain unchanged.
-        const doc = await fetchPortfolioBySlug(slug);
-        if (cancelled) return;
-        if (doc && typeof doc === "object") {
-          setItem(doc);
-          return;
-        }
+      const project = await resolvePortfolioProject({
+        slug,
+        lang,
+        fetchSanity: () => fetchPortfolioBySlug(slug),
+        fetchLegacy: async () => {
+          const response = await api.get(`/portfolio/${slug}`);
+          return response?.data;
+        },
+        fetchFounder: () => getFounderProjectBySlug(slug, lang),
+      });
 
-        const founderProject = getFounderProjectBySlug(slug, lang);
-        if (founderProject) {
-          setItem(founderProject);
-          return;
-        }
-
-        const response = await api.get(`/portfolio/${slug}`);
-        if (cancelled) return;
-        if (response?.data && typeof response.data === "object") {
-          setItem(response.data);
-        } else {
-          setNotFound(true);
-        }
-      } catch {
-        if (!cancelled) setNotFound(true);
+      if (cancelled) return;
+      if (project) {
+        setItem(project);
+      } else {
+        setNotFound(true);
       }
     }
 
