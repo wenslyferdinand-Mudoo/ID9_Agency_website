@@ -32,7 +32,9 @@ A shared resolver now applies the same explicit precedence to detail lookup:
 2. Legacy API compatibility record.
 3. Founder-curated local fallback.
 
-A failed remote source no longer prevents the next source from being checked. The resolver rejects arrays and non-object values as invalid project records. Unit tests cover source precedence, collisions, remote-source failure, local fallback, and missing records.
+A failed remote source no longer prevents the next source from being checked. The resolver validates that each candidate is a non-array object with a non-empty title and the exact requested slug (case-insensitive), preventing malformed or cross-slug records from being rendered. The founder fallback is awaited, so it remains safe if that provider later becomes asynchronous.
+
+Regression tests cover source precedence, slug collisions, remote-source failure, malformed and mismatched records, synchronous and asynchronous founder fallback, and missing records.
 
 ## Data governance observations
 
