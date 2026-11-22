@@ -67,6 +67,25 @@ export default function PortfolioDetailPage() {
     };
   }, [slug, lang]);
 
+  // A valid-looking portfolio URL can still resolve to no CMS, founder or legacy API record.
+  // Keep that final not-found state out of search indexes without overriding project SEO.
+  useEffect(() => {
+    if (!notFound) return;
+
+    document.title = lang === "fr"
+      ? "Projet introuvable — Impact Digital 9 Agency"
+      : "Project not found — Impact Digital 9 Agency";
+
+    let robots = document.querySelector('meta[name="robots"]');
+    if (!robots) {
+      robots = document.createElement("meta");
+      robots.setAttribute("name", "robots");
+      document.head.appendChild(robots);
+    }
+    robots.setAttribute("content", "noindex, follow");
+    document.querySelector('link[rel="canonical"]')?.remove();
+  }, [notFound, lang]);
+
   if (notFound)
     return (
       <main className="min-h-screen pt-32 md:pt-40 px-4 sm:px-6 max-w-4xl mx-auto">
