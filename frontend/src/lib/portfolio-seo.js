@@ -10,10 +10,16 @@ export function getPortfolioSeoMetadata(project, canonicalUrl, defaultImage) {
     (typeof project?.seoDescription === "string" && project.seoDescription.trim()) ||
     (typeof project?.summary === "string" && project.summary.trim()) ||
     "A selected project by Impact Digital 9 Agency.";
-  const image =
+  const rawImage =
     (typeof project?.cover_image === "string" && project.cover_image.trim()) ||
     (typeof project?.coverImage === "string" && project.coverImage.trim()) ||
-    defaultImage;
+    "";
+  let image = defaultImage;
+  try {
+    if (rawImage) image = new URL(rawImage, new URL(canonicalUrl).origin).href;
+  } catch {
+    image = defaultImage;
+  }
 
   return {
     title,
