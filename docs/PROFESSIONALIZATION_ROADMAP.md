@@ -483,3 +483,40 @@ Aucune PR de ce lot n'est considérée comme prête à fusionner sur la seule ba
 - Décision : reclasser PR #54 de P2 en **P0 sécurité**. Vérifier son lockfile candidat sur son HEAD actuel avec `npm ci`, audit complet + production, tests et build. Prioriser l'élimination des deux critiques et des alertes élevées corrigibles sans migration majeure ; isoler les dépendances CRA nécessitant une migration architecturale distincte.
 - Ne pas utiliser `npm audit fix --force`. Ne pas fusionner #54 avant d'avoir une comparaison chiffrée avant/après sur les mêmes commandes, une revue des changements transitifs et un build/test complet.
 - Limite : l'artefact analysé correspond au lockfile de la branche #73 (héritée de main), pas au lockfile de la branche #54. Le nombre de vulnérabilités restant après les modifications #54 n'est donc pas encore établi.
+
+
+### 2026-11-22 — Mise à jour après consolidation P0 et correction du routing
+
+#### P0 — Backend
+
+- PR #74 créée depuis le HEAD actuel de `main` (base `951cf176`) pour remplacer la branche #52 fortement divergente (43 commits en avance / 47 en retard).
+- PR #74 est **Draft**, mergeable sur la base actuelle, sans conflit déclaré.
+- La logique #52 a été transposée dans une branche propre : CORS explicite, sessions/refresh, provisioning admin, seed opt-in, rate limiting, validations, indexes, startup/health checks, tests, et variables Staging.
+- La notification Resend a été restaurée avec persistance avant envoi, exécution dans un worker thread, timeout 15 s, `email_status=sent|failed`, HTTP 202 si le brief est sauvegardé mais l'e-mail échoue, et avertissement frontend évitant une resoumission ambiguë.
+- Le workflow exact du HEAD #74 `4eb4638` : **43 passed, 1 skipped, 5 warnings** pour le backend ; le test Atlas est skipped faute de secrets/variables Staging. Les tests frontend sont verts ; le build production est encore en cours au moment de cette mise à jour. Le contrôle de pins d'actions est vert.
+- #61 et #66 sont fermées comme doublons après intégration de leurs validations/tests et préservation du roadmap commercial dans #55.
+- #50 et #32 restent ouvertes temporairement comme branches de référence. Elles ne doivent pas être fusionnées indépendamment ; leurs protections CORS/seed et provisioning admin sont incluses dans #74. Les fermer après validation complète de #74.
+- #52 reste ouverte jusqu'à la validation du nouveau PR #74, puis sera fermée comme branche supersédée. Aucun merge ni déploiement Staging/Production.
+
+#### P1 — Portfolio et SEO
+
+- #62 est fermée comme doublon de #69 ; #69 est conservée comme implémentation de référence, avec validations et couverture de tests plus complètes.
+- PR #73 : HEAD `07c1258`, tous les checks GitHub (frontend tests/build, tests backend isolés, pins d'actions, audit workflow) sont verts.
+- #73 intègre la redirection permanente `/journal → /blog`, la page 404 bilingue, `noindex` pour admin/inconnu après hydratation, et un endpoint Vercel `/api/not-found` renvoyant HTTP 404 pour les routes non reconnues.
+- Le test unitaire confirme le fallback vers la fonction 404, mais le statut HTTP réel n'a pas encore été vérifié sur une Preview correspondant au HEAD `07c1258`.
+- Dernière Preview Vercel READY observée : commit `53c2b4b`, antérieur à l'endpoint 404. Les commits plus récents n'ont pas reçu de nouvelle Preview.
+- Une tentative explicite de créer une Preview via l'API Vercel a été refusée : quota `api-deployments-free-per-day` supérieur à 100, `retryAfter=86400`. Ne pas réessayer avant la levée du quota ou une action du propriétaire du compte. Aucun déploiement Production n'a été tenté.
+- Le statut HTTP 404 reste donc **non validé en conditions Vercel**. Garder #73 Draft jusqu'à une Preview sur le HEAD actuel et vérifier `/this-route-should-404` retourne bien 404, `/journal` redirige vers `/blog`, les routes statiques/projets restent 200, et les routes admin portent `X-Robots-Tag: noindex, nofollow`.
+
+#### P0 — Dépendances npm
+
+- L'audit du lockfile de la branche #73 (héritée de main) indique 53 vulnérabilités au total, dont 2 critiques et 31 élevées ; `--omit=dev` en indique 52, dont les mêmes 2 critiques et 31 élevées.
+- Le workflow d'audit est informatif et ne bloque pas la CI. Le vert des checks ne signifie pas que les dépendances sont exemptes de vulnérabilités.
+- #54 reste à auditer sur son propre HEAD ; ses versions candidates semblent corriger les ranges critiques `proxy-addr` et `shell-quote`, mais le résultat exact de l'audit après modification n'est pas encore établi. Aucun merge de #54 avant audit complet, tests et build.
+
+#### État de consolidation des PR
+
+- Fermées comme doublons intégrés ou supersédés : **#61, #62, #66**.
+- PR actives de référence pour les lots en cours : **#69 (portfolio), #73 (SEO/routing), #74 (backend sécurité)**.
+- PR #50, #32 et #52 : à fermer comme doublons seulement après validation complète du lot #74.
+- PR #21 et #34 restent ouvertes jusqu'à extraction et vérification de toutes leurs fonctionnalités SEO uniques ; ne pas fusionner leurs branches en bloc.
