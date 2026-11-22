@@ -59,12 +59,38 @@ export default function Navigation() {
     };
   }, [open, loc.pathname]);
 
-  // Close the mobile menu with Escape and keep keyboard dismissal predictable.
+  // Keep keyboard users inside the modal menu and support Escape dismissal.
   useEffect(() => {
     if (!open) return undefined;
+
+    const panel = document.querySelector('[data-testid="nav-mobile-panel"]');
+    const closeButton = panel?.querySelector('[data-testid="nav-mobile-close"]');
+    closeButton?.focus();
+
     const handleKeyDown = (event) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setOpen(false);
+        return;
+      }
+
+      if (event.key !== "Tab" || !panel) return;
+      const focusable = panel.querySelectorAll(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (!first || !last) return;
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
+
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open]);
