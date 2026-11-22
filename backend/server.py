@@ -381,6 +381,11 @@ async def me(current=Depends(get_current_admin)):
     return current
 
 
+def format_contact_email_text(fields: List[tuple]) -> str:
+    """Render contact fields as readable plain text with real line separators."""
+    return "\\n".join(f"{label}: {value}" for label, value in fields)
+
+
 def send_contact_email(contact: dict) -> None:
     """Send a persisted contact brief through Resend using server-side credentials."""
     import html
@@ -403,7 +408,7 @@ def send_contact_email(contact: dict) -> None:
         ("Received (UTC)", contact["created_at"]),
         ("Reference", contact["id"]),
     ]
-    text_body = "\\n".join(f"{label}: {value}" for label, value in fields)
+    text_body = format_contact_email_text(fields)
     html_rows = "".join(
         "<tr><th style='text-align:left;padding:8px;border-bottom:1px solid #eee'>"
         + html.escape(label)
