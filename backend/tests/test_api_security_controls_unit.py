@@ -4,7 +4,7 @@ import os
 import sys
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, Mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 os.environ.setdefault("MONGO_URL", "mongodb://127.0.0.1:27017")
@@ -77,3 +77,62 @@ def test_rate_limit_returns_429_after_threshold(monkeypatch):
     assert error.value.status_code == 429
     assert error.value.headers["Retry-After"] == "60"
     fake_collection.find_one_and_update.assert_awaited_once()
+
+
+def _contact_request():
+    return Request({
+        "type": "http",
+        "method": "POST",
+        "path": "/api/contact",
+        "headers": [],
+        "client": ("203.0.113.10", 12345),
+        "server": ("testserver", 80),
+        "scheme": "http",
+        "query_string": b"",
+    })
+
+
+def _valid_contact():
+    return server.ContactCreate(
+        name="Test Client",
+        email="client@example.com",
+        whatsapp="+50900000000",
+        service="Brand identity",
+        message="Please contact me about a new brand identity project.",
+    )
+
+
+def test_contact_persists_brief_and_marks_resend_notification_sent(monkeypatch):
+    contacts = SimpleNamespace(insert_one=AsyncMock(), update_one=AsyncMock())
+    monkeypatch.setattr(server, "db", SimpleNamespace(contacts=contacts))
+    monkeypatch.setattr(server, "enforce_rate_limit", AsyncMock())
+    send_email = Mock()
+    monkeypatch.setattr(server, "send_contact_email", send_email)
+    response = server.Response()
+
+    result = asyncio.run(server.submit_contact(_valid_contact(), _contact_request(), response))
+
+    assert response.status_code == 201
+    assert result.email_status == "sent"
+    contacts.insert_one.assert_awaited_once()
+    contacts.update_one.assert_awaited_once()
+    assert contacts.update_one.await_args.args[1]["$set"]["email_status"] == "sent"
+    send_email.assert_called_once()
+
+
+def test_contact_keeps_saved_brief_when_resend_notification_fails(monkeypatch):
+    contacts = SimpleNamespace(insert_one=AsyncMock(), update_one=AsyncMock())
+    monkeypatch.setattr(server, "db", SimpleNamespace(contacts=contacts))
+    monkeypatch.setattr(server, "enforce_rate_limit", AsyncMock())
+    send_email = Mock(side_effect=RuntimeError("provider unavailable"))
+    monkeypatch.setattr(server, "send_contact_email", send_email)
+    response = server.Response()
+
+    result = asyncio.run(server.submit_contact(_valid_contact(), _contact_request(), response))
+
+    assert response.status_code == 202
+    assert result.email_status == "failed"
+    contacts.insert_one.assert_awaited_once()
+    contacts.update_one.assert_awaited_once()
+    assert contacts.update_one.await_args.args[1]["$set"]["email_status"] == "failed"
+    send_email.assert_called_once()
