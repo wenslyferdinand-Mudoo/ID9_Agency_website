@@ -82,7 +82,7 @@ export function buildSitemapXml(urls) {
     } catch {
       throw new Error(`Malformed sitemap URL: ${value}`);
     }
-    if (parsed.protocol !== "https:" || parsed.origin !== SITE_URL || parsed.search || parsed.hash) {
+    if (parsed.protocol !== "https:" || parsed.origin !== SITE_URL || parsed.username || parsed.password || parsed.search || parsed.hash) {
       throw new Error(`Sitemap URL is not a valid canonical ID9 URL: ${value}`);
     }
     if (parsed.pathname !== "/" && parsed.pathname.endsWith("/")) {
