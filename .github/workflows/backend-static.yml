@@ -31,7 +31,7 @@ jobs:
           python-version: "3.12"
       - name: Compile backend
         run: python -m compileall -q backend
-      - name: Install isolated test dependencies
+      - name: Install backend test dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install \
@@ -46,7 +46,7 @@ jobs:
             "pytest>=8.0.0"
       - name: Run isolated backend regression tests
         working-directory: backend
-        run: python -m pytest -q tests/test_admin_provisioning_unit.py tests/test_blog_visibility_unit.py tests/test_model_defaults_unit.py
+        run: python -m pytest -q tests/test_admin_provisioning_unit.py tests/test_blog_visibility_unit.py tests/test_model_defaults_unit.py tests/test_contact_email_format_unit.py
 
   frontend-validation:
     name: Frontend tests and production build
@@ -61,13 +61,73 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - name: Install dependencies reproducibly
+        id: install-dependencies
         working-directory: frontend
         run: npm ci
+      - name: Report dependency security audit
+        working-directory: frontend
+        shell: bash
+        run: |
+          npm audit --json > npm-audit.json || true
+          node -e '
+            const fs = require("fs");
+            let report;
+            try {
+              report = JSON.parse(fs.readFileSync("npm-audit.json", "utf8"));
+            } catch (error) {
+              const message = "Dependency audit report unavailable or invalid: " + error.message;
+              console.log(message);
+              fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, "## Frontend dependency audit\\n\\n" + message + "\\n\\n_Audit is informational; this did not fail CI._\\n");
+              process.exit(0);
+            }
+            const totals = report.metadata?.vulnerabilities || {};
+            const vulnerabilities = report.vulnerabilities || {};
+            console.log("Dependency audit summary:", JSON.stringify(totals));
+            const fixLabel = (item) => item.fixAvailable === true ? "available" :
+              item.fixAvailable === false ? "not available" :
+              item.fixAvailable ? "available (potentially breaking)" : "unknown";
+            for (const [name, item] of Object.entries(vulnerabilities)) {
+              console.log(JSON.stringify({
+                package: name,
+                severity: item.severity,
+                direct: item.isDirect,
+                range: item.range,
+                fix: fixLabel(item)
+              }));
+            }
+            const summary = [
+              "## Frontend dependency audit",
+              "",
+              "| Severity | Count |",
+              "| --- | ---: |",
+              ...["critical", "high", "moderate", "low", "info"].map((level) =>
+                `| ${level} | ${totals[level] || 0} |`),
+              "",
+              "| Package | Severity | Direct | Vulnerable range | Fix |",
+              "| --- | --- | --- | --- | --- |",
+              ...Object.entries(vulnerabilities).map(([name, item]) =>
+                `| ${name} | ${item.severity} | ${item.isDirect ? "yes" : "no"} | ${item.range || "—"} | ${fixLabel(item)} |`),
+              "",
+              "_This audit is informational and does not fail CI. Review and remediation are tracked separately._",
+              ""
+            ].join("\n");
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary);
+          '
+      - name: Upload dependency audit report
+        if: always() && steps.install-dependencies.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-npm-audit-${{ github.run_id }}
+          path: frontend/npm-audit.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Run frontend regression tests
         working-directory: frontend
         env:
           CI: "true"
-        run: npm test -- --watchAll=false --runInBand --passWithNoTests
+        # Fail closed: a missing test suite must not be reported as a passing gate.
+        run: npm test -- --watchAll=false --runInBand
       - name: Build frontend for production
+        if: always() && steps.install-dependencies.outcome == 'success'
         working-directory: frontend
         run: npm run build

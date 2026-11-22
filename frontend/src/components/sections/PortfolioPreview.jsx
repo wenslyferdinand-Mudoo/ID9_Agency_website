@@ -123,7 +123,7 @@ export default function PortfolioPreview() {
                       className={
                         p.slug === "rtci-brand-identity-visual-communication"
                           ? "h-full w-full bg-ink-900 object-contain object-center transition-transform duration-700 group-hover:scale-[1.02]"
-                          : "h-full w-full object-cover object-center scale-105 transition-transform duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110"
+                          : "h-full w-full object-cover object-center scale-105 transition-transform duration-[time:1500ms] ease-premium group-hover:scale-110"
                       }
                     />
                   ) : (

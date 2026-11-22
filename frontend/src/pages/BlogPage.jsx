@@ -118,7 +118,7 @@ export default function BlogPage() {
                 <img
                   src={featured.cover_image}
                   alt={featured.title}
-                  className="w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+                  className="w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-[time:1500ms] ease-premium"
                 />
               </div>
               <div className="md:col-span-5">
@@ -156,7 +156,7 @@ export default function BlogPage() {
                   <img
                     src={p.cover_image}
                     alt={p.title}
-                    className="w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-[1200ms]"
+                    className="w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-[time:1200ms]"
                   />
                 </div>
                 <p className="text-orange_impact font-ui text-[10px] uppercase tracking-[0.25em] mb-2">

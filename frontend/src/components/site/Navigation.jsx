@@ -59,7 +59,61 @@ export default function Navigation() {
     };
   }, [open, loc.pathname]);
 
-  // Auto-close on route change
+  // Keep keyboard users inside the modal menu and support Escape dismissal.
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const panel = document.getElementById("nav-mobile-panel");
+    const trigger = document.querySelector('[data-testid="nav-mobile-toggle"]');
+    const getFocusableElements = () =>
+      panel?.querySelectorAll(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      ) ?? [];
+
+    // The logo link precedes the close button in DOM order. Focus the first
+    // tabbable element so Shift+Tab is trapped on the very first keystroke.
+    getFocusableElements()[0]?.focus();
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setOpen(false);
+        return;
+      }
+
+      if (event.key !== "Tab" || !panel) return;
+      const focusable = getFocusableElements();
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (!first || !last) return;
+
+      if (event.shiftKey && (document.activeElement === first || !panel.contains(document.activeElement))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || !panel.contains(document.activeElement))) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    // Also recover focus if scripts or browser extensions move it outside the modal.
+    const handleFocusIn = (event) => {
+      if (panel && !panel.contains(event.target)) {
+        getFocusableElements()[0]?.focus();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("focusin", handleFocusIn);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("focusin", handleFocusIn);
+      // Return keyboard focus to the menu trigger after dismissal.
+      if (trigger?.isConnected) trigger.focus();
+    };
+  }, [open]);
+
+  // Auto-close on route change.
   useEffect(() => {
     setOpen(false);
   }, [loc.pathname]);
@@ -85,7 +139,7 @@ export default function Navigation() {
         data-testid="site-navigation"
       >
         <nav
-          className={`glass-strong rounded-full max-w-6xl mx-auto flex items-center justify-between pl-3 pr-3 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+          className={`glass-strong rounded-full max-w-6xl mx-auto flex items-center justify-between pl-3 pr-3 transition-all duration-500 ease-premium ${
             compact
               ? "py-1.5 mt-2 md:mt-3 lg:mt-9 shadow-[0_16px_48px_-12px_rgba(0,0,0,0.65)]"
               : "py-2 mt-4 md:mt-6 lg:mt-10 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.4)]"
@@ -152,15 +206,19 @@ export default function Navigation() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-[60] safe-x"
+            className="fixed inset-0 z-[60] safe-x overflow-hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-label={lang === "fr" ? "Menu principal" : "Main navigation"}
+            id="nav-mobile-panel"
             data-testid="nav-mobile-panel"
           >
             {/* Background — solid + mesh + blur layers */}
             <motion.div
-              initial={{ scale: 1.05, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 1.02, opacity: 0 }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              initial={{ scale: 1.035, opacity: 0, filter: "blur(10px)" }}
+              animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
+              exit={{ scale: 1.015, opacity: 0, filter: "blur(8px)" }}
+              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
               className="absolute inset-0 bg-ink-900"
             >
               <div
@@ -202,18 +260,18 @@ export default function Navigation() {
             </div>
 
             {/* Main menu items — staggered cinematic reveal */}
-            <nav className="absolute inset-x-0 top-24 bottom-[11.5rem] min-h-0 overflow-y-auto overscroll-contain px-5 sm:px-6 md:px-12 lg:px-20">
+            <nav aria-label={lang === "fr" ? "Navigation mobile" : "Mobile navigation"} className="absolute inset-x-0 top-24 bottom-[11.5rem] min-h-0 overflow-y-auto overscroll-contain px-5 sm:px-6 md:px-12 lg:px-20">
               <ul className="flex flex-col gap-0 max-w-5xl">
                 {links.map((l, i) => (
                   <motion.li
                     key={l.to}
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
+                    initial={{ opacity: 0, y: 28, filter: "blur(6px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, y: -14, filter: "blur(4px)" }}
                     transition={{
-                      duration: 0.7,
-                      delay: 0.15 + i * 0.07,
-                      ease: [0.16, 1, 0.3, 1],
+                      duration: 0.48,
+                      delay: 0.1 + i * 0.065,
+                      ease: [0.22, 1, 0.36, 1],
                     }}
                     className="border-b border-white/[0.07]"
                   >
@@ -227,15 +285,16 @@ export default function Navigation() {
                       }
                       data-testid={`nav-mobile-link-${l.to === "/" ? "home" : l.to.replace("/", "")}`}
                     >
-                      <span className="relative inline-block font-display font-black tracking-tighter text-[clamp(2rem,9vw,3.5rem)] leading-none transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-3">
+                      <span className="relative inline-flex items-center gap-3 sm:gap-5 font-display font-black tracking-tighter text-[clamp(1.75rem,7vw,3rem)] leading-none transition-transform duration-500 ease-premium group-hover:translate-x-2 sm:group-hover:translate-x-3">
+                        <span aria-hidden="true" className="font-ui text-[10px] sm:text-xs font-semibold tracking-[0.2em] text-white/25 tabular-nums">{String(i + 1).padStart(2, "0")}</span>
                         {l.label}
-                        <span className="absolute left-0 -bottom-1 h-[3px] w-full rounded-full bg-gradient-to-r from-orange_impact to-gold_light origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" />
+                        <span className="absolute left-0 -bottom-1 h-[3px] w-full rounded-full bg-gradient-to-r from-orange_impact to-gold_light origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-premium" />
                       </span>
                       <motion.span
                         className="text-white/30 group-hover:text-orange_impact transition-colors"
                         initial={false}
                       >
-                        <ArrowUpRight className="w-7 h-7" />
+                        <ArrowUpRight className="w-6 h-6 sm:w-7 sm:h-7" />
                       </motion.span>
                     </NavLink>
                   </motion.li>
@@ -360,7 +419,7 @@ function DesktopNavItem({ to, label, end, testId }) {
               {label}
             </span>
             {/* sliding underline */}
-            <span className="absolute left-4 right-4 bottom-1 h-[2px] rounded-full bg-gradient-to-r from-orange_impact to-gold_light origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" />
+            <span className="absolute left-4 right-4 bottom-1 h-[2px] rounded-full bg-gradient-to-r from-orange_impact to-gold_light origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-premium" />
           </motion.span>
         )}
       </NavLink>
