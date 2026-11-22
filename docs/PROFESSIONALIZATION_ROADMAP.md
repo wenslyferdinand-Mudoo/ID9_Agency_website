@@ -470,3 +470,16 @@ Aucune PR de ce lot n'est considérée comme prête à fusionner sur la seule ba
 - Décision : ne pas fermer #61 et ne pas intégrer #52 sans rétablir ou remplacer explicitement le flux de notification, conserver le rate limiting MongoDB de #52, ajouter des tests d'endpoint pour succès Resend, indisponibilité Resend, persistance du brief et statut de notification, puis aligner le message frontend pour éviter les soumissions en double lorsqu'un brief est déjà sauvegardé.
 - Point métier à trancher dans l'implémentation : lorsque l'enregistrement MongoDB réussit mais que Resend échoue, le backend doit signaler clairement que le brief est sauvegardé et que seule la notification a échoué. Ne pas répondre par un échec ambigu qui incite à renvoyer le même brief sans mécanisme d'idempotence.
 - Aucune donnée, aucun secret, aucune variable Render ou service Resend n'a été modifié pendant cet audit.
+
+
+### 2026-11-22 — P0 — Audit npm complet de la tête utilisée par Preview #73
+
+- Statut : **BLOQUÉ — vulnérabilités critiques et élevées à traiter**.
+- Source : artefact GitHub Actions `frontend-npm-audit-reports` du run `45081326472`, HEAD `ef47def90a267033bb99dc17b66372fb69b65f5c`, rapports `npm-audit-full.json` et `npm-audit-production.json`.
+- Audit complet : **53 vulnérabilités** — 2 critiques, 31 élevées, 9 modérées, 11 faibles.
+- Audit `--omit=dev` : **52 vulnérabilités** — 2 critiques, 31 élevées, 8 modérées, 11 faibles. Ces chiffres indiquent que la majorité des alertes n'est pas limitée aux dépendances de développement.
+- Les deux alertes critiques concernent les dépendances transitives `proxy-addr` et `shell-quote`. Les alertes élevées incluent notamment `axios`, `postcss`, `react-router-dom`, `react-scripts`, ainsi que des dépendances de la chaîne CRA/SVGR/Webpack.
+- Le workflow d'audit est explicitement **informatif** et ne fait pas échouer la CI lorsqu'il détecte des vulnérabilités. Un statut CI vert ne signifie donc pas « dépendances sûres ».
+- Décision : reclasser PR #54 de P2 en **P0 sécurité**. Vérifier son lockfile candidat sur son HEAD actuel avec `npm ci`, audit complet + production, tests et build. Prioriser l'élimination des deux critiques et des alertes élevées corrigibles sans migration majeure ; isoler les dépendances CRA nécessitant une migration architecturale distincte.
+- Ne pas utiliser `npm audit fix --force`. Ne pas fusionner #54 avant d'avoir une comparaison chiffrée avant/après sur les mêmes commandes, une revue des changements transitifs et un build/test complet.
+- Limite : l'artefact analysé correspond au lockfile de la branche #73 (héritée de main), pas au lockfile de la branche #54. Le nombre de vulnérabilités restant après les modifications #54 n'est donc pas encore établi.
