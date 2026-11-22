@@ -1,4 +1,4 @@
-import { resolvePortfolioProject } from "../portfolio-resolution";
+import { mergePortfolioProjects, resolvePortfolioProject } from "../portfolio-resolution";
 
 const source = (name, slug = "shared-slug") => ({ slug, title: name, source: name });
 
