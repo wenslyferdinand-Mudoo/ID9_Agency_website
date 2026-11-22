@@ -87,7 +87,7 @@ test("sitemap builder emits XML envelope and unique canonical URLs", () => {
   assert.equal((xml.match(/<url>/g) || []).length, 3);
   assert.equal((xml.match(/<loc>/g) || []).length, 3);
   assert.ok(xml.includes(`<loc>${SITE_URL}/portfolio/case-study</loc>`));
-  assert.ok(xml.endsWith("</urlset>\\n"));
+  assert.ok(xml.endsWith("</urlset>\n"));
 });
 
 test("sitemap builder XML-escapes paths and rejects malformed or noncanonical URLs", () => {
