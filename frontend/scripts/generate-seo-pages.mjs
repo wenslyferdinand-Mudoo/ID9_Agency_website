@@ -158,6 +158,7 @@ export function applyStaticRouteMetadata(template, route) {
     isPartOf: { "@type": "WebSite", name: "Impact Digital 9 Agency", url: SITE_URL },
     publisher: { "@type": "Organization", name: "Impact Digital 9 Agency", url: SITE_URL },
   };
+  html = replaceGeneratedStructuredData(html);
   html = html.replace(
     "</head>",
     `<script type="application/ld+json" data-route-seo="static-page">${JSON.stringify(structuredData).replace(/</g, "\\u003c")}</script>\n</head>`
@@ -196,7 +197,8 @@ export function applyProjectMetadata(template, project) {
     creator: { "@type": "Organization", name: "Impact Digital 9 Agency", url: SITE_URL },
     publisher: { "@type": "Organization", name: "Impact Digital 9 Agency", url: SITE_URL },
   };
-  html = replaceGeneratedStructuredData(html);\n  html = html.replace("</head>", `<script type="application/ld+json" data-route-seo="project">${JSON.stringify(structuredData).replace(/</g, "\\u003c")}</script>\n</head>`);
+  html = replaceGeneratedStructuredData(html);
+  html = html.replace("</head>", `<script type="application/ld+json" data-route-seo="project">${JSON.stringify(structuredData).replace(/</g, "\\u003c")}</script>\n</head>`);
   return { html, url, title };
 }
 
