@@ -1,5 +1,6 @@
 import {createClient} from '@sanity/client'
 import {SANITY_CONFIG, sanityClient, imageUrl} from './sanity'
+import {MUDOO_PORTFOLIO_MEDIA} from './founder-projects'
 
 // Retry detail lookup without the CDN if a newly published document is missing from cache.
 const uncachedSanityClient = createClient({...SANITY_CONFIG, useCdn: false})
@@ -156,6 +157,7 @@ export function normalizePortfolio(doc) {
   const tools = Array.isArray(doc.tools) ? doc.tools : []
   const kpis = Array.isArray(doc.kpis) ? doc.kpis : []
   const externalLinks = Array.isArray(doc.externalLinks) ? doc.externalLinks : []
+  const isMudoo = /mudoo/i.test([doc?.slug, doc?.title, doc?.client].filter(Boolean).join(" "))
   const existingExternalUrls = new Set(externalLinks.map((link) => String(link?.url || '').trim().replace(/\/$/, '')))
   const verifiedExternalLinks = getVerifiedProjectLinks(doc).filter(
     (link) => !existingExternalUrls.has(link.url.replace(/\/$/, ''))
@@ -163,13 +165,15 @@ export function normalizePortfolio(doc) {
   return {
     ...doc,
     id: doc._id,
-    cover_image: doc.coverImage ? imageUrl(doc.coverImage, 1600) : '',
-    gallery: gallery.map((g) => ({
-      _key: g?._key,
-      url: imageUrl(g, 1600),
-      alt: typeof g?.alt === 'string' ? g.alt.trim() : '',
-      caption: typeof g?.caption === 'string' ? g.caption.trim() : '',
-    })),
+    cover_image: isMudoo ? MUDOO_PORTFOLIO_MEDIA.cover : (doc.coverImage ? imageUrl(doc.coverImage, 1600) : ''),
+    gallery: gallery.length > 0
+      ? gallery.map((g) => ({
+          _key: g?._key,
+          url: imageUrl(g, 1600),
+          alt: typeof g?.alt === 'string' ? g.alt.trim() : '',
+          caption: typeof g?.caption === 'string' ? g.caption.trim() : '',
+        }))
+      : (isMudoo ? MUDOO_PORTFOLIO_MEDIA.gallery : []),
     services,
     tools,
     kpis,
