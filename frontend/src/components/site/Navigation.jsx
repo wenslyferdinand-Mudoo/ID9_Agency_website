@@ -160,7 +160,7 @@ export default function Navigation() {
               onClick={() => setOpen((v) => !v)}
               label={open ? (lang === "fr" ? "Fermer le menu" : "Close menu") : (lang === "fr" ? "Ouvrir le menu" : "Open menu")}
               testId="nav-mobile-toggle"
-              controlsId="nav-mobile-panel"
+              controlsId={open ? "nav-mobile-panel" : undefined}
               className="lg:hidden"
             />
           </div>
