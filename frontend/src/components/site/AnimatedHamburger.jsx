@@ -11,7 +11,7 @@ import { motion, useSpring } from "framer-motion";
  */
 const BAR_SPRING = { type: "spring", stiffness: 460, damping: 28, mass: 0.72 };
 
-export default function AnimatedHamburger({ open, onClick, label, testId, className = "" }) {
+export default function AnimatedHamburger({ open, onClick, label, testId, className = "", buttonRef, controlsId = "nav-mobile-panel" }) {
   const ref = useRef(null);
   const mx = useSpring(0, { stiffness: 320, damping: 22 });
   const my = useSpring(0, { stiffness: 320, damping: 22 });
@@ -32,7 +32,7 @@ export default function AnimatedHamburger({ open, onClick, label, testId, classN
 
   return (
     <motion.button
-      ref={ref}
+      ref={(node) => {\n        ref.current = node;\n        if (buttonRef) buttonRef.current = node;\n      }}
       onClick={onClick}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
@@ -49,7 +49,7 @@ export default function AnimatedHamburger({ open, onClick, label, testId, classN
       aria-label={label}
       aria-expanded={open}
       aria-haspopup="dialog"
-      aria-controls="nav-mobile-panel"
+      aria-controls={controlsId}
       type="button"
       data-testid={testId}
       className={`touch-target relative w-11 h-11 grid place-items-center rounded-2xl bg-white/[0.055] border border-white/10 backdrop-blur-xl transition-colors duration-300 hover:border-orange_impact/40 hover:bg-white/[0.09] focus-visible:ring-2 focus-visible:ring-orange_impact/70 ${className}`}
