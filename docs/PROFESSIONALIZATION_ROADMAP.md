@@ -373,3 +373,77 @@ Pour chaque phase :
 - CI déclenchée automatiquement : run 44812717913, Backend Static Validation, event push, statut **in_progress** au dernier contrôle. Aucun résultat de test n'est encore revendiqué.
 - Aucun merge, aucun déploiement Render, aucune modification Production ou de données.
 - Prochaine étape : vérifier le résultat complet du run 44812717913 ; corriger toute régression avant de poursuivre la consolidation PR #50/#32/#52.
+
+
+---
+
+## 11. Revue de consolidation des PR — 2026-11-22
+
+Cette mise à jour remplace les états antérieurs uniquement pour les PR et commits explicitement vérifiés ci-dessous. Un contrôle Vercel Preview réussi ne remplace pas les tests fonctionnels, l'intégration Staging ou une revue de sécurité.
+
+### 11.1 P0 — Backend et validation API
+
+| PR | État observé au 2026-11-22 | Décision technique |
+|---|---|---|
+| #50 | Ouverte, non Draft, `mergeable_state=dirty`; contrôles Python isolés et Preview verts sur son HEAD | Ne pas merger séparément : ses protections CORS et seed sont déjà présentes dans #52, avec une politique CORS différente à préserver. |
+| #52 | Ouverte, Draft, `mergeable_state=dirty`; contrôles Python isolés verts sur son HEAD | Branche candidate de consolidation : contient CORS explicite, seed opt-in, provisioning admin explicite, sessions, limites de débit, validation Pydantic, index et health checks. Reste à réconcilier avec main et à valider en Staging. |
+| #66 | Ouverte, Draft, cible `security/backend-hardening-staging`; Preview vert, aucun contrôle backend dédié observé sur son HEAD | Dépendance conservée vers #52. Le trim/rejet des champs whitespace-only complète les bornes de validation de #52 ; exiger une exécution backend CI sur la tête #66 avant validation. |
+| #32 | Ouverte, Draft, `mergeable_state=dirty`; contrôles Python isolés et Preview verts | Ne pas merger séparément : la logique de provisioning explicite est déjà présente dans #52. Comparer et transférer uniquement les cas de test manquants, sans perdre la couverture admin dédiée. |
+| #61 | Ouverte, Draft, `mergeable_state=dirty`; contrôles Python isolés et Preview verts | Garder comme référence de règles métier contact, mais réconcilier les limites/normalisations avec #52 et #66 pour éviter trois implémentations concurrentes. |
+
+**Contrôles source effectués :** sur la branche #52, `seed_admin()` n'utilise pas d'identifiants par défaut et ne modifie pas le mot de passe d'un administrateur existant ; les champs Contact ont des longueurs bornées ; le rate limiting MongoDB est présent ; le middleware CORS utilise une liste explicite et autorise les credentials pour les sessions. Le code de #66 ajoute `field_validator` sur `name` et `message` et nettoie les champs facultatifs.
+
+**Blocages P0 :**
+- Les branches #50, #52, #32, #61 touchent des fichiers backend communs et certaines sont non mergeables ; aucune fusion automatique.
+- #52 reste bloquée par la recette Atlas/Render Staging : authentification, démarrage, health checks, persistance et tests isolés non démontrés.
+- #66 doit obtenir un workflow backend passant sur son propre HEAD ou un résultat équivalent explicitement rattaché à ce commit.
+- Aucun test ne doit écrire en MongoDB Production ; les tests Atlas doivent rester limités à une base de test autorisée et isolée.
+
+### 11.2 P1 — Portfolio et navigation accessible
+
+| PR | État observé | Décision |
+|---|---|---|
+| #69 | Ouverte, Draft, `mergeable_state=clean`; tests frontend, build production, backend isolé et Preview verts ; Preview READY | Implémentation de référence à retenir pour la résolution Sanity → API historique → projets fondateur. |
+| #62 | Ouverte, Draft, `mergeable_state=dirty`; tests frontend et Preview verts | Doublon fonctionnel de #69. Ne pas fusionner les deux ; comparer les différences restantes puis fermer #62 uniquement après confirmation que #69 conserve tous les cas de test utiles. |
+| #67 | Ouverte, Draft, `mergeable_state=dirty`; Preview verte, exécution CI clavier à confirmer | Conserver le périmètre dédié navigation mobile ; résoudre les conflits puis exécuter tests clavier, focus, Escape, Tab/Shift+Tab et recette mobile. |
+
+### 11.3 P1 — Consolidation SEO et routing
+
+| PR | État observé | Décision |
+|---|---|---|
+| #73 | Ouverte, Draft, `mergeable_state=clean`; tous les contrôles CI du HEAD `179c9d5` verts ; Preview Vercel READY | Branche de référence pour le prerender SEO des routes publiques et des détails portfolio. |
+| #34 | Ouverte, Draft, `mergeable_state=dirty`; Preview verte uniquement | Ne pas intégrer en bloc : ses métadonnées client-side de détail portfolio recouvrent une partie de #73. Vérifier les comportements complémentaires avant extraction ciblée. |
+| #21 | Ouverte, non Draft, `mergeable_state=dirty`; Preview verte uniquement | Conserver les fonctionnalités uniques (redirection /journal, 404, noindex admin/inconnu, normalisation) et les réconcilier avec #73 ; ne pas fusionner les deux branches telles quelles. |
+
+**Recette Preview #73 effectuée :**
+- Déploiement Preview du commit `179c9d5` : **READY**.
+- Routes `/`, `/about`, `/services`, `/portfolio`, `/blog`, `/contact` : réponse HTTP 200 et titres/canoniques propres à chaque route.
+- `/sitemap.xml` : réponse HTTP 200, XML valide visuellement, six routes statiques et entrées portfolio observées.
+- `/portfolio/mudoo` : réponse HTTP 200, canonical absolu, Open Graph, Twitter Card et JSON-LD CreativeWork présents.
+- Limite : recette HTTP/HTML uniquement ; pas une recette navigateur complète, pas de validation des parcours JS, pas d'audit Lighthouse ni de test crawler externe. Les en-têtes CORS observés sur la réponse sitemap sont `access-control-allow-origin: *` ; ne pas confondre ce header de ressource publique Vercel avec la politique CORS de l'API backend.
+
+### 11.4 P2 — Dépendances, UX, médias et API frontend
+
+| PR | État observé | Décision |
+|---|---|---|
+| #54 | Ouverte, Draft, `mergeable_state=unstable`, aucun check-run attaché au HEAD consulté | Refaire `npm ci`, `npm audit`, tests et build sur le lockfile candidat ; aucune fusion sur la seule base d'un ancien run documenté dans la description. |
+| #53 | Ouverte, Draft, `mergeable_state=dirty`; build React/Sanity SEO vert | Audit utile mais recouvre #21, #34, #73 et #8 sur RouteSeo, vercel.json, pages portfolio et 404. Extraire les corrections uniques après comparaison des diffs. |
+| #8 | Ouverte, Draft, `mergeable_state=dirty`; Preview verte uniquement | Garder le correctif de proportions d'images comme périmètre distinct ; valider visuellement les cartes et galeries sur mobile/tablette/desktop. |
+| #7 | Ouverte, Draft, `mergeable_state=dirty`; Preview verte uniquement | La compatibilité URL API est à comparer avec #4 et #52 ; valider une vraie réponse JSON d'API avant adoption. |
+| #55 | Ouverte, Draft, `mergeable_state=clean`; Preview verte | Cette PR reste le registre documentaire et doit être actualisée à chaque lot. |
+| #4 | Ouverte, non Draft, `mergeable_state=dirty`; tests backend et build frontend verts | PR transversale ancienne qui recouvre workflows, Vercel, API et SEO ; ne pas merger sans découpage et réconciliation avec les PR ciblées plus récentes. |
+
+### 11.5 Ordre d'exécution ajusté
+
+1. **P0-A — #52 + #66 + #61 :** établir une seule base backend, intégrer les validations whitespace-only et les règles métier Contact, compléter la couverture admin issue de #32, puis résoudre les conflits avec main.
+2. **P0-B — Staging :** valider secrets par canal sécurisé, Atlas, démarrage, sessions, rate limits, persistance et health checks ; aucun déploiement Production.
+3. **P1-A — #69 :** retenir une seule implémentation de résolution portfolio ; fermer le doublon #62 seulement après comparaison complète.
+4. **P1-B — #67 :** résoudre les conflits et valider les interactions clavier et tactiles.
+5. **P1-C — #73 + fonctionnalités uniques de #21/#34 :** garder le prerender comme base, intégrer uniquement redirection, 404/noindex et détails SEO manquants après tests dédiés.
+6. **P2-A — #54 :** audit npm reproductible, sans `--force`, sans mise à niveau majeure non justifiée.
+7. **P2-B — #53/#8/#7/#4 :** extraire les corrections uniques, supprimer les modifications redondantes, valider médias, configuration API, UX et qualité.
+8. **P2-C — #55 :** tenir le registre à jour avec commits, runs, Previews et limites exactes.
+
+### 11.6 Politique de fusion
+
+Aucune PR de ce lot n'est considérée comme prête à fusionner sur la seule base d'un statut Preview vert. Une fusion exige : HEAD vérifié, branche sans conflit, Draft levé après revue, checks requis verts sur le HEAD exact, tests adaptés, recette fonctionnelle et absence de risque de perte de données. Les dépendances backend/Atlas et les PR SEO/UX qui se chevauchent doivent être consolidées dans l'ordre indiqué. Aucun merge Production n'est exécuté dans cette mise à jour.
