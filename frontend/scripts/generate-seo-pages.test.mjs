@@ -140,3 +140,30 @@ test("Vercel rewrites resolve every prerendered route before the SPA fallback", 
   assert.equal(projectRule.destination, "/portfolio/:slug/index.html");
   assert.ok(rewrites.indexOf(projectRule) < fallbackIndex, "Portfolio detail rewrite must precede fallback");
 });
+
+test("JSON-LD serialization is script-safe and generation is idempotent", () => {
+  const hostile = {
+    slug: "script-safety",
+    title: '</script><script>alert("xss")</script>',
+    summary: "Agency work </script> & client story",
+    seoTitle: "",
+    seoDescription: "",
+    image: null,
+  };
+  const first = applyProjectMetadata(template, hostile);
+  const second = applyProjectMetadata(first.html, hostile);
+  const blocks = second.html.match(/<script type="application\\/ld\\+json" data-route-seo="project">/g) || [];
+  assert.equal(blocks.length, 1, "reprocessing must not accumulate generated JSON-LD blocks");
+  const match = second.html.match(/<script type="application\\/ld\\+json" data-route-seo="project">([\\s\\S]*?)<\\/script>/);
+  assert.ok(match, "Expected one generated project JSON-LD block");
+  assert.ok(!match[1].includes("</script>"), "Untrusted text must not terminate the JSON-LD script element");
+  const data = JSON.parse(match[1]);
+  assert.equal(data.name, hostile.title);
+  assert.equal(data.description, hostile.summary);
+});
+
+test("static metadata generation replaces its own prior JSON-LD block", () => {
+  const once = applyStaticRouteMetadata(template, "/about");
+  const twice = applyStaticRouteMetadata(once.html, "/about");
+  assert.equal((twice.html.match(/data-route-seo="static-page"/g) || []).length, 1);
+});
