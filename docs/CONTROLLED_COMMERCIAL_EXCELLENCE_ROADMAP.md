@@ -20,8 +20,8 @@ Status: execution plan; production changes remain gated by review and verificati
 - [ ] Verify MongoDB authentication and startup on staging with valid credentials.
 - [ ] Verify contact persistence and email delivery through Resend.
 - [ ] Verify delivery in the destination mailbox, not only provider acceptance.
-- [ ] Add abuse controls (rate limiting, spam mitigation) after reviewing deployment topology.
-- [ ] Confirm user-facing error states distinguish saved-but-email-failed from full submission failure.
+- [x] Add server-side rate limiting to the contact endpoint; spam mitigation beyond rate limiting remains to be evaluated.
+- [x] Confirm user-facing error states distinguish saved-but-email-failed from full submission failure.
 
 Acceptance: a real staging submission is persisted exactly once, has a traceable ID, and reaches the configured mailbox; failure paths are tested without losing the saved brief.
 
@@ -78,10 +78,12 @@ Branch: `fix/p0-contact-brief-validation-2026-11-21`
 
 Changes in this slice:
 - Server-side contact field length constraints and whitespace normalization.
-- Focused tests for valid, invalid, oversized, and optional fields.
+- Persist-first Resend notification flow with explicit `sent` / `failed` delivery state.
+- HTTP 202 response when the brief is saved but email notification fails, preventing ambiguous retry behavior.
+- Focused tests for field validation, persistence, and notification success/failure.
 
 Not yet verified:
-- Python test execution in the repository environment.
+- Python test execution on the current consolidated PR #52 HEAD.
 - Render startup and MongoDB connectivity.
 - Resend delivery and mailbox receipt.
 - Browser-level form submission.
