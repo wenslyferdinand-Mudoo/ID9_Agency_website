@@ -6,6 +6,7 @@ load_dotenv(ROOT_DIR / '.env')
 
 import os
 import re
+import asyncio
 import uuid
 import logging
 import hashlib
@@ -184,6 +185,7 @@ class Contact(BaseModel):
     message: str
     created_at: str
     read: bool = False
+    email_status: str = "pending"
 
 
 class PortfolioCreate(BaseModel):
@@ -362,16 +364,108 @@ async def me(current=Depends(get_current_admin)):
     return current
 
 
-@api_router.post("/contact", response_model=Contact)
-async def submit_contact(data: ContactCreate, request: Request):
+def send_contact_email(contact: dict) -> None:
+    """Send a persisted contact brief through Resend using server-side credentials."""
+    import html
+    import requests
+
+    api_key = os.environ.get("RESEND_API_KEY", "").strip()
+    recipient = os.environ.get("CONTACT_TO_EMAIL", "contact.id9agency@gmail.com").strip()
+    sender = os.environ.get("CONTACT_FROM_EMAIL", "").strip()
+    if not api_key or not sender:
+        raise RuntimeError("Email delivery is not configured.")
+
+    fields = [
+        ("Name", contact["name"]),
+        ("Email", contact["email"]),
+        ("WhatsApp", contact.get("whatsapp") or "Not provided"),
+        ("Service", contact.get("service") or "Not provided"),
+        ("Budget", contact.get("budget") or "Not provided"),
+        ("Deadline", contact.get("deadline") or "Not provided"),
+        ("Message", contact["message"]),
+        ("Received (UTC)", contact["created_at"]),
+        ("Reference", contact["id"]),
+    ]
+    text_body = "\\n".join(f"{label}: {value}" for label, value in fields)
+    html_rows = "".join(
+        "<tr><th style='text-align:left;padding:8px;border-bottom:1px solid #eee'>"
+        + html.escape(label)
+        + "</th><td style='padding:8px;border-bottom:1px solid #eee;white-space:pre-wrap'>"
+        + html.escape(str(value))
+        + "</td></tr>"
+        for label, value in fields
+    )
+    response = requests.post(
+        "https://api.resend.com/emails",
+        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+        json={
+            "from": sender,
+            "to": [recipient],
+            "reply_to": [contact["email"]],
+            "subject": f"New ID9 brief — {contact['name']}",
+            "text": text_body,
+            "html": (
+                "<div style='font-family:Arial,sans-serif;color:#171717'>"
+                "<h2>New brief received from ID9 Agency website</h2>"
+                "<table style='border-collapse:collapse;width:100%'>"
+                + html_rows
+                + "</table></div>"
+            ),
+        },
+        timeout=15,
+    )
+    if not response.ok:
+        logging.error("[contact-email] Resend rejected delivery: status=%s", response.status_code)
+        raise RuntimeError("The email provider rejected the message.")
+    logging.info("[contact-email] Brief notification accepted; contact_id=%s", contact["id"])
+
+
+@api_router.post("/contact", response_model=Contact, status_code=status.HTTP_201_CREATED)
+async def submit_contact(data: ContactCreate, request: Request, response: Response):
     await enforce_rate_limit(request, "contact", limit=5, window_seconds=600)
     doc = {
         "id": str(uuid.uuid4()),
         **data.model_dump(),
         "created_at": utc_now_iso(),
         "read": False,
+        "email_status": "pending",
     }
+    # Persist first: a mail-provider outage must never destroy a submitted brief.
     await db.contacts.insert_one(doc.copy())
+
+    try:
+        await asyncio.to_thread(send_contact_email, doc)
+    except Exception:
+        logging.exception(
+            "[contact-email] Notification failed after the brief was saved; contact_id=%s",
+            doc["id"],
+        )
+        doc["email_status"] = "failed"
+        response.status_code = status.HTTP_202_ACCEPTED
+        try:
+            await db.contacts.update_one(
+                {"id": doc["id"]},
+                {"$set": {"email_status": "failed", "email_error": "notification_delivery_failed"}},
+            )
+        except Exception:
+            logging.exception(
+                "[contact-email] Could not persist notification failure state; contact_id=%s",
+                doc["id"],
+            )
+        return Contact(**doc)
+
+    doc["email_status"] = "sent"
+    try:
+        await db.contacts.update_one(
+            {"id": doc["id"]},
+            {"$set": {"email_status": "sent", "email_sent_at": utc_now_iso()}},
+        )
+    except Exception:
+        # Delivery succeeded; do not tell the visitor to resubmit a saved brief.
+        logging.exception(
+            "[contact-email] Notification sent but delivery state could not be persisted; contact_id=%s",
+            doc["id"],
+        )
     return Contact(**doc)
 
 
