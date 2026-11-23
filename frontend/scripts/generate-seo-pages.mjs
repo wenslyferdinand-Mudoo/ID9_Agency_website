@@ -269,15 +269,19 @@ export function applyStaticRouteMetadata(template, route) {
 }
 
 export function applyAdminRouteMetadata(template) {
-  let html = template.replace(/<title>[\s\S]*?<\/title>/i, "<title>ID9 Admin — Secure Studio Access | Impact Digital 9 Agency</title>");
+  let html = template.replace(/<title>[\\s\\S]*?<\\/title>/i, "<title>ID9 Admin — Secure Studio Access | Impact Digital 9 Agency</title>");
   html = replaceMeta(html, 'name="robots"', "content", "noindex, nofollow");
   html = replaceMeta(html, 'name="description"', "content", "Administrative sign-in for the Impact Digital 9 Agency studio.");
   html = replaceMeta(html, 'property="og:title"', "content", "ID9 Admin — Secure Studio Access");
   html = replaceMeta(html, 'property="og:description"', "content", "Secure administrative access for the Impact Digital 9 Agency studio.");
   html = replaceMeta(html, 'property="og:type"', "content", "website");
-  html = replaceMeta(html, 'property="og:url"', "content", "");
-  html = html.replace(/<link\b[^>]*rel=["']canonical["'][^>]*>/i, "");
-  html = replaceGeneratedStructuredData(html);
+  html = replaceMeta(html, 'name="twitter:card"', "content", "summary");
+  html = replaceMeta(html, 'name="twitter:title"', "content", "ID9 Admin — Secure Studio Access");
+  html = replaceMeta(html, 'name="twitter:description"', "content", "Secure administrative access for the Impact Digital 9 Agency studio.");
+  // Administrative pages must not expose public URL metadata or organization-wide structured data.
+  html = html.replace(/<meta\\b[^>]*property=["']og:url["'][^>]*>/i, "");
+  html = html.replace(/<link\\b[^>]*rel=["']canonical["'][^>]*>/i, "");
+  html = html.replace(/<script\\b[^>]*type=["']application\\/ld\\+json["'][^>]*>[\\s\\S]*?<\\/script>/gi, "");
   return html;
 }
 
