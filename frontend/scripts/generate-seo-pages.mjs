@@ -93,6 +93,86 @@ export function buildSitemapXml(urls) {
   const entries = [...uniqueUrls].map((url) => `  <url><loc>${escapeHtml(url)}</loc></url>`);
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join("\n")}\n</urlset>\n`;
 }
+export function dedupePublishedBlogPosts(posts) {
+  if (!Array.isArray(posts)) return [];
+  const seen = new Set();
+  return posts.filter((post) => {
+    if (post?.published !== true || !safeSlug(post?.slug)) return false;
+    const normalized = post.slug.toLowerCase();
+    if (seen.has(normalized)) return false;
+    seen.add(normalized);
+    return true;
+  });
+}
+
+function stripBlogMarkup(value = "") {
+  return String(value)
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, "")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/[#>*_~`]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+export function buildBlogArticleMetadata(post) {
+  const title = String(post?.seo_title || post?.seoTitle || post?.title || "Article");
+  const rawDescription = post?.seo_description || post?.seoDescription || post?.excerpt || stripBlogMarkup(post?.content);
+  const description = String(rawDescription || "Insights from Impact Digital 9 Agency.").trim().slice(0, 300);
+  const url = `${SITE_URL}/blog/${encodeURIComponent(post.slug)}`;
+  const image = safeImageUrl(post?.cover_image || post?.coverImage || "");
+  const author = String(post?.author || "Impact Digital 9 Agency");
+  const published = post?.created_at || post?.publishedAt || post?.published_at;
+  const publishedAt = published && !Number.isNaN(Date.parse(published)) ? new Date(published).toISOString() : undefined;
+  return { title: title.length > 70 ? title.slice(0, 67).trimEnd() + "..." : title, description, url, image, author, publishedAt };
+}
+
+export function applyBlogArticleMetadata(template, post) {
+  const meta = buildBlogArticleMetadata(post);
+  let html = template.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(meta.title)}</title>`);
+  html = replaceMeta(html, 'name="description"', "content", meta.description);
+  html = replaceMeta(html, 'property="og:title"', "content", meta.title);
+  html = replaceMeta(html, 'property="og:description"', "content", meta.description);
+  html = replaceMeta(html, 'property="og:url"', "content", meta.url);
+  html = replaceMeta(html, 'property="og:type"', "content", "article");
+  html = replaceMeta(html, 'property="og:image"', "content", meta.image);
+  html = replaceMeta(html, 'name="twitter:card"', "content", "summary_large_image");
+  html = replaceMeta(html, 'name="twitter:title"', "content", meta.title);
+  html = replaceMeta(html, 'name="twitter:description"', "content", meta.description);
+  html = replaceMeta(html, 'name="twitter:image"', "content", meta.image);
+  html = replaceCanonical(html, meta.url);
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: meta.title,
+    description: meta.description,
+    image: meta.image,
+    url: meta.url,
+    author: { "@type": "Person", name: meta.author },
+    publisher: { "@type": "Organization", name: "Impact Digital 9 Agency", url: SITE_URL },
+    ...(meta.publishedAt ? { datePublished: meta.publishedAt } : {}),
+  };
+  html = replaceGeneratedStructuredData(html);
+  html = html.replace("</head>", `<script type="application/ld+json" data-route-seo="blog-article">${JSON.stringify(schema).replace(/</g, "\\u003c")}</script>\n</head>`);
+  return { html, url: meta.url, title: meta.title };
+}
+
+async function fetchPublishedBlogPosts() {
+  const configuredBackendUrl = process.env.REACT_APP_BACKEND_URL || process.env.REACT_APP_API_URL || "";
+  const base = configuredBackendUrl.replace(/\/+$/, "");
+  if (!base) {
+    console.warn("[SEO] Blog prerender skipped: REACT_APP_API_URL/REACT_APP_BACKEND_URL is not configured for this build.");
+    return [];
+  }
+  const apiBase = base.endsWith("/api") ? base : `${base}/api`;
+  const response = await fetch(`${apiBase}/blog`, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(12000) });
+  if (!response.ok) throw new Error(`Blog SEO build query failed: HTTP ${response.status}. Refusing to publish a partial blog sitemap.`);
+  const payload = await response.json();
+  if (!Array.isArray(payload)) throw new Error("Blog SEO build query returned a non-array payload.");
+  return dedupePublishedBlogPosts(payload);
+}
+
+
 export function dedupeProjectsBySlug(projects) {
   const seen = new Set();
   return projects.filter((project) => {
@@ -211,6 +291,7 @@ async function main() {
   const payload = await response.json();
   const sanityProjects = Array.isArray(payload.result) ? payload.result.filter((item) => safeSlug(item?.slug)) : [];
 
+  const blogPosts = await fetchPublishedBlogPosts();
   const founderSource = await readFile(path.resolve("src/lib/founder-projects.js"), "utf8");
   const founderMatch = founderSource.match(/const PROJECTS = (\[[\s\S]*?\]);\s*\n\s*export function/);
   if (!founderMatch) throw new Error("Could not locate the founder project data array for SEO generation.");
@@ -251,8 +332,18 @@ async function main() {
     generatedProjects += 1;
   }
 
+  let generatedBlogPosts = 0;
+  for (const post of blogPosts) {
+    const { html, url } = applyBlogArticleMetadata(template, post);
+    const outputDir = path.resolve("build/blog", post.slug);
+    await mkdir(outputDir, { recursive: true });
+    await writeFile(path.join(outputDir, "index.html"), html, "utf8");
+    sitemapUrls.push(url);
+    generatedBlogPosts += 1;
+  }
+
   await writeFile(sitemapPath, buildSitemapXml(sitemapUrls), "utf8");
-  console.log(`[SEO] Generated ${Object.keys(STATIC_ROUTES).length} static route metadata page(s), ${generatedProjects} portfolio route(s), and sitemap entries.`);
+  console.log(`[SEO] Generated ${Object.keys(STATIC_ROUTES).length} static route metadata page(s), ${generatedProjects} portfolio route(s), ${generatedBlogPosts} published blog route(s), and sitemap entries.`);
 }
 
 const isDirectExecution = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
