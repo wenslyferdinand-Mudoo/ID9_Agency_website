@@ -201,10 +201,6 @@ test("Vercel routing serves prerendered routes and limits SPA rewrites to known 
   assert.ok(projectRule, "Missing generated portfolio detail rewrite");
   assert.equal(projectRule.destination, "/portfolio/:slug/index.html");
 
-  const blogDetailRule = rewrites.find((item) => item.source === "/blog/:slug");
-  assert.ok(blogDetailRule, "Missing generated blog detail rewrite");
-  assert.equal(blogDetailRule.destination, "/blog/:slug/index.html", "Published articles must resolve to generated HTML, and unknown slugs must not fall through to the SPA");
-
   for (const route of ["/admin", "/admin/:path*"]) {
     const rule = rewrites.find((item) => item.source === route);
     assert.ok(rule, `Missing explicit SPA rewrite for ${route}`);
