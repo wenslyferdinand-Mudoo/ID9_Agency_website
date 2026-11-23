@@ -124,33 +124,59 @@ export default function BlogDetailPage() {
       </main>
     );
 
-  if (notFound || loadError || !post)
+  if (notFound) {
     return (
-      <main className="min-h-screen pt-32 md:pt-40 px-4 sm:px-6 max-w-4xl mx-auto">
+      <main data-testid="blog-article-not-found" className="relative min-h-[75vh] overflow-hidden px-5 md:px-8 pt-36 pb-24 flex items-center">
+        <div className="pointer-events-none absolute -top-40 -right-32 h-96 w-96 rounded-full bg-orange_impact/10 blur-3xl" aria-hidden="true" />
+        <div className="relative max-w-5xl w-full mx-auto">
+          <p className="font-ui text-xs uppercase tracking-[0.3em] text-orange_impact mb-7">
+            {lang === "fr" ? "Journal · Erreur 404" : "Journal · Error 404"}
+          </p>
+          <p className="font-display font-black text-[clamp(5rem,18vw,12rem)] leading-[0.78] tracking-[-0.08em] text-white" aria-hidden="true">
+            404<span className="text-orange_impact">.</span>
+          </p>
+          <div className="mt-12 max-w-2xl">
+            <h1 className="font-display text-3xl md:text-5xl font-bold tracking-tight text-balance">
+              {lang === "fr" ? "Cet article est introuvable." : "This article could not be found."}
+            </h1>
+            <p className="mt-5 text-sm md:text-base leading-relaxed text-white/60">
+              {lang === "fr"
+                ? "Il a peut-être été déplacé, dépublié ou l’adresse contient une erreur. Aucun contenu fictif ne sera affiché à sa place."
+                : "It may have been moved, unpublished or the address may contain a typo. No placeholder content will be shown in its place."}
+            </p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Link to="/blog" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-orange_impact px-6 py-3 text-sm font-semibold text-ink-900 hover:bg-gold_light transition-colors">
+                <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+                {lang === "fr" ? "Retour au journal" : "Back to journal"}
+              </Link>
+              <Link to="/contact" className="inline-flex min-h-12 items-center rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-white hover:border-orange_impact/70 transition-colors">
+                {lang === "fr" ? "Contacter l’agence" : "Contact the agency"}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (loadError || !post) {
+    return (
+      <main className="min-h-[65vh] pt-36 px-4 sm:px-6 max-w-4xl mx-auto" role="alert">
         <h1 className="font-display text-3xl font-bold text-white">
-          {notFound
-            ? (lang === "fr" ? "Article introuvable." : "Article not found.")
-            : (lang === "fr" ? "Impossible de charger cet article." : "Unable to load this article.")}
+          {lang === "fr" ? "Impossible de charger cet article." : "Unable to load this article."}
         </h1>
         <p className="mt-3 text-white/60">
-          {notFound
-            ? (lang === "fr" ? "Cet article n’existe pas ou n’est plus disponible." : "This article does not exist or is no longer available.")
-            : (lang === "fr" ? "Vérifiez votre connexion et réessayez." : "Check your connection and try again.")}
+          {lang === "fr" ? "Le service est momentanément indisponible. Vérifiez votre connexion puis réessayez." : "The service is temporarily unavailable. Check your connection and try again."}
         </p>
-        {!notFound && (
-          <button
-            type="button"
-            onClick={() => setRetryCount((count) => count + 1)}
-            className="mt-6 inline-flex min-h-11 items-center rounded-full bg-orange_impact px-6 py-3 text-sm font-semibold text-ink-900"
-          >
-            {lang === "fr" ? "Réessayer" : "Try again"}
-          </button>
-        )}
+        <button type="button" onClick={() => setRetryCount((count) => count + 1)} className="mt-6 inline-flex min-h-11 items-center rounded-full bg-orange_impact px-6 py-3 text-sm font-semibold text-ink-900">
+          {lang === "fr" ? "Réessayer" : "Try again"}
+        </button>
         <Link to="/blog" className="text-orange_impact underline mt-4 inline-flex min-h-11 items-center">
           {lang === "fr" ? "← Retour au journal" : "← Back to journal"}
         </Link>
       </main>
     );
+  }
 
   return (
     <main data-testid="blog-detail" className="pt-32 md:pt-40">
