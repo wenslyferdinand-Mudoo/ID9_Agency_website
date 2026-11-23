@@ -268,6 +268,19 @@ export function applyStaticRouteMetadata(template, route) {
   return { html, url, title };
 }
 
+export function applyAdminRouteMetadata(template) {
+  let html = template.replace(/<title>[\\s\\S]*?<\\/title>/i, "<title>ID9 Admin — Secure Studio Access | Impact Digital 9 Agency</title>");
+  html = replaceMeta(html, 'name="robots"', "content", "noindex, nofollow");
+  html = replaceMeta(html, 'name="description"', "content", "Administrative sign-in for the Impact Digital 9 Agency studio.");
+  html = replaceMeta(html, 'property="og:title"', "content", "ID9 Admin — Secure Studio Access");
+  html = replaceMeta(html, 'property="og:description"', "content", "Secure administrative access for the Impact Digital 9 Agency studio.");
+  html = replaceMeta(html, 'property="og:type"', "content", "website");
+  html = replaceMeta(html, 'property="og:url"', "content", "");
+  html = html.replace(/<link\\b[^>]*rel=["']canonical["'][^>]*>/i, "");
+  html = replaceGeneratedStructuredData(html);
+  return html;
+}
+
 export function applyProjectMetadata(template, project) {
   if (!safeSlug(project?.slug)) throw new Error("Project SEO metadata requires a valid URL-safe slug.");
   const title = (project.seoTitle || "").trim() || `${project.title || "Project"} | Impact Digital 9 Agency`;
@@ -343,6 +356,11 @@ async function main() {
     await mkdir(outputDir, { recursive: true });
     await writeFile(path.join(outputDir, "index.html"), html, "utf8");
   }
+
+  const adminHtml = applyAdminRouteMetadata(template);
+  const adminOutputDir = path.resolve("build/admin");
+  await mkdir(adminOutputDir, { recursive: true });
+  await writeFile(path.join(adminOutputDir, "index.html"), adminHtml, "utf8");
 
   let generatedProjects = 0;
   for (const project of projects) {
