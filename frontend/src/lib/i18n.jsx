@@ -311,6 +311,64 @@ const DICT = {
   "ap.timeline": { en: "Timeline", fr: "Chronologie" },
   "ap.timelineH": { en: "A path shaped by creative practice and entrepreneurship.", fr: "Un parcours façonné par la pratique créative et l’entrepreneuriat." },
   "ap.workWithUs": { en: "Work with us", fr: "Travailler avec nous" },
+  "about.exploreServices": { en: "Explore our services", fr: "Découvrir nos services" },
+  "about.founderApproach": {
+    en: "The agency combines strategic thinking with hands-on creative execution. Each engagement is shaped around the brief, the audience, the available resources and the outcomes that matter.",
+    fr: "L’agence associe réflexion stratégique et exécution créative concrète. Chaque collaboration est construite autour du brief, du public, des ressources disponibles et des résultats recherchés.",
+  },
+  "about.experienceLabel": { en: "Selected experience indicators", fr: "Quelques indicateurs d’expérience" },
+  "about.principlesEyebrow": { en: "How we think", fr: "Notre approche" },
+  "about.principlesTitle": { en: "Clear thinking. Intentional design. Responsible delivery.", fr: "Une réflexion claire. Un design intentionnel. Une exécution responsable." },
+  "about.principlesIntro": {
+    en: "Good creative work is not decoration. It connects business intent, audience needs and a consistent brand experience.",
+    fr: "Un travail créatif pertinent ne se limite pas à l’esthétique. Il relie les objectifs de l’organisation, les besoins du public et une expérience de marque cohérente.",
+  },
+  "about.principle1.title": { en: "Strategy before execution", fr: "La stratégie avant l’exécution" },
+  "about.principle1.body": {
+    en: "We clarify the objective, audience and message before selecting a visual or digital direction.",
+    fr: "Nous clarifions l’objectif, le public et le message avant de définir une direction visuelle ou digitale.",
+  },
+  "about.principle2.title": { en: "Connected disciplines", fr: "Des expertises complémentaires" },
+  "about.principle2.body": {
+    en: "Branding, design, content and digital experiences are considered as parts of one coherent system.",
+    fr: "Le branding, le design, le contenu et les expériences numériques sont pensés comme les composantes d’un même système.",
+  },
+  "about.principle3.title": { en: "Craft and consistency", fr: "Exigence et cohérence" },
+  "about.principle3.body": {
+    en: "We value clear communication, careful production and consistency across every relevant touchpoint.",
+    fr: "Nous privilégions une communication claire, une production soignée et une cohérence sur chaque point de contact pertinent.",
+  },
+  "about.principle4.title": { en: "Practical innovation", fr: "Innovation utile" },
+  "about.principle4.body": {
+    en: "We adopt tools and emerging technologies when they improve quality, efficiency or the experience—not for novelty alone.",
+    fr: "Nous adoptons les outils et technologies émergentes lorsqu’ils améliorent la qualité, l’efficacité ou l’expérience, et non pour suivre une tendance.",
+  },
+  "about.disciplinesEyebrow": { en: "What we bring together", fr: "Nos domaines d’intervention" },
+  "about.disciplinesTitle": { en: "A connected creative and digital practice.", fr: "Une pratique créative et digitale intégrée." },
+  "about.disciplinesIntro": {
+    en: "ID9 brings complementary capabilities together and can shape the right combination around each project. The scope is defined transparently before delivery.",
+    fr: "ID9 réunit des compétences complémentaires et compose une réponse adaptée à chaque projet. Le périmètre de la mission est défini avec transparence avant la réalisation.",
+  },
+  "about.discipline1.title": { en: "Brand identity & graphic design", fr: "Identité de marque & design graphique" },
+  "about.discipline1.body": {
+    en: "Visual identities, brand assets and communication materials designed for recognition and consistency.",
+    fr: "Identités visuelles, supports de marque et outils de communication conçus pour renforcer la reconnaissance et la cohérence.",
+  },
+  "about.discipline2.title": { en: "Digital experiences", fr: "Expériences digitales" },
+  "about.discipline2.body": {
+    en: "Website and digital product design focused on clarity, usability and a credible online presence.",
+    fr: "Conception de sites web et de produits digitaux axée sur la clarté, l’utilisabilité et une présence en ligne crédible.",
+  },
+  "about.discipline3.title": { en: "Marketing & content", fr: "Marketing & création de contenu" },
+  "about.discipline3.body": {
+    en: "Campaign concepts and content production that help organizations communicate with purpose.",
+    fr: "Concepts de campagnes et production de contenus pour aider les organisations à communiquer avec intention.",
+  },
+  "about.discipline4.title": { en: "Photography & training", fr: "Photographie & formation" },
+  "about.discipline4.body": {
+    en: "Visual storytelling and practical knowledge sharing across creative and digital workflows.",
+    fr: "Narration visuelle et transmission de compétences pratiques autour des processus créatifs et digitaux.",
+  },
 
   // Services page
   "sp.h1": { en: "Connected expertise.", fr: "Des expertises complémentaires." },
