@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { applyBlogArticleMetadata, buildBlogArticleMetadata, dedupePublishedBlogPosts, applyProjectMetadata, applyStaticRouteMetadata, buildSitemapXml, dedupeProjectsBySlug, escapeHtml, STATIC_ROUTES, SITE_URL } from "./generate-seo-pages.mjs";
+import { applyBlogArticleMetadata, buildBlogArticleMetadata, dedupePublishedBlogPosts, fetchPublishedBlogPosts, applyProjectMetadata, applyStaticRouteMetadata, buildSitemapXml, dedupeProjectsBySlug, escapeHtml, STATIC_ROUTES, SITE_URL } from "./generate-seo-pages.mjs";
 
 const template = `<!doctype html>
 <html lang="en"><head>
@@ -253,4 +253,29 @@ test("static metadata generation replaces its own prior JSON-LD block", () => {
   const once = applyStaticRouteMetadata(template, "/about");
   const twice = applyStaticRouteMetadata(once.html, "/about");
   assert.equal((twice.html.match(/data-route-seo="static-page"/g) || []).length, 1);
+});
+
+test("blog SEO prerender is resilient when API times out or returns an error", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalApiUrl = process.env.REACT_APP_API_URL;
+  const originalBackendUrl = process.env.REACT_APP_BACKEND_URL;
+  try {
+    delete process.env.REACT_APP_BACKEND_URL;
+    process.env.REACT_APP_API_URL = "https://api.example.com";
+    globalThis.fetch = async () => { throw new DOMException("timed out", "TimeoutError"); };
+    assert.deepEqual(await fetchPublishedBlogPosts(), [], "timeouts should skip prerender without failing deployment");
+    globalThis.fetch = async () => ({ ok: false, status: 503 });
+    assert.deepEqual(await fetchPublishedBlogPosts(), [], "API failures should not block static site deployment");
+    globalThis.fetch = async () => ({ ok: true, json: async () => ({ invalid: "shape" }) });
+    assert.deepEqual(await fetchPublishedBlogPosts(), [], "unexpected payload shapes should safely skip blog prerender");
+    globalThis.fetch = async () => ({ ok: true, json: async () => [
+      { slug: "live-article", published: true },
+      { slug: "draft-article", published: false },
+    ] });
+    assert.deepEqual((await fetchPublishedBlogPosts()).map((post) => post.slug), ["live-article"], "successful API responses still prerender published posts only");
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (originalApiUrl === undefined) delete process.env.REACT_APP_API_URL; else process.env.REACT_APP_API_URL = originalApiUrl;
+    if (originalBackendUrl === undefined) delete process.env.REACT_APP_BACKEND_URL; else process.env.REACT_APP_BACKEND_URL = originalBackendUrl;
+  }
 });
