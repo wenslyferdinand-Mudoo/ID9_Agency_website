@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { applyBlogArticleMetadata, buildBlogArticleMetadata, dedupePublishedBlogPosts, fetchPublishedBlogPosts, applyProjectMetadata, applyStaticRouteMetadata, buildSitemapXml, dedupeProjectsBySlug, escapeHtml, STATIC_ROUTES, SITE_URL } from "./generate-seo-pages.mjs";
+import { applyBlogArticleMetadata, buildBlogArticleMetadata, dedupePublishedBlogPosts, fetchPublishedBlogPosts, applyProjectMetadata, applyStaticRouteMetadata, applyAdminRouteMetadata, buildSitemapXml, dedupeProjectsBySlug, escapeHtml, STATIC_ROUTES, SITE_URL } from "./generate-seo-pages.mjs";
 
 const template = `<!doctype html>
 <html lang="en"><head>
@@ -277,5 +277,25 @@ test("blog SEO prerender is resilient when API times out or returns an error", a
     globalThis.fetch = originalFetch;
     if (originalApiUrl === undefined) delete process.env.REACT_APP_API_URL; else process.env.REACT_APP_API_URL = originalApiUrl;
     if (originalBackendUrl === undefined) delete process.env.REACT_APP_BACKEND_URL; else process.env.REACT_APP_BACKEND_URL = originalBackendUrl;
+  }
+});
+
+
+test("admin route shell has dedicated noindex metadata and no public canonical", () => {
+  const html = applyAdminRouteMetadata(template);
+  assert.ok(html.includes("<title>ID9 Admin — Secure Studio Access | Impact Digital 9 Agency</title>"));
+  assert.ok(html.includes('name="robots" content="noindex, nofollow"'));
+  assert.ok(!/<link\\b[^>]*rel=["']canonical["']/i.test(html));
+  assert.ok(!html.includes('data-route-seo='));
+});
+
+test("Vercel admin routes use the dedicated noindex shell while retaining response headers", async () => {
+  const config = JSON.parse(await readFile(new URL("../vercel.json", import.meta.url), "utf8"));
+  for (const route of ["/admin", "/admin/:path*"]) {
+    const rewrite = config.rewrites.find((item) => item.source === route);
+    assert.ok(rewrite, `Missing admin rewrite for ${route}`);
+    assert.equal(rewrite.destination, "/admin/index.html");
+    const headerRule = config.headers.find((item) => item.source === route);
+    assert.ok(headerRule?.headers.some((header) => header.key === "X-Robots-Tag" && header.value === "noindex, nofollow"));
   }
 });
