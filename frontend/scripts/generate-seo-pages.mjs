@@ -157,18 +157,41 @@ export function applyBlogArticleMetadata(template, post) {
   return { html, url: meta.url, title: meta.title };
 }
 
-async function fetchPublishedBlogPosts() {
+export async function fetchPublishedBlogPosts() {
   const configuredBackendUrl = process.env.REACT_APP_BACKEND_URL || process.env.REACT_APP_API_URL || "";
   const base = configuredBackendUrl.replace(/\/+$/, "");
   if (!base) {
-    throw new Error("Blog SEO prerender requires REACT_APP_API_URL or REACT_APP_BACKEND_URL. Refusing to publish blog routes without published-article metadata.");
+    console.warn("[SEO] Blog article prerender skipped: no backend URL configured. Static pages and portfolio SEO will still be generated.");
+    return [];
+  }
+  let parsedBase;
+  try {
+    parsedBase = new URL(base);
+  } catch {
+    console.warn("[SEO] Blog article prerender skipped: backend URL is invalid.");
+    return [];
+  }
+  if (parsedBase.protocol !== "https:" || parsedBase.username || parsedBase.password || parsedBase.hostname === "xxx") {
+    console.warn("[SEO] Blog article prerender skipped: backend URL must be a valid HTTPS host.");
+    return [];
   }
   const apiBase = base.endsWith("/api") ? base : `${base}/api`;
-  const response = await fetch(`${apiBase}/blog`, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(12000) });
-  if (!response.ok) throw new Error(`Blog SEO build query failed: HTTP ${response.status}. Refusing to publish a partial blog sitemap.`);
-  const payload = await response.json();
-  if (!Array.isArray(payload)) throw new Error("Blog SEO build query returned a non-array payload.");
-  return dedupePublishedBlogPosts(payload);
+  try {
+    const response = await fetch(`${apiBase}/blog`, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(12000) });
+    if (!response.ok) {
+      console.warn(`[SEO] Blog article prerender skipped: API returned HTTP ${response.status}. Published articles will remain available through the live blog API.`);
+      return [];
+    }
+    const payload = await response.json();
+    if (!Array.isArray(payload)) {
+      console.warn("[SEO] Blog article prerender skipped: API payload is not an array. Live blog remains the runtime source.");
+      return [];
+    }
+    return dedupePublishedBlogPosts(payload);
+  } catch (error) {
+    console.warn(`[SEO] Blog article prerender skipped due to API/network timeout: ${error?.name || "fetch error"}. Static routes and sitemap will be generated without article entries.`);
+    return [];
+  }
 }
 
 
