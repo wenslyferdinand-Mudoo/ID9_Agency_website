@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { applyProjectMetadata, applyStaticRouteMetadata, buildSitemapXml, dedupeProjectsBySlug, escapeHtml, STATIC_ROUTES, SITE_URL } from "./generate-seo-pages.mjs";
+import { applyBlogArticleMetadata, buildBlogArticleMetadata, dedupePublishedBlogPosts, applyProjectMetadata, applyStaticRouteMetadata, buildSitemapXml, dedupeProjectsBySlug, escapeHtml, STATIC_ROUTES, SITE_URL } from "./generate-seo-pages.mjs";
 
 const template = `<!doctype html>
 <html lang="en"><head>
@@ -17,6 +17,61 @@ const template = `<!doctype html>
 <meta name="twitter:description" content="Default description" />
 <meta name="twitter:image" content="https://example.com/default.jpg" />
 </head><body><div id="root"></div></body></html>`;
+
+test("blog generation includes published posts only and rejects invalid or duplicate slugs", () => {
+  const posts = dedupePublishedBlogPosts([
+    { slug: "published-one", published: true },
+    { slug: "draft", published: false },
+    { slug: "PUBLISHED-ONE", published: true },
+    { slug: "../unsafe", published: true },
+    { slug: "missing-status", title: "No publication flag" },
+    { slug: "published-two", published: true },
+  ]);
+  assert.deepEqual(posts.map((post) => post.slug), ["published-one", "published-two"]);
+});
+
+test("blog article metadata uses safe defaults and canonical article URLs", () => {
+  const meta = buildBlogArticleMetadata({
+    slug: "brand-strategy",
+    title: "Brand strategy <script>alert(1)</script>",
+    excerpt: "A concise & useful guide.",
+    cover_image: "https://cdn.example.com/article-cover.jpg",
+    author: "Editorial team",
+    created_at: "2026-11-20T10:00:00Z",
+  });
+  assert.equal(meta.url, `${SITE_URL}/blog/brand-strategy`);
+  assert.equal(meta.description, "A concise & useful guide.");
+  assert.equal(meta.image, "https://cdn.example.com/article-cover.jpg");
+  assert.equal(meta.author, "Editorial team");
+  assert.equal(meta.publishedAt, "2026-11-20T10:00:00.000Z");
+  assert.ok(meta.title.includes("script>alert(1)"));
+});
+
+test("blog HTML metadata, canonical and BlogPosting schema are prerendered and script-safe", () => {
+  const post = {
+    slug: "blog-script-safe",
+    published: true,
+    title: "</title><script>alert(1)</script> & Article",
+    excerpt: 'Description with <img src=x onerror="alert(1)"> & ampersand.',
+    cover_image: "javascript:alert(1)",
+    author: "</script><script>alert(1)</script>",
+    created_at: "2026-11-20T10:00:00Z",
+  };
+  const { html, url } = applyBlogArticleMetadata(template, post);
+  assert.equal(url, `${SITE_URL}/blog/blog-script-safe`);
+  assert.ok(html.includes('<title>&lt;/title&gt;&lt;script&gt;alert(1)&lt;/script&gt; &amp; Article</title>'));
+  assert.ok(html.includes('property="og:type" content="article"'));
+  assert.ok(html.includes(`href="${url}"`));
+  assert.ok(html.includes(`content="${SITE_URL}/wensly-founder.jpg"`));
+  const match = html.match(/<script type="application\\/ld\\+json" data-route-seo="blog-article">([\\s\\S]*?)<\\/script>/);
+  assert.ok(match, "Expected server-rendered BlogPosting JSON-LD");
+  assert.ok(!match[1].includes("</script>"), "Untrusted content must not terminate JSON-LD");
+  const schema = JSON.parse(match[1]);
+  assert.equal(schema["@type"], "BlogPosting");
+  assert.equal(schema.headline, post.title);
+  assert.equal(schema.url, url);
+  assert.equal(schema.author.name, post.author);
+});
 
 test("every public static route receives unique canonical and social metadata", () => {
   const seenTitles = new Set();
@@ -142,7 +197,11 @@ test("Vercel routing serves prerendered routes and limits SPA rewrites to known 
   assert.ok(projectRule, "Missing generated portfolio detail rewrite");
   assert.equal(projectRule.destination, "/portfolio/:slug/index.html");
 
-  for (const route of ["/blog/:slug", "/admin", "/admin/:path*"]) {
+  const blogDetailRule = rewrites.find((item) => item.source === "/blog/:slug");
+  assert.ok(blogDetailRule, "Missing generated blog detail rewrite");
+  assert.equal(blogDetailRule.destination, "/blog/:slug/index.html", "Published articles must resolve to generated HTML, and unknown slugs must not fall through to the SPA");
+
+  for (const route of ["/admin", "/admin/:path*"]) {
     const rule = rewrites.find((item) => item.source === route);
     assert.ok(rule, `Missing explicit SPA rewrite for ${route}`);
     assert.equal(rule.destination, "/index.html");
