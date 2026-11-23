@@ -285,7 +285,7 @@ test("admin route shell has dedicated noindex metadata and no public canonical",
   const html = applyAdminRouteMetadata(template);
   assert.ok(html.includes("<title>ID9 Admin — Secure Studio Access | Impact Digital 9 Agency</title>"));
   assert.ok(html.includes('name="robots" content="noindex, nofollow"'));
-  assert.ok(!/<link\\b[^>]*rel=["']canonical["']/i.test(html));
+  assert.ok(!/<link\b[^>]*rel=["']canonical["']/i.test(html));
   assert.ok(!html.includes('data-route-seo='));
 });
 
