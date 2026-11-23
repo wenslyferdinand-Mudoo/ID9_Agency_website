@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { markPageNoindex } from "@/lib/seo";
+import { applyBlogArticleMetadata } from "@/lib/blog-seo";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import api from "@/lib/api";
@@ -101,6 +102,12 @@ export default function BlogDetailPage() {
       active = false;
     };
   }, [slug, retryCount]);
+
+  // Once the article resolves, replace generic blog metadata with article-specific SEO.
+  useEffect(() => {
+    if (!post || loading || notFound) return undefined;
+    return applyBlogArticleMetadata(post, slug, lang);
+  }, [post, loading, notFound, slug, lang]);
 
   // Blog slugs are routed through the SPA; an API 404 must not remain indexable.
   useEffect(() => {
