@@ -63,7 +63,7 @@ test("blog HTML metadata, canonical and BlogPosting schema are prerendered and s
   assert.ok(html.includes('property="og:type" content="article"'));
   assert.ok(html.includes(`href="${url}"`));
   assert.ok(html.includes(`content="${SITE_URL}/wensly-founder.jpg"`));
-  const match = html.match(/<script type="application\\/ld\\+json" data-route-seo="blog-article">([\\s\\S]*?)<\\/script>/);
+  const match = html.match(/<script type="application\/ld\+json" data-route-seo="blog-article">([\s\S]*?)<\/script>/);
   assert.ok(match, "Expected server-rendered BlogPosting JSON-LD");
   assert.ok(!match[1].includes("</script>"), "Untrusted content must not terminate JSON-LD");
   const schema = JSON.parse(match[1]);
