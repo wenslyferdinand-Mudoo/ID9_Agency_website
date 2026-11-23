@@ -161,8 +161,7 @@ async function fetchPublishedBlogPosts() {
   const configuredBackendUrl = process.env.REACT_APP_BACKEND_URL || process.env.REACT_APP_API_URL || "";
   const base = configuredBackendUrl.replace(/\/+$/, "");
   if (!base) {
-    console.warn("[SEO] Blog prerender skipped: REACT_APP_API_URL/REACT_APP_BACKEND_URL is not configured for this build.");
-    return [];
+    throw new Error("Blog SEO prerender requires REACT_APP_API_URL or REACT_APP_BACKEND_URL. Refusing to publish blog routes without published-article metadata.");
   }
   const apiBase = base.endsWith("/api") ? base : `${base}/api`;
   const response = await fetch(`${apiBase}/blog`, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(12000) });
