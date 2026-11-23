@@ -282,19 +282,15 @@ test("blog SEO prerender is resilient when API times out or returns an error", a
 
 
 test("admin route shell has private metadata and removes public canonical, social URL and structured data", () => {
-  const adminTemplate = template.replace("</head>", `
-<meta property="og:url" content="https://example.com/" />
-<meta name="twitter:card" content="summary_large_image" />
-<script type="application/ld+json">{ "type": "Organization" }</script>
-</head>`);
+  const adminTemplate = template.replace("</head>", "<meta property=\"og:url\" content=\"https://example.com/\" /><meta name=\"twitter:card\" content=\"summary_large_image\" /><script type=\"application/ld+json\">{ \"type\": \"Organization\" }</script></head>");
   const html = applyAdminRouteMetadata(adminTemplate);
   assert.ok(html.includes("<title>ID9 Admin — Secure Studio Access | Impact Digital 9 Agency</title>"));
   assert.ok(html.includes('name="robots" content="noindex, nofollow"'));
   assert.ok(html.includes('name="twitter:card" content="summary"'));
   assert.ok(html.includes('name="twitter:title" content="ID9 Admin — Secure Studio Access"'));
-  assert.ok(!/<link\\b[^>]*rel=["']canonical["']/i.test(html));
-  assert.ok(!/<meta\\b[^>]*property=["']og:url["']/i.test(html));
-  assert.ok(!/<script\\b[^>]*type=["']application\\/ld\\+json["']/i.test(html));
+  assert.ok(!/<link\b[^>]*rel=["']canonical["']/i.test(html));
+  assert.ok(!/<meta\b[^>]*property=["']og:url["']/i.test(html));
+  assert.ok(!/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>/i.test(html));
   assert.ok(!html.includes('data-route-seo='));
 });
 
