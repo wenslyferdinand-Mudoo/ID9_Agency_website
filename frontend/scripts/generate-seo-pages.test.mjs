@@ -204,7 +204,7 @@ test("Vercel routing serves prerendered routes and limits SPA rewrites to known 
   for (const route of ["/admin", "/admin/:path*"]) {
     const rule = rewrites.find((item) => item.source === route);
     assert.ok(rule, `Missing explicit SPA rewrite for ${route}`);
-    assert.equal(rule.destination, "/index.html");
+    assert.equal(rule.destination, "/admin/index.html");
   }
 
   for (const route of ["/admin", "/admin/:path*"]) {
