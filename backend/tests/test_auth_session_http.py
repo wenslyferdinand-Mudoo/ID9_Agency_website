@@ -142,7 +142,7 @@ def test_refresh_rotates_cookie_and_reuse_revokes_entire_session(api):
 
     # Replay the credential that was just rotated. Reuse detection revokes the session.
     client.cookies.set(server.AUTH_COOKIE_NAME, old_refresh, path="/api/auth")
-    replay = client.post("/api/auth/refresh")
+    replay = client.post("/api/auth/refresh", headers=origin_headers())
     assert replay.status_code == 401
     assert database.auth_sessions.docs[0]["revoked"] is True
     assert client.get("/api/auth/me", headers=bearer(next_access)).status_code == 401
@@ -195,7 +195,7 @@ def test_cookie_auth_endpoints_reject_missing_origin(api):
 
 def test_refresh_without_cookie_is_rejected(api):
     client, _, _ = api
-    response = client.post("/api/auth/refresh")
+    response = client.post("/api/auth/refresh", headers=origin_headers())
     assert response.status_code == 401
 
 
