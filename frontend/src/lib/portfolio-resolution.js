@@ -8,7 +8,7 @@ export function isValidPortfolioProject(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
   const slug = typeof value.slug === "string" ? value.slug.trim() : "";
   const title = typeof value.title === "string" ? value.title.trim() : "";
-  return Boolean(slug && title);
+  return Boolean(slug && title && /^[a-z0-9]+(?:-[a-z0-9]+)*$/i.test(slug));
 }
 
 function isProject(value, requestedSlug) {
