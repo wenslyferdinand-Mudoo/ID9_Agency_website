@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import { ArrowUpRight, Languages, Instagram, Facebook, Mail, MessageCircle } from "lucide-react";
@@ -177,6 +178,7 @@ export default function Navigation() {
       </motion.div>
 
       {/* ============ CINEMATIC FULLSCREEN MENU ============ */}
+      {typeof document !== "undefined" && createPortal(
       <AnimatePresence>
         {open && (
           <motion.div
@@ -184,7 +186,7 @@ export default function Navigation() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-[60] safe-x overflow-hidden"
+            className="fixed inset-0 z-[60] safe-x h-[100dvh] flex flex-col overflow-hidden overscroll-none"
             role="dialog"
             aria-modal="true"
             aria-label={lang === "fr" ? "Menu principal" : "Main navigation"}
@@ -212,7 +214,7 @@ export default function Navigation() {
             </motion.div>
 
             {/* Top: logo + animated close button */}
-            <div className="relative pt-6 px-6 safe-top flex justify-between items-center">
+            <div className="relative z-10 shrink-0 pt-6 px-6 safe-top flex justify-between items-center">
               <Link
                 to="/"
                 onClick={() => setOpen(false)}
@@ -241,7 +243,7 @@ export default function Navigation() {
             </div>
 
             {/* Main menu items — staggered cinematic reveal */}
-            <nav aria-label={lang === "fr" ? "Navigation mobile" : "Mobile navigation"} className="absolute inset-x-0 top-24 bottom-[11.5rem] min-h-0 overflow-y-auto overscroll-contain px-5 sm:px-6 md:px-12 lg:px-20">
+            <nav aria-label={lang === "fr" ? "Navigation mobile" : "Mobile navigation"} className="relative z-10 flex-1 min-h-0 overflow-y-auto overscroll-contain px-5 sm:px-6 md:px-12 lg:px-20 [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.18)_transparent]">
               <ul className="flex flex-col gap-0 max-w-5xl">
                 {links.map((l, i) => (
                   <motion.li
@@ -288,7 +290,7 @@ export default function Navigation() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.65, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute bottom-0 inset-x-0 px-5 sm:px-6 md:px-12 lg:px-20 pb-5 sm:pb-8 safe-bottom"
+              className="relative z-10 shrink-0 px-5 sm:px-6 md:px-12 lg:px-20 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-3"
             >
               <div className="flex flex-col gap-4 max-w-5xl">
                 {/* Row 1: status (left) + language toggle (right) */}
@@ -360,7 +362,9 @@ export default function Navigation() {
             </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+      )}
     </>
   );
 }
