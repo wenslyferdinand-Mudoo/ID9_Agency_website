@@ -16,7 +16,7 @@ export function getPortfolioSeoMetadata(project, canonicalUrl, defaultImage) {
     "";
   let image = defaultImage;
   try {
-    if (rawImage) image = new URL(rawImage, new URL(canonicalUrl).origin).href;
+    if (rawImage) {\n      const parsed = new URL(rawImage, new URL(canonicalUrl).origin);\n      if (parsed.protocol === "https:" && !parsed.username && !parsed.password) image = parsed.href;\n    }
   } catch {
     image = defaultImage;
   }
