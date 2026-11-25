@@ -36,7 +36,7 @@
     },
     {
       "source": "/blog/:slug",
-      "destination": "/index.html"
+      "destination": "/api/not-found"
     },
     {
       "source": "/admin",
