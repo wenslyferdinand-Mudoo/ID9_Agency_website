@@ -39,7 +39,7 @@ export default function PortfolioPage() {
       // MongoDB projects stay visible until a verified export/migration is complete.
       // Do not delete or overwrite legacy records as part of this transition.
       const [sanityResult, legacyResult] = await Promise.allSettled([
-        fetchPortfolioList(),
+        fetchPortfolioList(lang),
         api.get("/portfolio"),
       ]);
 

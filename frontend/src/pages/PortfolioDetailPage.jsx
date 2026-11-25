@@ -35,7 +35,7 @@ export default function PortfolioDetailPage() {
     async function loadProject() {
       try {
         // Founder products have local case-study content; CMS projects remain unchanged.
-        const doc = await fetchPortfolioBySlug(slug);
+        const doc = await fetchPortfolioBySlug(slug, lang);
         if (cancelled) return;
         if (doc && typeof doc === "object") {
           setItem(doc);

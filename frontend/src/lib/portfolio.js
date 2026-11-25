@@ -18,14 +18,16 @@ const VERIFIED_PROJECT_LINKS = [
         label: 'Instagram — CDMG Haïti',
         platform: 'instagram',
         url: 'https://www.instagram.com/cdmg_haiti/',
-        description: 'Compte Instagram communiqué pour le Centre de Danse Markenley George (CDMG Haïti).',
+        description: 'Official Instagram account supplied for CDMG Haïti.',
+        descriptionFr: 'Compte Instagram officiel communiqué pour le CDMG Haïti.',
       },
       {
         _key: 'cdmg-founder-instagram',
         label: 'Instagram — Markenley Georges',
         platform: 'instagram',
         url: 'https://www.instagram.com/markenleygeorges/',
-        description: 'Compte Instagram communiqué de Markenley Georges.',
+        description: 'Instagram profile supplied for Markenley Georges.',
+        descriptionFr: 'Profil Instagram communiqué de Markenley Georges.',
       },
     ],
   },
@@ -128,15 +130,27 @@ function getVerifiedProjectLinks(doc) {
 const PROJECTION = `{
   _id,
   title,
+  titleFr,
   "slug": slug.current,
   category,
   isFlyer,
   client,
   sector,
+  sectorFr,
   year,
   featured,
   summary,
+  summaryFr,
+  servicesFr,
   description,
+  descriptionFr,
+  challengeFr,
+  approachFr,
+  strategyFr,
+  solutionFr,
+  outcomeFr,
+  seoTitleFr,
+  seoDescriptionFr,
   services,
   tools,
   challenge,
@@ -168,11 +182,19 @@ const FEATURED_QUERY = `
 | order(year desc, _createdAt desc) ${PROJECTION}
 `
 
+function localizedValue(source, field, lang) {
+  const translated = source?.[`${field}Fr`]
+  const value = lang === 'fr' && typeof translated === 'string' && translated.trim()
+    ? translated
+    : source?.[field]
+  return typeof value === 'string' ? value.trim() : value
+}
+
 /**
  * Normalise a Sanity portfolio document into the shape the UI expects
  * (matching the legacy FastAPI response so components stay unchanged).
  */
-export function normalizePortfolio(doc) {
+export function normalizePortfolio(doc, lang = 'en') {
   if (!doc || typeof doc !== "object") return null
   const gallery = Array.isArray(doc.gallery) ? doc.gallery : []
   const services = Array.isArray(doc.services) ? doc.services : []
@@ -181,9 +203,13 @@ export function normalizePortfolio(doc) {
   const externalLinks = Array.isArray(doc.externalLinks) ? doc.externalLinks : []
   const isMudoo = /mudoo/i.test([doc?.slug, doc?.title, doc?.client].filter(Boolean).join(" "))
   const existingExternalUrls = new Set(externalLinks.map((link) => String(link?.url || '').trim().replace(/\/$/, '')))
-  const verifiedExternalLinks = getVerifiedProjectLinks(doc).filter(
-    (link) => !existingExternalUrls.has(link.url.replace(/\/$/, ''))
-  )
+  const verifiedExternalLinks = getVerifiedProjectLinks(doc)
+    .filter((link) => !existingExternalUrls.has(link.url.replace(/\/$/, '')))
+    .map((link) => ({
+      ...link,
+      label: localizedValue(link, 'label', lang),
+      description: localizedValue(link, 'description', lang),
+    }))
   return {
     ...doc,
     id: doc._id,
@@ -192,11 +218,22 @@ export function normalizePortfolio(doc) {
       ? gallery.map((g) => ({
           _key: g?._key,
           url: imageUrl(g, 1600),
-          alt: typeof g?.alt === 'string' ? g.alt.trim() : '',
-          caption: typeof g?.caption === 'string' ? g.caption.trim() : '',
+          alt: localizedValue(g, 'alt', lang) || '',
+          caption: localizedValue(g, 'caption', lang) || '',
         }))
       : (isMudoo ? MUDOO_PORTFOLIO_MEDIA.gallery : []),
-    services,
+    services: lang === 'fr' && Array.isArray(doc.servicesFr) && doc.servicesFr.length ? doc.servicesFr : services,
+    title: localizedValue(doc, 'title', lang),
+    summary: localizedValue(doc, 'summary', lang),
+    sector: localizedValue(doc, 'sector', lang),
+    description: localizedValue(doc, 'description', lang),
+    challenge: localizedValue(doc, 'challenge', lang),
+    approach: localizedValue(doc, 'approach', lang),
+    strategy: localizedValue(doc, 'strategy', lang),
+    solution: localizedValue(doc, 'solution', lang),
+    outcome: localizedValue(doc, 'outcome', lang),
+    seoTitle: localizedValue(doc, 'seoTitle', lang),
+    seoDescription: localizedValue(doc, 'seoDescription', lang),
     tools,
     kpis,
     externalLinks: externalLinks
@@ -211,10 +248,10 @@ export function normalizePortfolio(doc) {
         }
         return {
           _key: link?._key,
-          label: typeof link?.label === "string" ? link.label.trim() : "",
+          label: localizedValue(link, 'label', lang) || "",
           platform: typeof link?.platform === "string" ? link.platform : "",
           url,
-          description: typeof link?.description === "string" ? link.description.trim() : "",
+          description: localizedValue(link, 'description', lang) || "",
         };
       })
       .filter((link) => link.label && link.url)
@@ -222,21 +259,21 @@ export function normalizePortfolio(doc) {
   }
 }
 
-export async function fetchPortfolioList() {
+export async function fetchPortfolioList(lang = 'en') {
   try {
     const data = await sanityClient.fetch(LIST_QUERY)
-    return Array.isArray(data) ? data.map(normalizePortfolio).filter(Boolean) : []
+    return Array.isArray(data) ? data.map((doc) => normalizePortfolio(doc, lang)).filter(Boolean) : []
   } catch (e) {
     console.warn('[Sanity] fetchPortfolioList failed:', e?.message)
     return []
   }
 }
 
-export async function fetchPortfolioBySlug(slug) {
+export async function fetchPortfolioBySlug(slug, lang = 'en') {
   if (!slug || typeof slug !== 'string') return null
   try {
     const data = await sanityClient.fetch(DETAIL_QUERY, {slug})
-    if (data) return normalizePortfolio(data)
+    if (data) return normalizePortfolio(data, lang)
   } catch (e) {
     console.warn('[Sanity] CDN fetchPortfolioBySlug failed:', e?.message)
   }
@@ -246,17 +283,17 @@ export async function fetchPortfolioBySlug(slug) {
   // records are handled by the portfolio page compatibility layer, not this CMS client.
   try {
     const data = await uncachedSanityClient.fetch(DETAIL_QUERY, {slug})
-    return normalizePortfolio(data)
+    return normalizePortfolio(data, lang)
   } catch (e) {
     console.warn('[Sanity] uncached fetchPortfolioBySlug failed:', e?.message)
     return null
   }
 }
 
-export async function fetchFeaturedPortfolio() {
+export async function fetchFeaturedPortfolio(lang = 'en') {
   try {
     const data = await sanityClient.fetch(FEATURED_QUERY)
-    return Array.isArray(data) ? data.map(normalizePortfolio).filter(Boolean) : []
+    return Array.isArray(data) ? data.map((doc) => normalizePortfolio(doc, lang)).filter(Boolean) : []
   } catch (e) {
     console.warn('[Sanity] fetchFeaturedPortfolio failed:', e?.message)
     return []

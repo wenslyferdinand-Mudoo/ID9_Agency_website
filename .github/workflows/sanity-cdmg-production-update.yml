@@ -1,6 +1,12 @@
 name: Sanity — update CDMG portfolio (production)
 
 on:
+  # A merge that changes this guarded workflow or its script triggers a read-only backup.
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/sanity-cdmg-production-update.yml"
+      - "frontend/scripts/sanity-update-cdmg-production.mjs"
   workflow_dispatch:
     inputs:
       operation:
@@ -68,6 +74,22 @@ on:
         description: "SEO description (max 160 characters)"
         required: false
         type: string
+      french_content_json:
+        description: "French localized content JSON (reviewed fields only)"
+        required: false
+        type: string
+      services_fr_json:
+        description: "French services array JSON"
+        required: false
+        type: string
+      external_links_json:
+        description: "Verified external links JSON; merged by URL, never replaces unrelated links"
+        required: false
+        type: string
+      gallery_metadata_json:
+        description: "Bilingual gallery metadata JSON keyed by existing Sanity gallery _key values"
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -85,6 +107,8 @@ jobs:
     steps:
       - name: Checkout selected commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
 
       - name: Set up Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
@@ -101,7 +125,7 @@ jobs:
           SANITY_PROJECT_ID: ${{ vars.SANITY_PROJECT_ID }}
           SANITY_DATASET: production
           SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
-          PROJECT_SLUG: ${{ inputs.slug }}
+          PROJECT_SLUG: ${{ inputs.slug || 'cdmg-haiti-brand-identity' }}
         run: |
           node frontend/scripts/sanity-update-cdmg-production.mjs backup
 
@@ -115,7 +139,7 @@ jobs:
 
   update:
     name: Apply validated, non-destructive field patch
-    if: inputs.operation == 'patch'
+    if: github.event_name == 'workflow_dispatch' && inputs.operation == 'patch'
     needs: backup
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -123,6 +147,8 @@ jobs:
     steps:
       - name: Checkout selected commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
 
       - name: Set up Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
@@ -146,7 +172,7 @@ jobs:
           SANITY_DATASET: production
           SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
           CONFIRM_PRODUCTION: ${{ inputs.confirm_production }}
-          PROJECT_SLUG: ${{ inputs.slug }}
+          PROJECT_SLUG: ${{ inputs.slug || 'cdmg-haiti-brand-identity' }}
           PROJECT_TITLE: ${{ inputs.title }}
           PROJECT_SUMMARY: ${{ inputs.summary }}
           PROJECT_CLIENT: ${{ inputs.client }}
@@ -159,4 +185,8 @@ jobs:
           PROJECT_OUTCOME: ${{ inputs.outcome }}
           PROJECT_SEO_TITLE: ${{ inputs.seo_title }}
           PROJECT_SEO_DESCRIPTION: ${{ inputs.seo_description }}
+          FRENCH_CONTENT_JSON: ${{ inputs.french_content_json }}
+          SERVICES_FR_JSON: ${{ inputs.services_fr_json }}
+          EXTERNAL_LINKS_JSON: ${{ inputs.external_links_json }}
+          GALLERY_METADATA_JSON: ${{ inputs.gallery_metadata_json }}
         run: node frontend/scripts/sanity-update-cdmg-production.mjs patch
