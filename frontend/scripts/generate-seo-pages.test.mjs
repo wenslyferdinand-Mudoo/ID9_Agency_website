@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { applyBlogArticleMetadata, buildBlogArticleMetadata, dedupePublishedBlogPosts, fetchPublishedBlogPosts, fetchLegacyPortfolioProjects, applyProjectMetadata, applyStaticRouteMetadata, buildSitemapXml, dedupeProjectsBySlug, escapeHtml, STATIC_ROUTES, SITE_URL } from "./generate-seo-pages.mjs";
+import { applyBlogArticleMetadata, buildBlogArticleMetadata, dedupePublishedBlogPosts, fetchPublishedBlogPosts, fetchLegacyPortfolioProjects, applyProjectMetadata, applyStaticRouteMetadata, buildSitemapXml, dedupeProjectsBySlug, mergePortfolioSources, escapeHtml, STATIC_ROUTES, SITE_URL } from "./generate-seo-pages.mjs";
 
 const template = `<!doctype html>
 <html lang="en"><head>
@@ -133,17 +133,25 @@ test("static route structured data is valid JSON-LD", () => {
   assert.equal(data.url, `${SITE_URL}/services`);
 });
 
-test("portfolio sitemap generation input removes invalid and duplicate slugs with Sanity-first precedence", () => {
-  const projects = dedupeProjectsBySlug([
-    { slug: "shared", title: "Sanity version" },
-    { slug: "SHARED", title: "Case-only duplicate" },
-    { slug: "shared", title: "Duplicate Sanity version" },
-    { slug: "local-only", title: "Founder project" },
-    { slug: "../bad", title: "Invalid path" },
-    { slug: "Upper-Case", title: "Valid case-insensitive slug" },
-  ]);
+test("portfolio sitemap generation follows Sanity, legacy API, then founder precedence", () => {
+  const projects = mergePortfolioSources(
+    [
+      { slug: "shared", title: "Sanity version" },
+      { slug: "SHARED", title: "Case-only duplicate" },
+      { slug: "../bad", title: "Invalid path" },
+    ],
+    [
+      { slug: "shared", title: "Legacy duplicate" },
+      { slug: "legacy-only", title: "Legacy project" },
+    ],
+    [
+      { slug: "shared", title: "Founder duplicate" },
+      { slug: "local-only", title: "Founder project" },
+      { slug: "Upper-Case", title: "Valid case-insensitive slug" },
+    ]
+  );
   assert.deepEqual(projects.map((project) => project.title), [
-    "Sanity version", "Founder project", "Valid case-insensitive slug",
+    "Sanity version", "Legacy project", "Founder project", "Valid case-insensitive slug",
   ]);
   assert.equal(projects.at(-1).slug, "Upper-Case", "valid mixed-case slugs remain supported");
 });

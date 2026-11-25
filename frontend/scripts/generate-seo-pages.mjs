@@ -232,6 +232,14 @@ export async function fetchLegacyPortfolioProjects() {
   }
 }
 
+export function mergePortfolioSources(sanityProjects, legacyProjects, founderProjects) {
+  return dedupeProjectsBySlug([
+    ...(Array.isArray(sanityProjects) ? sanityProjects : []),
+    ...(Array.isArray(legacyProjects) ? legacyProjects : []),
+    ...(Array.isArray(founderProjects) ? founderProjects : []),
+  ]);
+}
+
 export function dedupeProjectsBySlug(projects) {
   const seen = new Set();
   return projects.filter((project) => {
@@ -343,7 +351,7 @@ export function applyProjectMetadata(template, project) {
 
 async function main() {
   const endpoint = `https://${projectId}.api.sanity.io/v${apiVersion}/data/query/${dataset}?query=${encodeURIComponent(query)}`;
-  const response = await fetch(endpoint, { headers: { Accept: "application/json" } });
+  const response = await fetch(endpoint, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(15000) });
   if (!response.ok) {
     throw new Error(`Sanity SEO build query failed: HTTP ${response.status}. Refusing to publish an incomplete project sitemap.`);
   }
@@ -373,8 +381,8 @@ async function main() {
       year: item.year,
       category: item.category,
     }));
-  // Sanity is authoritative; duplicate slugs are discarded deterministically (first source wins).
-  const projects = dedupeProjectsBySlug([...sanityProjects, ...localProjects]);
+  // Match runtime lookup precedence: Sanity editorial content, legacy API, then founder fallback.
+  const projects = mergePortfolioSources(sanityProjects, legacyProjects, localProjects);
   const template = await readFile(path.resolve("build/index.html"), "utf8");
   const sitemapPath = path.resolve("build/sitemap.xml");
   const sitemapUrls = Object.keys(STATIC_ROUTES).map((route) => route === "/" ? `${SITE_URL}/` : `${SITE_URL}${route}`);
