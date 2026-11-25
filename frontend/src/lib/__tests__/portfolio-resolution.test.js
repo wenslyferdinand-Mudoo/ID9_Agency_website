@@ -146,7 +146,7 @@ describe("resolvePortfolioProject", () => {
       [],
       { slug: "missing-title" },
       { title: "Missing slug" },
-      { slug: " ", title: "Blank slug" },
+      { slug: " ", title: "Blank slug" },\n      { slug: "../unsafe", title: "Path traversal" },\n      { slug: "slug?query=1", title: "Query injection" },
     ];
 
     expect(mergePortfolioProjects([canonical, ...malformed], [duplicate], [])).toEqual([canonical]);
