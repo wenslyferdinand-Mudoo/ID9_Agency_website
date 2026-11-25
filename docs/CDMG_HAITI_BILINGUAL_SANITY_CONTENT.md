@@ -141,6 +141,27 @@ Rules:
 4. Preserve each existing gallery item's `_key`, asset reference and hotspot.
 5. Match metadata to the existing image by its Sanity array `_key`, not by array order alone.
 
+
+## Legacy repository media — identity check required
+
+The repository also contains a legacy portfolio seed titled **Akya Dance Company — Cultural Identity Reborn** and these candidate assets under `frontend/public/projects/akya/`:
+
+- `business-card-flat.jpg`
+- `business-card-mockup.jpg`
+- `flyer-janvier-2023.jpg`
+- `flyer-juin-2022.jpg`
+- `program-card.jpg`
+
+The legacy seed describes Akya Dance Company as directed by Markenley Georges and references CDMG. This establishes a relationship, but it does **not** prove that every Akya-branded asset belongs in the separate CDMG Haïti Sanity case study. Keep the two project identities distinct until the existing Sanity document's gallery asset references are compared with these exact assets.
+
+Two repository visuals have been inspected so far:
+- `business-card-flat.jpg`: a flat business-card design featuring the CDMG mark and Markenley Georges branding.
+- `flyer-juin-2022.jpg`: a mockup of an Akya Dance audition flyer dated 25 June 2022.
+
+The remaining three files have not yet been visually verified. Do not create their alt text or captions from filenames alone.
+
+The legacy MongoDB seed also contains KPIs and a testimonial. They are not independently verified and must not be copied into the CDMG Sanity project without documentary approval.
+
 ## Unconfirmed information — leave unset
 
 - Project year: not confirmed.
