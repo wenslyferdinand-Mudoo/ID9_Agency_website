@@ -74,6 +74,7 @@ jobs:
         run: |
           node --input-type=module --check < studio/schemas/portfolioProject.js
           node --input-type=module --check < studio/sanity.config.js
+          node --input-type=module --check < frontend/scripts/sanity-update-cdmg-production.mjs
 
   frontend-validation:
     timeout-minutes: 15
