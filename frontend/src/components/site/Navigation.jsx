@@ -64,6 +64,21 @@ export default function Navigation() {
     };
   }, [open, loc.pathname]);
 
+  // Make the background application inert while the modal menu is open.
+  // The menu is portalled to document.body, so it remains interactive.
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const appRoot = document.getElementById("root");
+    if (!appRoot) return undefined;
+
+    const wasInert = appRoot.inert;
+    appRoot.inert = true;
+    return () => {
+      appRoot.inert = wasInert;
+    };
+  }, [open]);
+
   // Keep keyboard users inside the mobile dialog and recover focus if it escapes.
   useEffect(() => {
     if (!open) return undefined;
@@ -201,6 +216,7 @@ export default function Navigation() {
               exit={{ scale: 1.015, opacity: 0, filter: "blur(8px)" }}
               transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
               className="absolute inset-0 bg-ink-900"
+              aria-hidden="true"
             >
               <div
                 className="absolute inset-0 opacity-60"
@@ -290,7 +306,7 @@ export default function Navigation() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.65, ease: [0.16, 1, 0.3, 1] }}
-              className="relative z-10 shrink-0 px-5 sm:px-6 md:px-12 lg:px-20 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-3"
+              className="relative z-10 shrink-0 max-h-[48dvh] overflow-y-auto overscroll-contain px-5 sm:px-6 md:px-12 lg:px-20 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-3"
             >
               <div className="flex flex-col gap-4 max-w-5xl">
                 {/* Row 1: status (left) + language toggle (right) */}
