@@ -21,6 +21,13 @@ export default defineType({
       validation: (Rule) => Rule.required().min(3).max(120),
     }),
     defineField({
+      name: 'titleFr',
+      title: 'Project Title (French)',
+      type: 'string',
+      group: 'main',
+      validation: (Rule) => Rule.max(120),
+    }),
+    defineField({
       name: 'slug',
       title: 'URL Slug',
       type: 'slug',
@@ -69,6 +76,12 @@ export default defineType({
       group: 'main',
     }),
     defineField({
+      name: 'sectorFr',
+      title: 'Sector (French)',
+      type: 'string',
+      group: 'main',
+    }),
+    defineField({
       name: 'year',
       title: 'Year',
       type: 'string',
@@ -91,8 +104,24 @@ export default defineType({
       validation: (Rule) => Rule.required().max(280),
     }),
     defineField({
+      name: 'summaryFr',
+      title: 'Short Summary (French)',
+      type: 'text',
+      rows: 2,
+      group: 'main',
+      validation: (Rule) => Rule.max(280),
+    }),
+    defineField({
       name: 'services',
       title: 'Services Delivered',
+      type: 'array',
+      group: 'main',
+      of: [{type: 'string'}],
+      options: {layout: 'tags'},
+    }),
+    defineField({
+      name: 'servicesFr',
+      title: 'Services Delivered (French)',
       type: 'array',
       group: 'main',
       of: [{type: 'string'}],
@@ -126,8 +155,10 @@ export default defineType({
           type: 'image',
           options: {hotspot: true},
           fields: [
-            {name: 'alt', title: 'Alt text', type: 'string'},
-            {name: 'caption', title: 'Caption', type: 'string'},
+            {name: 'alt', title: 'Alt text (English)', type: 'string'},
+            {name: 'caption', title: 'Caption (English)', type: 'string'},
+            {name: 'altFr', title: 'Alt text (French)', type: 'string'},
+            {name: 'captionFr', title: 'Caption (French)', type: 'string'},
           ],
         }),
       ],
@@ -186,7 +217,19 @@ export default defineType({
             },
             {
               name: 'description',
-              title: 'Description (optional)',
+              title: 'Description (English, optional)',
+              type: 'string',
+              validation: (Rule) => Rule.max(120),
+            },
+            {
+              name: 'labelFr',
+              title: 'Link Label (French)',
+              type: 'string',
+              validation: (Rule) => Rule.max(60),
+            },
+            {
+              name: 'descriptionFr',
+              title: 'Description (French, optional)',
               type: 'string',
               validation: (Rule) => Rule.max(120),
             },
@@ -195,6 +238,30 @@ export default defineType({
             select: {title: 'label', subtitle: 'url'},
           },
         }),
+    defineField({
+      name: 'descriptionFr',
+                    title: 'Project Context (French)',
+                    type: 'string',
+                    validation: (Rule) => Rule.max(120),
+                  },
+                  {
+                    name: 'labelFr',
+                    title: 'Link Label (French)',
+                    type: 'string',
+                    validation: (Rule) => Rule.max(60),
+                  },
+                  {
+                    name: 'descriptionFr',
+                    title: 'Description (French, optional)',
+                    type: 'string',
+                    validation: (Rule) => Rule.max(120),
+                  },
+                ],
+                preview: {
+                  select: {title: 'label', subtitle: 'url'},
+                },
+              }),
+
       ],
     }),
 
@@ -214,12 +281,28 @@ export default defineType({
       group: 'story',
     }),
     defineField({
+      name: 'challengeFr',
+            title: '01 — The Challenge (French)',
+            type: 'text',
+            rows: 5,
+            group: 'story',
+          }),
+
+    defineField({
       name: 'approach',
       title: '02 — Our Approach',
       type: 'text',
       rows: 5,
       group: 'story',
     }),
+    defineField({
+      name: 'approachFr',
+            title: '02 — Our Approach (French)',
+            type: 'text',
+            rows: 5,
+            group: 'story',
+          }),
+
     defineField({
       name: 'strategy',
       title: '03 — The Strategy',
@@ -228,17 +311,40 @@ export default defineType({
       group: 'story',
     }),
     defineField({
+      name: 'strategyFr',
+            title: '03 — The Strategy (French)',
+            type: 'text',
+            rows: 5,
+            group: 'story',
+          }),
+
+    defineField({
       name: 'solution',
       title: '04 — The Solution',
       type: 'text',
       rows: 5,
       group: 'story',
     }),
+    defineField({
+      name: 'solutionFr',
+            title: '04 — The Solution (French)',
+            type: 'text',
+            rows: 5,
+            group: 'story',
+          }),
+
 
     // --------- RESULTS ---------
     defineField({
       name: 'outcome',
       title: 'Outcome (1 sentence headline)',
+      type: 'text',
+      rows: 3,
+      group: 'results',
+    }),
+    defineField({
+      name: 'outcomeFr',
+      title: 'Outcome (French)',
       type: 'text',
       rows: 3,
       group: 'results',
@@ -272,13 +378,27 @@ export default defineType({
     // --------- SEO ---------
     defineField({
       name: 'seoTitle',
-      title: 'SEO Title (browser tab + Google)',
+      title: 'SEO Title (English, browser tab + Google)',
+      type: 'string',
+      group: 'seo',
+    }),
+    defineField({
+      name: 'seoTitleFr',
+      title: 'SEO Title (French)',
       type: 'string',
       group: 'seo',
     }),
     defineField({
       name: 'seoDescription',
       title: 'SEO Description (~150 chars)',
+      type: 'text',
+      rows: 3,
+      group: 'seo',
+      validation: (Rule) => Rule.max(160),
+    }),
+    defineField({
+      name: 'seoDescriptionFr',
+      title: 'SEO Description (French, max 160 chars)',
       type: 'text',
       rows: 3,
       group: 'seo',
