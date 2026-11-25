@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, Phone, FileText, Home } from "lucide-react";
@@ -8,7 +9,7 @@ import { useI18n } from "@/lib/i18n";
 /**
  * Native-app feel sticky bottom action bar for mobile.
  * - Hidden on admin routes
- * - Hidden when scrolling up (smart hide)
+ * - Hidden while scrolling down; revealed when scrolling up
  * - Safe-area aware for iPhone home indicator
  * - Quick actions: WhatsApp, Call, Free Quote
  */
@@ -19,14 +20,20 @@ export default function MobileBottomBar() {
   const lastYRef = useRef(0);
 
   useEffect(() => {
+    lastYRef.current = window.scrollY;
+
     const onScroll = () => {
       const y = window.scrollY;
-      const shouldBeVisible = !(y > 200 && y > lastYRef.current);
+      const delta = y - lastYRef.current;
+      const shouldBeVisible =
+        y <= 80 ? true : delta < -4 ? true : delta > 4 ? false : null;
 
-      // Keep one passive listener mounted; avoid re-subscribing on every scroll.
-      setVisible((current) =>
-        current === shouldBeVisible ? current : shouldBeVisible
-      );
+      // Ignore tiny scroll noise; reveal on upward intent and hide on downward intent.
+      if (shouldBeVisible !== null) {
+        setVisible((current) =>
+          current === shouldBeVisible ? current : shouldBeVisible
+        );
+      }
       lastYRef.current = y;
     };
 
@@ -36,7 +43,11 @@ export default function MobileBottomBar() {
 
   if (loc.pathname.startsWith("/admin")) return null;
 
-  return (
+  // Render outside the application tree so fixed positioning remains tied to
+  // the viewport, not an ancestor affected by transform/filter/contain.
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <AnimatePresence>
       {visible && (
         <motion.div
@@ -115,6 +126,7 @@ export default function MobileBottomBar() {
           </div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
