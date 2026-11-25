@@ -29,7 +29,14 @@ describe("getPortfolioSeoMetadata", () => {
     expect(result.description).toBe("SEO summary.");
   });
 
-  test("rejects unsafe image protocols and credentials", () => {\n    for (const cover_image of ["javascript:alert(1)", "data:image/svg+xml,<svg>", "http://cdn.example.com/image.jpg", "https://user:pass@cdn.example.com/image.jpg"]) {\n      const result = getPortfolioSeoMetadata({ title: "Unsafe image", cover_image }, canonicalUrl, defaultImage);\n      expect(result.image).toBe(defaultImage);\n    }\n  });\n\n  test("uses the default share image when the project has no cover", () => {
+  test("rejects unsafe image protocols and credentials", () => {
+    for (const cover_image of ["javascript:alert(1)", "data:image/svg+xml,<svg>", "http://cdn.example.com/image.jpg", "https://user:pass@cdn.example.com/image.jpg"]) {
+      const result = getPortfolioSeoMetadata({ title: "Unsafe image", cover_image }, canonicalUrl, defaultImage);
+      expect(result.image).toBe(defaultImage);
+    }
+  });
+
+  test("uses the default share image when the project has no cover", () => {
     const result = getPortfolioSeoMetadata({ title: "Collect Story" }, canonicalUrl, defaultImage);
     expect(result.image).toBe(defaultImage);
     expect(result.schema.image).toBe(defaultImage);
