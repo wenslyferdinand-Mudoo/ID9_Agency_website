@@ -266,10 +266,10 @@ export default defineType({
     defineField({
       name: 'challengeFr',
       title: '01 — The Challenge (French)',
-            type: 'text',
-            rows: 5,
-            group: 'story',
-      }),
+      type: 'text',
+      rows: 5,
+      group: 'story',
+    }),
 
     defineField({
       name: 'approach',
@@ -281,10 +281,10 @@ export default defineType({
     defineField({
       name: 'approachFr',
       title: '02 — Our Approach (French)',
-            type: 'text',
-            rows: 5,
-            group: 'story',
-      }),
+      type: 'text',
+      rows: 5,
+      group: 'story',
+    }),
 
     defineField({
       name: 'strategy',
@@ -296,10 +296,10 @@ export default defineType({
     defineField({
       name: 'strategyFr',
       title: '03 — The Strategy (French)',
-            type: 'text',
-            rows: 5,
-            group: 'story',
-      }),
+      type: 'text',
+      rows: 5,
+      group: 'story',
+    }),
 
     defineField({
       name: 'solution',
@@ -311,10 +311,10 @@ export default defineType({
     defineField({
       name: 'solutionFr',
       title: '04 — The Solution (French)',
-            type: 'text',
-            rows: 5,
-            group: 'story',
-      }),
+      type: 'text',
+      rows: 5,
+      group: 'story',
+    }),
 
 
     // --------- RESULTS ---------
