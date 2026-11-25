@@ -3,9 +3,17 @@ name: Sanity — update CDMG portfolio (production)
 on:
   workflow_dispatch:
     inputs:
-      confirm_production:
-        description: "Type exactly PUBLISH-CDMG-PRODUCTION to authorize the production mutation"
+      operation:
+        description: "Read-only backup first; patch only after the backup has been reviewed"
         required: true
+        default: "backup_only"
+        type: choice
+        options:
+          - backup_only
+          - patch
+      confirm_production:
+        description: "For patch only, type exactly PUBLISH-CDMG-PRODUCTION"
+        required: false
         type: string
       slug:
         description: "Existing portfolio slug"
@@ -107,6 +115,7 @@ jobs:
 
   update:
     name: Apply validated, non-destructive field patch
+    if: inputs.operation == 'patch'
     needs: backup
     runs-on: ubuntu-latest
     timeout-minutes: 10
