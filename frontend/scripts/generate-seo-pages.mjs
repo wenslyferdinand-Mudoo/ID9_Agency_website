@@ -350,12 +350,17 @@ async function main() {
   const payload = await response.json();
   const sanityProjects = Array.isArray(payload.result) ? payload.result.filter((item) => safeSlug(item?.slug)) : [];
 
-  const [blogPosts, legacyProjects] = await Promise.all([\n    fetchPublishedBlogPosts(),\n    fetchLegacyPortfolioProjects(),\n  ]);
+  const [blogPosts, legacyProjects] = await Promise.all([
+    fetchPublishedBlogPosts(),
+    fetchLegacyPortfolioProjects(),
+  ]);
   const founderSource = await readFile(path.resolve("src/lib/founder-projects.js"), "utf8");
   const founderMatch = founderSource.match(/const PROJECTS = (\[[\s\S]*?\]);\s*\n\s*export function/);
   if (!founderMatch) throw new Error("Could not locate the founder project data array for SEO generation.");
   const founderProjects = runInNewContext("(" + founderMatch[1] + ")");
-  const existingRemoteSlugs = new Set(\n    [...sanityProjects, ...legacyProjects].map((item) => item.slug.toLowerCase())\n  );
+  const existingRemoteSlugs = new Set(
+    [...sanityProjects, ...legacyProjects].map((item) => item.slug.toLowerCase())
+  );
   const localProjects = founderProjects
     .filter((item) => safeSlug(item?.slug) && !existingRemoteSlugs.has(item.slug.toLowerCase()))
     .map((item) => ({
