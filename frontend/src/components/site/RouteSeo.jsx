@@ -79,7 +79,7 @@ export default function RouteSeo() {
       const slug = pathname.split("/").filter(Boolean)[1];
       if (!slug) return undefined;
 
-      fetchPortfolioBySlug(slug).then((project) => {
+      fetchPortfolioBySlug(slug, lang).then((project) => {
         if (cancelled || !project) return;
         const title =
           (typeof project.seoTitle === "string" && project.seoTitle.trim()) ||
