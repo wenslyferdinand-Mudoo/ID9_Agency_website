@@ -195,6 +195,43 @@ export async function fetchPublishedBlogPosts() {
 }
 
 
+export async function fetchLegacyPortfolioProjects() {
+  const configuredBackendUrl = process.env.REACT_APP_BACKEND_URL || process.env.REACT_APP_API_URL || "";
+  const base = configuredBackendUrl.trim().replace(/\\/+$/, "").replace(/\\/api$/i, "");
+  if (!base) return [];
+
+  let parsedBase;
+  try {
+    parsedBase = new URL(base);
+  } catch {
+    console.warn("[SEO] Legacy portfolio prerender skipped: backend URL is invalid.");
+    return [];
+  }
+  if (parsedBase.protocol !== "https:" || parsedBase.username || parsedBase.password) {
+    console.warn("[SEO] Legacy portfolio prerender skipped: backend URL must be a trusted HTTPS host.");
+    return [];
+  }
+
+  try {
+    const response = await fetch(`${parsedBase.origin}/api/portfolio`, {
+      headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(12000),
+    });
+    if (!response.ok) {
+      console.warn(`[SEO] Legacy portfolio prerender skipped: API returned HTTP ${response.status}.`);
+      return [];
+    }
+    const payload = await response.json();
+    const projects = Array.isArray(payload) ? payload : Array.isArray(payload?.data) ? payload.data : [];
+    return projects.filter((project) =>
+      safeSlug(project?.slug) && typeof project?.title === "string" && project.title.trim()
+    );
+  } catch (error) {
+    console.warn(`[SEO] Legacy portfolio prerender skipped due to API/network timeout: ${error?.name || "fetch error"}.`);
+    return [];
+  }
+}
+
 export function dedupeProjectsBySlug(projects) {
   const seen = new Set();
   return projects.filter((project) => {
@@ -272,7 +309,7 @@ export function applyProjectMetadata(template, project) {
   if (!safeSlug(project?.slug)) throw new Error("Project SEO metadata requires a valid URL-safe slug.");
   const title = (project.seoTitle || "").trim() || `${project.title || "Project"} | Impact Digital 9 Agency`;
   const description = (project.seoDescription || "").trim() || (project.summary || "").trim() || `Selected work by Impact Digital 9 Agency: ${project.title || "project"}.`;
-  const image = safeImageUrl(project.image);
+  const image = safeImageUrl(project.image || project.cover_image || project.coverImage);
   const url = `${SITE_URL}/portfolio/${project.slug}`;
   let html = template.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(title)}</title>`);
   html = replaceMeta(html, 'name="description"', "content", description);
@@ -313,14 +350,14 @@ async function main() {
   const payload = await response.json();
   const sanityProjects = Array.isArray(payload.result) ? payload.result.filter((item) => safeSlug(item?.slug)) : [];
 
-  const blogPosts = await fetchPublishedBlogPosts();
+  const [blogPosts, legacyProjects] = await Promise.all([\n    fetchPublishedBlogPosts(),\n    fetchLegacyPortfolioProjects(),\n  ]);
   const founderSource = await readFile(path.resolve("src/lib/founder-projects.js"), "utf8");
   const founderMatch = founderSource.match(/const PROJECTS = (\[[\s\S]*?\]);\s*\n\s*export function/);
   if (!founderMatch) throw new Error("Could not locate the founder project data array for SEO generation.");
   const founderProjects = runInNewContext("(" + founderMatch[1] + ")");
-  const sanitySlugs = new Set(sanityProjects.map((item) => item.slug));
+  const existingRemoteSlugs = new Set(\n    [...sanityProjects, ...legacyProjects].map((item) => item.slug.toLowerCase())\n  );
   const localProjects = founderProjects
-    .filter((item) => safeSlug(item?.slug) && !sanitySlugs.has(item.slug))
+    .filter((item) => safeSlug(item?.slug) && !existingRemoteSlugs.has(item.slug.toLowerCase()))
     .map((item) => ({
       slug: item.slug,
       title: item.title,
