@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { applyBlogArticleMetadata, buildBlogArticleMetadata, dedupePublishedBlogPosts, fetchPublishedBlogPosts, applyProjectMetadata, applyStaticRouteMetadata, buildSitemapXml, dedupeProjectsBySlug, escapeHtml, STATIC_ROUTES, SITE_URL } from "./generate-seo-pages.mjs";
+import { applyBlogArticleMetadata, buildBlogArticleMetadata, dedupePublishedBlogPosts, fetchPublishedBlogPosts, fetchLegacyPortfolioProjects, applyProjectMetadata, applyStaticRouteMetadata, buildSitemapXml, dedupeProjectsBySlug, escapeHtml, STATIC_ROUTES, SITE_URL } from "./generate-seo-pages.mjs";
 
 const template = `<!doctype html>
 <html lang="en"><head>
@@ -17,6 +17,37 @@ const template = `<!doctype html>
 <meta name="twitter:description" content="Default description" />
 <meta name="twitter:image" content="https://example.com/default.jpg" />
 </head><body><div id="root"></div></body></html>`;
+
+test("legacy portfolio prerender safely includes valid public API records", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalApiUrl = process.env.REACT_APP_API_URL;
+  const originalBackendUrl = process.env.REACT_APP_BACKEND_URL;
+  try {
+    delete process.env.REACT_APP_BACKEND_URL;
+    process.env.REACT_APP_API_URL = "https://api.example.com/api";
+    globalThis.fetch = async (url) => {
+      assert.equal(url, "https://api.example.com/api/portfolio");
+      return {
+        ok: true,
+        json: async () => [
+          { slug: "legacy-project", title: "Legacy project" },
+          { slug: "../unsafe", title: "Unsafe route" },
+          { slug: "missing-title" },
+        ],
+      };
+    };
+    assert.deepEqual(
+      (await fetchLegacyPortfolioProjects()).map((project) => project.slug),
+      ["legacy-project"]
+    );
+    globalThis.fetch = async () => { throw new DOMException("timed out", "TimeoutError"); };
+    assert.deepEqual(await fetchLegacyPortfolioProjects(), []);
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (originalApiUrl === undefined) delete process.env.REACT_APP_API_URL; else process.env.REACT_APP_API_URL = originalApiUrl;
+    if (originalBackendUrl === undefined) delete process.env.REACT_APP_BACKEND_URL; else process.env.REACT_APP_BACKEND_URL = originalBackendUrl;
+  }
+});
 
 test("blog generation includes published posts only and rejects invalid or duplicate slugs", () => {
   const posts = dedupePublishedBlogPosts([
