@@ -74,8 +74,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment: sanity-production
-    outputs:
-      backup_name: ${{ steps.backup.outputs.backup_name }}
     steps:
       - name: Checkout selected commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -91,7 +89,6 @@ jobs:
         run: npm ci --prefix frontend --ignore-scripts
 
       - name: Read production document and create backup
-        id: backup
         env:
           SANITY_PROJECT_ID: ${{ vars.SANITY_PROJECT_ID }}
           SANITY_DATASET: production
@@ -99,7 +96,6 @@ jobs:
           PROJECT_SLUG: ${{ inputs.slug }}
         run: |
           node frontend/scripts/sanity-update-cdmg-production.mjs backup
-          echo "backup_name=cdmg-production-backup-${GITHUB_RUN_ID}" >> "$GITHUB_OUTPUT"
 
       - name: Upload pre-mutation backup
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -128,6 +124,12 @@ jobs:
 
       - name: Install locked dependencies
         run: npm ci --prefix frontend --ignore-scripts
+
+      - name: Download the exact pre-mutation backup
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: cdmg-production-backup-${{ github.run_id }}
+          path: .sanity-backup/
 
       - name: Validate confirmation and patch existing production document
         env:
