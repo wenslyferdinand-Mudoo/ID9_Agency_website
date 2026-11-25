@@ -134,6 +134,7 @@ jobs:
         with:
           name: cdmg-production-backup-${{ github.run_id }}
           path: .sanity-backup/
+          # Includes the JSON snapshot, asset manifest, and exact existing gallery files.
           if-no-files-found: error
           retention-days: 30
           include-hidden-files: true
