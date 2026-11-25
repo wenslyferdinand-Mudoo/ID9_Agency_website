@@ -1,0 +1,162 @@
+name: Sanity — update CDMG portfolio (production)
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: "Read-only backup first; patch only after the backup has been reviewed"
+        required: true
+        default: "backup_only"
+        type: choice
+        options:
+          - backup_only
+          - patch
+      confirm_production:
+        description: "For patch only, type exactly PUBLISH-CDMG-PRODUCTION"
+        required: false
+        type: string
+      slug:
+        description: "Existing portfolio slug"
+        required: true
+        default: "cdmg-haiti-brand-identity"
+        type: string
+      title:
+        description: "Project title (English)"
+        required: false
+        type: string
+      summary:
+        description: "Public card summary (max 280 characters)"
+        required: false
+        type: string
+      client:
+        description: "Client name"
+        required: false
+        type: string
+      sector:
+        description: "Sector"
+        required: false
+        type: string
+      description:
+        description: "Project context / introduction"
+        required: false
+        type: string
+      challenge:
+        description: "Challenge"
+        required: false
+        type: string
+      approach:
+        description: "Approach"
+        required: false
+        type: string
+      strategy:
+        description: "Strategy"
+        required: false
+        type: string
+      solution:
+        description: "Solution"
+        required: false
+        type: string
+      outcome:
+        description: "Outcome"
+        required: false
+        type: string
+      seo_title:
+        description: "SEO title"
+        required: false
+        type: string
+      seo_description:
+        description: "SEO description (max 160 characters)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sanity-production-cdmg
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    name: Read and back up the existing production document
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: sanity-production
+    steps:
+      - name: Checkout selected commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci --prefix frontend --ignore-scripts
+
+      - name: Read production document and create backup
+        env:
+          SANITY_PROJECT_ID: ${{ vars.SANITY_PROJECT_ID }}
+          SANITY_DATASET: production
+          SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
+          PROJECT_SLUG: ${{ inputs.slug }}
+        run: |
+          node frontend/scripts/sanity-update-cdmg-production.mjs backup
+
+      - name: Upload pre-mutation backup
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cdmg-production-backup-${{ github.run_id }}
+          path: .sanity-backup/
+          if-no-files-found: error
+          retention-days: 30
+
+  update:
+    name: Apply validated, non-destructive field patch
+    if: inputs.operation == 'patch'
+    needs: backup
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: sanity-production
+    steps:
+      - name: Checkout selected commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci --prefix frontend --ignore-scripts
+
+      - name: Download the exact pre-mutation backup
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: cdmg-production-backup-${{ github.run_id }}
+          path: .sanity-backup/
+
+      - name: Validate confirmation and patch existing production document
+        env:
+          SANITY_PROJECT_ID: ${{ vars.SANITY_PROJECT_ID }}
+          SANITY_DATASET: production
+          SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
+          CONFIRM_PRODUCTION: ${{ inputs.confirm_production }}
+          PROJECT_SLUG: ${{ inputs.slug }}
+          PROJECT_TITLE: ${{ inputs.title }}
+          PROJECT_SUMMARY: ${{ inputs.summary }}
+          PROJECT_CLIENT: ${{ inputs.client }}
+          PROJECT_SECTOR: ${{ inputs.sector }}
+          PROJECT_DESCRIPTION: ${{ inputs.description }}
+          PROJECT_CHALLENGE: ${{ inputs.challenge }}
+          PROJECT_APPROACH: ${{ inputs.approach }}
+          PROJECT_STRATEGY: ${{ inputs.strategy }}
+          PROJECT_SOLUTION: ${{ inputs.solution }}
+          PROJECT_OUTCOME: ${{ inputs.outcome }}
+          PROJECT_SEO_TITLE: ${{ inputs.seo_title }}
+          PROJECT_SEO_DESCRIPTION: ${{ inputs.seo_description }}
+        run: node frontend/scripts/sanity-update-cdmg-production.mjs patch
