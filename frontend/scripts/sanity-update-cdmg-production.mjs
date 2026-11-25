@@ -48,6 +48,41 @@ if (mode === 'backup') {
     documentId: doc._id,
     document: doc,
   }, null, 2) + '\n', {flag: 'wx'})
+  // Export the exact existing gallery assets for visual review. This is read-only:
+  // it downloads by the asset references in the snapshot and never changes Sanity.
+  const galleryDir = path.join(backupDir, 'gallery')
+  fs.mkdirSync(galleryDir, {recursive: true})
+  const galleryManifest = []
+  for (const [index, item] of (Array.isArray(doc.gallery) ? doc.gallery : []).entries()) {
+    const assetRef = item?.asset?._ref
+    const match = typeof assetRef === 'string'
+      ? assetRef.match(/^image-([a-f0-9]+)-(\d+x\d+)-(jpg|jpeg|png|webp)$/i)
+      : null
+    if (!match) throw new Error(`Gallery item ${item?._key || index} has an unsupported or missing image asset reference.`)
+    const [, assetHash, dimensions, extension] = match
+    const fileName = `${String(index + 1).padStart(2, '0')}-${item._key}.${extension.toLowerCase()}`
+    const assetUrl = `https://cdn.sanity.io/images/${projectId}/${dataset}/${assetHash}-${dimensions}.${extension.toLowerCase()}`
+    const response = await fetch(assetUrl)
+    if (!response.ok) throw new Error(`Could not download gallery asset ${item._key}: HTTP ${response.status}.`)
+    const bytes = Buffer.from(await response.arrayBuffer())
+    if (bytes.length === 0) throw new Error(`Gallery asset ${item._key} downloaded empty.`)
+    fs.writeFileSync(path.join(galleryDir, fileName), bytes, {flag: 'wx'})
+    galleryManifest.push({
+      index,
+      _key: item._key,
+      assetRef,
+      fileName,
+      bytes: bytes.length,
+      mimeType: response.headers.get('content-type') || null,
+    })
+  }
+  fs.writeFileSync(path.join(backupDir, 'gallery-manifest.json'), JSON.stringify({
+    documentId: doc._id,
+    revision: doc._rev,
+    galleryCount: galleryManifest.length,
+    assets: galleryManifest,
+  }, null, 2) + '\n', {flag: 'wx'})
+
   console.log(JSON.stringify({
     status: 'BACKUP_CREATED',
     documentId: doc._id,
@@ -56,6 +91,7 @@ if (mode === 'backup') {
     backupPath: '.sanity-backup/cdmg-production-before.json',
     fieldsPresent: Object.keys(doc).sort(),
     galleryCount: Array.isArray(doc.gallery) ? doc.gallery.length : 0,
+    galleryAssetsDownloaded: galleryManifest.length,
     externalLinkCount: Array.isArray(doc.externalLinks) ? doc.externalLinks.length : 0,
   }, null, 2))
   process.exit(0)
