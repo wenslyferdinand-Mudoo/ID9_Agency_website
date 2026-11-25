@@ -5,7 +5,7 @@ jest.mock("@sanity/client", () => ({
 jest.mock("./sanity", () => ({
   SANITY_CONFIG: { projectId: "test", dataset: "test", apiVersion: "2025-01-01" },
   sanityClient: { fetch: jest.fn() },
-  imageUrl: jest.fn(() => "https://cdn.example/image"),
+  imageUrl: jest.fn((source, width) => `https://cdn.example/image-${width}`),
 }));
 
 jest.mock("./founder-projects", () => ({
@@ -99,5 +99,17 @@ describe("normalizePortfolio bilingual localization", () => {
     expect(project.title).toBe(sourceDocument.title);
     expect(project.summary).toBe(sourceDocument.summary);
     expect(project.gallery[0].alt).toBe("English alternative text");
+  });
+});
+
+describe("portfolio cover image sizing", () => {
+  it("keeps a full-resolution case-study cover and a smaller card thumbnail", () => {
+    const project = normalizePortfolio(
+      { _id: "portfolio.sample", title: "Sample", coverImage: { asset: { _ref: "image-sample" } } },
+      "en"
+    );
+
+    expect(project.cover_image).toBe("https://cdn.example/image-1600");
+    expect(project.cover_thumbnail).toBe("https://cdn.example/image-960");
   });
 });
