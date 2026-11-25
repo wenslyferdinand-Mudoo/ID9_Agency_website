@@ -86,15 +86,18 @@ if (Object.keys(patch).some((key) => forbidden.includes(key))) {
   throw new Error('Patch contains a protected field.')
 }
 
-// Re-read immediately before writing and compare revision to the backed-up snapshot
-// passed by the preceding job through a workflow artifact is not available across jobs;
-// therefore this job uses a fresh snapshot and records its revision in the run output.
-const fresh = await client.getDocument(doc._id)
-if (!fresh || fresh._rev !== doc._rev) {
-  throw new Error('Document revision changed between reads. Refusing to overwrite concurrent edits; rerun backup and review.')
+// Compare against the exact pre-mutation snapshot uploaded by the backup job.
+const backupPath = path.resolve('.sanity-backup/cdmg-production-before.json')
+if (!fs.existsSync(backupPath)) throw new Error('Pre-mutation backup artifact is missing. No mutation performed.')
+const backup = JSON.parse(fs.readFileSync(backupPath, 'utf8'))
+if (backup.projectId !== projectId || backup.dataset !== dataset || backup.documentId !== doc._id) {
+  throw new Error('Backup identity mismatch. No mutation performed.')
+}
+if (backup.document?._rev !== doc._rev) {
+  throw new Error('Production document changed after backup. Refusing mutation; create a fresh backup and review again.')
 }
 
-const result = await client.patch(doc._id).set(patch).commit({autoGenerateArrayKeys: true})
+const result = await client.patch(doc._id).ifRevisionId(backup.document._rev).set(patch).commit({autoGenerateArrayKeys: true})
 const verified = await client.getDocument(doc._id)
 for (const [key, value] of Object.entries(patch)) {
   if (verified?.[key] !== value) throw new Error(`Post-write verification failed for field "${key}".`)
