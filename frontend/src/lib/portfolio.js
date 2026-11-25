@@ -18,14 +18,16 @@ const VERIFIED_PROJECT_LINKS = [
         label: 'Instagram — CDMG Haïti',
         platform: 'instagram',
         url: 'https://www.instagram.com/cdmg_haiti/',
-        description: 'Compte Instagram communiqué pour le Centre de Danse Markenley George (CDMG Haïti).',
+        description: 'Official Instagram account supplied for CDMG Haïti.',
+        descriptionFr: 'Compte Instagram officiel communiqué pour le CDMG Haïti.',
       },
       {
         _key: 'cdmg-founder-instagram',
         label: 'Instagram — Markenley Georges',
         platform: 'instagram',
         url: 'https://www.instagram.com/markenleygeorges/',
-        description: 'Compte Instagram communiqué de Markenley Georges.',
+        description: 'Instagram profile supplied for Markenley Georges.',
+        descriptionFr: 'Profil Instagram communiqué de Markenley Georges.',
       },
     ],
   },
@@ -180,6 +182,14 @@ const FEATURED_QUERY = `
 | order(year desc, _createdAt desc) ${PROJECTION}
 `
 
+function localizedValue(source, field, lang) {
+  const translated = source?.[`${field}Fr`]
+  const value = lang === 'fr' && typeof translated === 'string' && translated.trim()
+    ? translated
+    : source?.[field]
+  return typeof value === 'string' ? value.trim() : value
+}
+
 /**
  * Normalise a Sanity portfolio document into the shape the UI expects
  * (matching the legacy FastAPI response so components stay unchanged).
@@ -193,9 +203,13 @@ export function normalizePortfolio(doc, lang = 'en') {
   const externalLinks = Array.isArray(doc.externalLinks) ? doc.externalLinks : []
   const isMudoo = /mudoo/i.test([doc?.slug, doc?.title, doc?.client].filter(Boolean).join(" "))
   const existingExternalUrls = new Set(externalLinks.map((link) => String(link?.url || '').trim().replace(/\/$/, '')))
-  const verifiedExternalLinks = getVerifiedProjectLinks(doc).filter(
-    (link) => !existingExternalUrls.has(link.url.replace(/\/$/, ''))
-  )
+  const verifiedExternalLinks = getVerifiedProjectLinks(doc)
+    .filter((link) => !existingExternalUrls.has(link.url.replace(/\/$/, '')))
+    .map((link) => ({
+      ...link,
+      label: localizedValue(link, 'label', lang),
+      description: localizedValue(link, 'description', lang),
+    }))
   return {
     ...doc,
     id: doc._id,
@@ -204,22 +218,22 @@ export function normalizePortfolio(doc, lang = 'en') {
       ? gallery.map((g) => ({
           _key: g?._key,
           url: imageUrl(g, 1600),
-          alt: typeof (lang === 'fr' ? g?.altFr || g?.alt : g?.alt) === 'string' ? (lang === 'fr' ? g?.altFr || g?.alt : g?.alt).trim() : '',
-          caption: typeof (lang === 'fr' ? g?.captionFr || g?.caption : g?.caption) === 'string' ? (lang === 'fr' ? g?.captionFr || g?.caption : g?.caption).trim() : '',
+          alt: localizedValue(g, 'alt', lang) || '',
+          caption: localizedValue(g, 'caption', lang) || '',
         }))
       : (isMudoo ? MUDOO_PORTFOLIO_MEDIA.gallery : []),
     services: lang === 'fr' && Array.isArray(doc.servicesFr) && doc.servicesFr.length ? doc.servicesFr : services,
-    title: lang === 'fr' && doc.titleFr ? doc.titleFr : doc.title,
-    summary: lang === 'fr' && doc.summaryFr ? doc.summaryFr : doc.summary,
-    sector: lang === 'fr' && doc.sectorFr ? doc.sectorFr : doc.sector,
-    description: lang === 'fr' && doc.descriptionFr ? doc.descriptionFr : doc.description,
-    challenge: lang === 'fr' && doc.challengeFr ? doc.challengeFr : doc.challenge,
-    approach: lang === 'fr' && doc.approachFr ? doc.approachFr : doc.approach,
-    strategy: lang === 'fr' && doc.strategyFr ? doc.strategyFr : doc.strategy,
-    solution: lang === 'fr' && doc.solutionFr ? doc.solutionFr : doc.solution,
-    outcome: lang === 'fr' && doc.outcomeFr ? doc.outcomeFr : doc.outcome,
-    seoTitle: lang === 'fr' && doc.seoTitleFr ? doc.seoTitleFr : doc.seoTitle,
-    seoDescription: lang === 'fr' && doc.seoDescriptionFr ? doc.seoDescriptionFr : doc.seoDescription,
+    title: localizedValue(doc, 'title', lang),
+    summary: localizedValue(doc, 'summary', lang),
+    sector: localizedValue(doc, 'sector', lang),
+    description: localizedValue(doc, 'description', lang),
+    challenge: localizedValue(doc, 'challenge', lang),
+    approach: localizedValue(doc, 'approach', lang),
+    strategy: localizedValue(doc, 'strategy', lang),
+    solution: localizedValue(doc, 'solution', lang),
+    outcome: localizedValue(doc, 'outcome', lang),
+    seoTitle: localizedValue(doc, 'seoTitle', lang),
+    seoDescription: localizedValue(doc, 'seoDescription', lang),
     tools,
     kpis,
     externalLinks: externalLinks
@@ -234,10 +248,10 @@ export function normalizePortfolio(doc, lang = 'en') {
         }
         return {
           _key: link?._key,
-          label: typeof (lang === 'fr' ? link?.labelFr || link?.label : link?.label) === "string" ? (lang === 'fr' ? link?.labelFr || link?.label : link?.label).trim() : "",
+          label: localizedValue(link, 'label', lang) || "",
           platform: typeof link?.platform === "string" ? link.platform : "",
           url,
-          description: typeof (lang === 'fr' ? link?.descriptionFr || link?.description : link?.description) === "string" ? (lang === 'fr' ? link?.descriptionFr || link?.description : link?.description).trim() : "",
+          description: localizedValue(link, 'description', lang) || "",
         };
       })
       .filter((link) => link.label && link.url)
