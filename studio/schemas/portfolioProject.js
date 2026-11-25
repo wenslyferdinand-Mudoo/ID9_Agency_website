@@ -238,30 +238,6 @@ export default defineType({
             select: {title: 'label', subtitle: 'url'},
           },
         }),
-    defineField({
-      name: 'descriptionFr',
-                    title: 'Project Context (French)',
-                    type: 'string',
-                    validation: (Rule) => Rule.max(120),
-                  },
-                  {
-                    name: 'labelFr',
-                    title: 'Link Label (French)',
-                    type: 'string',
-                    validation: (Rule) => Rule.max(60),
-                  },
-                  {
-                    name: 'descriptionFr',
-                    title: 'Description (French, optional)',
-                    type: 'string',
-                    validation: (Rule) => Rule.max(120),
-                  },
-                ],
-                preview: {
-                  select: {title: 'label', subtitle: 'url'},
-                },
-              }),
-
       ],
     }),
 
@@ -269,6 +245,13 @@ export default defineType({
     defineField({
       name: 'description',
       title: 'Context (long intro)',
+      type: 'text',
+      rows: 5,
+      group: 'story',
+    }),
+    defineField({
+      name: 'descriptionFr',
+      title: 'Context (French)',
       type: 'text',
       rows: 5,
       group: 'story',
