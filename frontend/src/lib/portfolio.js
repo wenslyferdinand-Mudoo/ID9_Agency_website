@@ -128,15 +128,27 @@ function getVerifiedProjectLinks(doc) {
 const PROJECTION = `{
   _id,
   title,
+  titleFr,
   "slug": slug.current,
   category,
   isFlyer,
   client,
   sector,
+  sectorFr,
   year,
   featured,
   summary,
+  summaryFr,
+  servicesFr,
   description,
+  descriptionFr,
+  challengeFr,
+  approachFr,
+  strategyFr,
+  solutionFr,
+  outcomeFr,
+  seoTitleFr,
+  seoDescriptionFr,
   services,
   tools,
   challenge,
@@ -172,7 +184,7 @@ const FEATURED_QUERY = `
  * Normalise a Sanity portfolio document into the shape the UI expects
  * (matching the legacy FastAPI response so components stay unchanged).
  */
-export function normalizePortfolio(doc) {
+export function normalizePortfolio(doc, lang = 'en') {
   if (!doc || typeof doc !== "object") return null
   const gallery = Array.isArray(doc.gallery) ? doc.gallery : []
   const services = Array.isArray(doc.services) ? doc.services : []
@@ -192,11 +204,22 @@ export function normalizePortfolio(doc) {
       ? gallery.map((g) => ({
           _key: g?._key,
           url: imageUrl(g, 1600),
-          alt: typeof g?.alt === 'string' ? g.alt.trim() : '',
-          caption: typeof g?.caption === 'string' ? g.caption.trim() : '',
+          alt: typeof (lang === 'fr' ? g?.altFr || g?.alt : g?.alt) === 'string' ? (lang === 'fr' ? g?.altFr || g?.alt : g?.alt).trim() : '',
+          caption: typeof (lang === 'fr' ? g?.captionFr || g?.caption : g?.caption) === 'string' ? (lang === 'fr' ? g?.captionFr || g?.caption : g?.caption).trim() : '',
         }))
       : (isMudoo ? MUDOO_PORTFOLIO_MEDIA.gallery : []),
-    services,
+    services: lang === 'fr' && Array.isArray(doc.servicesFr) && doc.servicesFr.length ? doc.servicesFr : services,
+    title: lang === 'fr' && doc.titleFr ? doc.titleFr : doc.title,
+    summary: lang === 'fr' && doc.summaryFr ? doc.summaryFr : doc.summary,
+    sector: lang === 'fr' && doc.sectorFr ? doc.sectorFr : doc.sector,
+    description: lang === 'fr' && doc.descriptionFr ? doc.descriptionFr : doc.description,
+    challenge: lang === 'fr' && doc.challengeFr ? doc.challengeFr : doc.challenge,
+    approach: lang === 'fr' && doc.approachFr ? doc.approachFr : doc.approach,
+    strategy: lang === 'fr' && doc.strategyFr ? doc.strategyFr : doc.strategy,
+    solution: lang === 'fr' && doc.solutionFr ? doc.solutionFr : doc.solution,
+    outcome: lang === 'fr' && doc.outcomeFr ? doc.outcomeFr : doc.outcome,
+    seoTitle: lang === 'fr' && doc.seoTitleFr ? doc.seoTitleFr : doc.seoTitle,
+    seoDescription: lang === 'fr' && doc.seoDescriptionFr ? doc.seoDescriptionFr : doc.seoDescription,
     tools,
     kpis,
     externalLinks: externalLinks
@@ -211,10 +234,10 @@ export function normalizePortfolio(doc) {
         }
         return {
           _key: link?._key,
-          label: typeof link?.label === "string" ? link.label.trim() : "",
+          label: typeof (lang === 'fr' ? link?.labelFr || link?.label : link?.label) === "string" ? (lang === 'fr' ? link?.labelFr || link?.label : link?.label).trim() : "",
           platform: typeof link?.platform === "string" ? link.platform : "",
           url,
-          description: typeof link?.description === "string" ? link.description.trim() : "",
+          description: typeof (lang === 'fr' ? link?.descriptionFr || link?.description : link?.description) === "string" ? (lang === 'fr' ? link?.descriptionFr || link?.description : link?.description).trim() : "",
         };
       })
       .filter((link) => link.label && link.url)
@@ -222,21 +245,21 @@ export function normalizePortfolio(doc) {
   }
 }
 
-export async function fetchPortfolioList() {
+export async function fetchPortfolioList(lang = 'en') {
   try {
     const data = await sanityClient.fetch(LIST_QUERY)
-    return Array.isArray(data) ? data.map(normalizePortfolio).filter(Boolean) : []
+    return Array.isArray(data) ? data.map((doc) => normalizePortfolio(doc, lang)).filter(Boolean) : []
   } catch (e) {
     console.warn('[Sanity] fetchPortfolioList failed:', e?.message)
     return []
   }
 }
 
-export async function fetchPortfolioBySlug(slug) {
+export async function fetchPortfolioBySlug(slug, lang = 'en') {
   if (!slug || typeof slug !== 'string') return null
   try {
     const data = await sanityClient.fetch(DETAIL_QUERY, {slug})
-    if (data) return normalizePortfolio(data)
+    if (data) return normalizePortfolio(data, lang)
   } catch (e) {
     console.warn('[Sanity] CDN fetchPortfolioBySlug failed:', e?.message)
   }
@@ -246,17 +269,17 @@ export async function fetchPortfolioBySlug(slug) {
   // records are handled by the portfolio page compatibility layer, not this CMS client.
   try {
     const data = await uncachedSanityClient.fetch(DETAIL_QUERY, {slug})
-    return normalizePortfolio(data)
+    return normalizePortfolio(data, lang)
   } catch (e) {
     console.warn('[Sanity] uncached fetchPortfolioBySlug failed:', e?.message)
     return null
   }
 }
 
-export async function fetchFeaturedPortfolio() {
+export async function fetchFeaturedPortfolio(lang = 'en') {
   try {
     const data = await sanityClient.fetch(FEATURED_QUERY)
-    return Array.isArray(data) ? data.map(normalizePortfolio).filter(Boolean) : []
+    return Array.isArray(data) ? data.map((doc) => normalizePortfolio(doc, lang)).filter(Boolean) : []
   } catch (e) {
     console.warn('[Sanity] fetchFeaturedPortfolio failed:', e?.message)
     return []
