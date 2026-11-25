@@ -70,7 +70,8 @@
     "start": "craco start",
     "build": "craco build",
     "test": "craco test",
-    "vercel-build": "CI=false craco build && node scripts/generate-seo-pages.mjs"
+    "vercel-build": "CI=false craco build && node scripts/generate-seo-pages.mjs",
+    "test:seo": "node --test scripts/generate-seo-pages.test.mjs"
   },
   "browserslist": {
     "production": [
