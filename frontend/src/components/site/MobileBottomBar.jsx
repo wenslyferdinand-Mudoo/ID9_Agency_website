@@ -9,7 +9,7 @@ import { useI18n } from "@/lib/i18n";
 /**
  * Native-app feel sticky bottom action bar for mobile.
  * - Hidden on admin routes
- * - Hidden when scrolling up (smart hide)
+ * - Hidden while scrolling down; revealed when scrolling up
  * - Safe-area aware for iPhone home indicator
  * - Quick actions: WhatsApp, Call, Free Quote
  */
