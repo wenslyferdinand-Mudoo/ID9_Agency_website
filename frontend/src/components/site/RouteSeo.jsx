@@ -1,9 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
-import { fetchPortfolioBySlug } from "@/lib/portfolio";
 
-// Production canonical host until id9agency.com is purchased and attached to Vercel.
 const SITE_URL = "https://id9-agency-website.vercel.app";
 const DEFAULT_SHARE_IMAGE = `${SITE_URL}/wensly-founder.jpg`;
 
@@ -34,9 +32,21 @@ const META = {
   },
 };
 
-function setMeta(selector, attr, value) {
-  const el = document.querySelector(selector);
-  if (el && typeof value === "string" && value.trim()) el.setAttribute(attr, value);
+function ensureMeta(selector, attribute, value) {
+  let element = document.querySelector(selector);
+  if (!element && selector.startsWith("meta[")) {
+    const match = selector.match(/meta\[(name|property)="([^"]+)"\]/);
+    if (match) {
+      element = document.createElement("meta");
+      element.setAttribute(match[1], match[2]);
+      document.head.appendChild(element);
+    }
+  }
+  if (element) element.setAttribute(attribute, value);
+}
+
+function setRobots(value) {
+  ensureMeta('meta[name="robots"]', "content", value);
 }
 
 function setCanonical(pathname) {
@@ -49,18 +59,26 @@ function setCanonical(pathname) {
   canonical.setAttribute("href", SITE_URL + pathname);
 }
 
+function removeCanonical() {
+  document.querySelector('link[rel="canonical"]')?.remove();
+}
+
+function clearProjectSchema() {
+  document.querySelector('script[data-route-seo="project"]')?.remove();
+}
+
 function applyMeta({ title, description, image = DEFAULT_SHARE_IMAGE, url, type = "website" }) {
   document.title = title;
-  setMeta('meta[name="description"]', "content", description);
-  setMeta('meta[property="og:title"]', "content", title);
-  setMeta('meta[property="og:description"]', "content", description);
-  setMeta('meta[property="og:url"]', "content", url);
-  setMeta('meta[property="og:type"]', "content", type);
-  setMeta('meta[property="og:image"]', "content", image);
-  setMeta('meta[name="twitter:card"]', "content", "summary_large_image");
-  setMeta('meta[name="twitter:title"]', "content", title);
-  setMeta('meta[name="twitter:description"]', "content", description);
-  setMeta('meta[name="twitter:image"]', "content", image);
+  ensureMeta('meta[name="description"]', "content", description);
+  ensureMeta('meta[property="og:title"]', "content", title);
+  ensureMeta('meta[property="og:description"]', "content", description);
+  ensureMeta('meta[property="og:url"]', "content", url);
+  ensureMeta('meta[property="og:type"]', "content", type);
+  ensureMeta('meta[property="og:image"]', "content", image);
+  ensureMeta('meta[name="twitter:card"]', "content", "summary_large_image");
+  ensureMeta('meta[name="twitter:title"]', "content", title);
+  ensureMeta('meta[name="twitter:description"]', "content", description);
+  ensureMeta('meta[name="twitter:image"]', "content", image);
 }
 
 export default function RouteSeo() {
@@ -68,61 +86,54 @@ export default function RouteSeo() {
   const { lang } = useI18n();
 
   useEffect(() => {
-    if (pathname.startsWith("/admin")) return undefined;
+    const normalizedPath = pathname.length > 1 ? pathname.replace(/\/+$/, "") : "/";
+    const isAdmin = normalizedPath === "/admin" || normalizedPath.startsWith("/admin/");
+    const isProjectDetail = /^\/portfolio\/[^/]+$/.test(normalizedPath);
+    const isArticleDetail = /^\/blog\/[^/]+$/.test(normalizedPath);
+    const isKnownRoute = Boolean(META[normalizedPath]) || isProjectDetail || isArticleDetail;
 
-    let cancelled = false;
-    const canonicalUrl = SITE_URL + pathname;
-    document.documentElement.lang = lang;
-    setCanonical(pathname);
+    document.documentElement.lang = lang === "fr" ? "fr" : "en";
+    clearProjectSchema();
 
-    if (pathname.startsWith("/portfolio/")) {
-      const slug = pathname.split("/").filter(Boolean)[1];
-      if (!slug) return undefined;
-
-      fetchPortfolioBySlug(slug).then((project) => {
-        if (cancelled || !project) return;
-        const title =
-          (typeof project.seoTitle === "string" && project.seoTitle.trim()) ||
-          `${project.title || "Project"} | Impact Digital 9 Agency`;
-        const description =
-          (typeof project.seoDescription === "string" && project.seoDescription.trim()) ||
-          (typeof project.summary === "string" && project.summary.trim()) ||
-          "A selected project by Impact Digital 9 Agency.";
-        const image = project.cover_image || DEFAULT_SHARE_IMAGE;
-
-        applyMeta({ title, description, image, url: canonicalUrl });
-        const schema = {
-          "@context": "https://schema.org",
-          "@type": "CreativeWork",
-          name: project.title || title,
-          description,
-          url: canonicalUrl,
-          image,
-          creator: {
-            "@type": "Organization",
-            name: "Impact Digital 9 Agency",
-            url: SITE_URL,
-          },
-        };
-        let script = document.querySelector('script[data-route-seo="project"]');
-        if (!script) {
-          script = document.createElement("script");
-          script.type = "application/ld+json";
-          script.dataset.routeSeo = "project";
-          document.head.appendChild(script);
-        }
-        script.textContent = JSON.stringify(schema);
-      }).catch(() => {
-        // Static prerendered metadata remains available if the CMS is temporarily unavailable.
-      });
-
-      return () => { cancelled = true; };
+    if (isAdmin) {
+      document.title = "Administration — Impact Digital 9 Agency";
+      setRobots("noindex, nofollow");
+      removeCanonical();
+      return undefined;
     }
 
-    const entry = META[pathname] || META["/" + (pathname.split("/")[1] || "")] || META["/"];
+    if (!isKnownRoute) {
+      document.title = lang === "fr" ? "Page introuvable — Impact Digital 9 Agency" : "Page not found — Impact Digital 9 Agency";
+      ensureMeta('meta[name="description"]', "content", lang === "fr" ? "La page demandée est introuvable." : "The requested page could not be found.");
+      setRobots("noindex, follow");
+      removeCanonical();
+      return undefined;
+    }
+
+    setRobots("index, follow");
+    const canonicalUrl = SITE_URL + normalizedPath;
+    setCanonical(normalizedPath);
+
+    if (isProjectDetail) {
+      applyMeta({
+        title: "Project | Impact Digital 9 Agency",
+        description: "Explore a selected project by Impact Digital 9 Agency.",
+        url: canonicalUrl,
+      });
+      return undefined;
+    }
+
+    const baseRoute = isArticleDetail ? "/blog" : normalizedPath;
+    const entry = META[baseRoute];
+    if (!entry) {
+      document.title = lang === "fr" ? "Page introuvable — Impact Digital 9 Agency" : "Page not found — Impact Digital 9 Agency";
+      setRobots("noindex, follow");
+      removeCanonical();
+      return undefined;
+    }
     const [title, description] = entry[lang] || entry.en;
-    applyMeta({ title, description, url: canonicalUrl });
-    return () => { cancelled = true; };
+    applyMeta({ title, description, url: canonicalUrl, type: isArticleDetail ? "article" : "website" });
+    return undefined;
   }, [pathname, lang]);
 
   return null;
