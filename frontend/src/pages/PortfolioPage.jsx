@@ -178,7 +178,7 @@ export default function PortfolioPage() {
                     data-testid={`portfolio-grid-card-${p.slug}`}
                   >
                     <Link to={"/portfolio/" + p.slug} className="flex h-full flex-col focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange_impact">
-                      <PortfolioCover project={p} lang={lang} />
+                      <PortfolioCover project={p} lang={lang} priority={i < 2} />
                       <div className="flex flex-1 flex-col p-5 sm:p-6">
                         <div className="mb-3 flex min-h-6 flex-wrap items-center gap-x-2 gap-y-1">
                           <span className="font-ui text-[10px] font-semibold uppercase leading-relaxed tracking-[0.18em] text-orange_impact">
@@ -216,7 +216,7 @@ export default function PortfolioPage() {
             </div>
           )}
           {!isLoading && filtered.length === 0 && (
-            <p className="py-20 text-center font-ui text-white/50">{t("wk.empty")}</p>
+            <p className="py-20 text-center font-ui text-white/50" role="status" aria-live="polite">{t("wk.empty")}</p>
           )}
         </div>
       </section>
@@ -253,10 +253,10 @@ function getCategoryLabel(category, lang) {
   return labels[value] || (category || "");
 }
 
-function PortfolioCover({ project, lang }) {
+function PortfolioCover({ project, lang, priority = false }) {
   const [imageFailed, setImageFailed] = useState(false);
   const title = typeof project.title === "string" ? project.title : "";
-  const imageUrl = typeof project.cover_image === "string" ? project.cover_image : "";
+  const imageUrl = (typeof project.cover_thumbnail === "string" && project.cover_thumbnail) || (typeof project.cover_image === "string" ? project.cover_image : "");
 
   return (
     <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-ink-800">
@@ -264,7 +264,8 @@ function PortfolioCover({ project, lang }) {
         <img
           src={imageUrl}
           alt={title}
-          loading="lazy"
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : "auto"}
           decoding="async"
           onError={() => setImageFailed(true)}
           className="h-full w-full object-contain transition-opacity duration-500 group-hover:opacity-90"
