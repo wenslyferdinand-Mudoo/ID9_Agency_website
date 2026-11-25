@@ -56,7 +56,7 @@ if (mode === 'backup') {
   for (const [index, item] of (Array.isArray(doc.gallery) ? doc.gallery : []).entries()) {
     const assetRef = item?.asset?._ref
     const match = typeof assetRef === 'string'
-      ? assetRef.match(/^image-([a-f0-9]+)-(\\d+x\\d+)-(jpg|jpeg|png|webp)$/i)
+      ? assetRef.match(/^image-([a-f0-9]+)-(\d+x\d+)-(jpg|jpeg|png|webp)$/i)
       : null
     if (!match) throw new Error(`Gallery item ${item?._key || index} has an unsupported or missing image asset reference.`)
     const [, assetHash, dimensions, extension] = match
@@ -81,7 +81,7 @@ if (mode === 'backup') {
     revision: doc._rev,
     galleryCount: galleryManifest.length,
     assets: galleryManifest,
-  }, null, 2) + '\\n', {flag: 'wx'})
+  }, null, 2) + '\n', {flag: 'wx'})
 
   console.log(JSON.stringify({
     status: 'BACKUP_CREATED',
@@ -90,7 +90,8 @@ if (mode === 'backup') {
     revision: doc._rev,
     backupPath: '.sanity-backup/cdmg-production-before.json',
     fieldsPresent: Object.keys(doc).sort(),
-    galleryCount: Array.isArray(doc.gallery) ? doc.gallery.length : 0,\n    galleryAssetsDownloaded: galleryManifest.length,
+    galleryCount: Array.isArray(doc.gallery) ? doc.gallery.length : 0,
+    galleryAssetsDownloaded: galleryManifest.length,
     externalLinkCount: Array.isArray(doc.externalLinks) ? doc.externalLinks.length : 0,
   }, null, 2))
   process.exit(0)
