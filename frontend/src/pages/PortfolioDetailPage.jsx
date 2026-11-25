@@ -68,7 +68,7 @@ export default function PortfolioDetailPage() {
     if (!item) return;
     const siteUrl = "https://id9-agency-website.vercel.app";
     const pathname = window.location.pathname.length > 1
-      ? window.location.pathname.replace(/\\/+$/, "")
+      ? window.location.pathname.replace(/\/+$/, "")
       : "/";
     const canonicalUrl = siteUrl + pathname;
     const metadata = getPortfolioSeoMetadata(item, canonicalUrl, siteUrl + "/wensly-founder.jpg");
@@ -77,7 +77,7 @@ export default function PortfolioDetailPage() {
     const setMeta = (selector, key, value) => {
       let element = document.querySelector(selector);
       if (!element) {
-        const match = selector.match(/meta\\[(name|property)="([^"]+)"\\]/);
+        const match = selector.match(/meta\[(name|property)="([^"]+)"\]/);
         if (match) {
           element = document.createElement("meta");
           element.setAttribute(match[1], match[2]);
