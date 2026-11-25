@@ -197,7 +197,7 @@ export async function fetchPublishedBlogPosts() {
 
 export async function fetchLegacyPortfolioProjects() {
   const configuredBackendUrl = process.env.REACT_APP_BACKEND_URL || process.env.REACT_APP_API_URL || "";
-  const base = configuredBackendUrl.trim().replace(/\\/+$/, "").replace(/\\/api$/i, "");
+  const base = configuredBackendUrl.trim().replace(/\/+$/, "").replace(/\/api$/i, "");
   if (!base) return [];
 
   let parsedBase;
