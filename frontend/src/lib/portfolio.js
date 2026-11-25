@@ -8,6 +8,28 @@ const uncachedSanityClient = createClient({...SANITY_CONFIG, useCdn: false})
 // Verified public destinations for client case studies and the Mudoo product.
 const VERIFIED_PROJECT_LINKS = [
   {
+    // Keep CDMG separate from the legacy AKYA Dance Company case study.
+    matches: (identity) =>
+      !/akya[\\s_-]*dance/i.test(identity) &&
+      /centre de danse markenley george|cdmg(?:[\\s_-]*ha[iï]ti)?/i.test(identity),
+    links: [
+      {
+        _key: 'cdmg-instagram',
+        label: 'Instagram — CDMG Haïti',
+        platform: 'instagram',
+        url: 'https://www.instagram.com/cdmg_haiti/',
+        description: 'Compte Instagram communiqué pour le Centre de Danse Markenley George (CDMG Haïti).',
+      },
+      {
+        _key: 'cdmg-founder-instagram',
+        label: 'Instagram — Markenley Georges',
+        platform: 'instagram',
+        url: 'https://www.instagram.com/markenleygeorges/',
+        description: 'Compte Instagram communiqué de Markenley Georges.',
+      },
+    ],
+  },
+  {
     matches: (identity) => /ika[\s_-]*collections?/i.test(identity),
     links: [
       {
