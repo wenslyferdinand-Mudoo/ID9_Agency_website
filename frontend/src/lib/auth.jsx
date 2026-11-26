@@ -27,6 +27,12 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     refresh();
+    const expire = () => {
+      setUser(null);
+      setLoading(false);
+    };
+    window.addEventListener("id9:auth-expired", expire);
+    return () => window.removeEventListener("id9:auth-expired", expire);
   }, [refresh]);
 
   const login = async (email, password) => {
@@ -40,9 +46,15 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem("id9_token");
-    setUser(null);
+  const logout = async () => {
+    try {
+      await api.post("/auth/logout", {}, { skipAuthRefresh: true });
+    } catch {
+      // Local logout still proceeds if the backend is unreachable.
+    } finally {
+      localStorage.removeItem("id9_token");
+      setUser(null);
+    }
   };
 
   return (

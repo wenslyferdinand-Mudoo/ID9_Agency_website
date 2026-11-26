@@ -38,3 +38,31 @@ describe("formatApiError", () => {
     expect(formatApiError(503)).toBe("503");
   });
 });
+
+
+describe("API_BASE", () => {
+  const previousApiUrl = process.env.REACT_APP_API_URL;
+  const previousBackendUrl = process.env.REACT_APP_BACKEND_URL;
+
+  afterEach(() => {
+    if (previousApiUrl === undefined) delete process.env.REACT_APP_API_URL;
+    else process.env.REACT_APP_API_URL = previousApiUrl;
+    if (previousBackendUrl === undefined) delete process.env.REACT_APP_BACKEND_URL;
+    else process.env.REACT_APP_BACKEND_URL = previousBackendUrl;
+    jest.resetModules();
+  });
+
+  it.each([
+    [" https://api.example.com/api/ ", "", "https://api.example.com/api"],
+    ["", "https://backend.example.com/", "https://backend.example.com/api"],
+    ["", "", null],
+  ])("normalizes configured backend URLs", (apiUrl, backendUrl, expected) => {
+    process.env.REACT_APP_API_URL = apiUrl;
+    process.env.REACT_APP_BACKEND_URL = backendUrl;
+    jest.resetModules();
+
+    const { API_BASE } = require("./api");
+
+    expect(API_BASE).toBe(expected);
+  });
+});

@@ -4,6 +4,8 @@ import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion
 import { ArrowLeft, ArrowUpRight, Quote, Wrench, Target, Lightbulb, Rocket, TrendingUp } from "lucide-react";
 import api from "@/lib/api";
 import { fetchPortfolioBySlug } from "@/lib/portfolio";
+import { resolvePortfolioProject } from "@/lib/portfolio-resolution";
+import { getPortfolioSeoMetadata } from "@/lib/portfolio-seo";
 import FinalCTA from "@/components/sections/FinalCTA";
 import RevealText from "@/components/site/RevealText";
 import { useI18n } from "@/lib/i18n";
@@ -13,7 +15,9 @@ export default function PortfolioDetailPage() {
   const { slug } = useParams();
   const [item, setItem] = useState(null);
   const [notFound, setNotFound] = useState(false);
+  const [loadedRequestKey, setLoadedRequestKey] = useState(null);
   const { lang } = useI18n();
+  const requestKey = `${lang}:${slug || ""}`;
   const heroRef = useRef(null);
   const reduceMotion = useReducedMotion();
 
@@ -33,31 +37,24 @@ export default function PortfolioDetailPage() {
     setNotFound(false);
 
     async function loadProject() {
-      try {
-        // Founder products have local case-study content; CMS projects remain unchanged.
-        const doc = await fetchPortfolioBySlug(slug, lang);
-        if (cancelled) return;
-        if (doc && typeof doc === "object") {
-          setItem(doc);
-          return;
-        }
+      const project = await resolvePortfolioProject({
+        slug,
+        lang,
+        fetchSanity: () => fetchPortfolioBySlug(slug, lang),
+        fetchLegacy: async () => {
+          const response = await api.get(`/portfolio/${encodeURIComponent(slug)}`);
+          return response?.data;
+        },
+        fetchFounder: () => getFounderProjectBySlug(slug, lang),
+      });
 
-        const founderProject = getFounderProjectBySlug(slug, lang);
-        if (founderProject) {
-          setItem(founderProject);
-          return;
-        }
-
-        const response = await api.get(`/portfolio/${slug}`);
-        if (cancelled) return;
-        if (response?.data && typeof response.data === "object") {
-          setItem(response.data);
-        } else {
-          setNotFound(true);
-        }
-      } catch {
-        if (!cancelled) setNotFound(true);
+      if (cancelled) return;
+      if (project) {
+        setItem(project);
+      } else {
+        setNotFound(true);
       }
+      setLoadedRequestKey(requestKey);
     }
 
     loadProject();
@@ -65,7 +62,79 @@ export default function PortfolioDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, [slug, lang]);
+  }, [slug, lang, requestKey]);
+
+  useEffect(() => {
+    if (!item) return;
+    const siteUrl = "https://id9-agency-website.vercel.app";
+    const pathname = window.location.pathname.length > 1
+      ? window.location.pathname.replace(/\/+$/, "")
+      : "/";
+    const canonicalUrl = siteUrl + pathname;
+    const metadata = getPortfolioSeoMetadata(item, canonicalUrl, siteUrl + "/wensly-founder.jpg");
+
+    document.title = metadata.title;
+    const setMeta = (selector, key, value) => {
+      let element = document.querySelector(selector);
+      if (!element) {
+        const match = selector.match(/meta\[(name|property)="([^"]+)"\]/);
+        if (match) {
+          element = document.createElement("meta");
+          element.setAttribute(match[1], match[2]);
+          document.head.appendChild(element);
+        }
+      }
+      if (element) element.setAttribute(key, value);
+    };
+    setMeta('meta[name="description"]', "content", metadata.description);
+    setMeta('meta[property="og:title"]', "content", metadata.title);
+    setMeta('meta[property="og:description"]', "content", metadata.description);
+    setMeta('meta[property="og:url"]', "content", canonicalUrl);
+    setMeta('meta[property="og:type"]', "content", "article");
+    setMeta('meta[property="og:image"]', "content", metadata.image);
+    setMeta('meta[name="twitter:card"]', "content", "summary_large_image");
+    setMeta('meta[name="twitter:title"]', "content", metadata.title);
+    setMeta('meta[name="twitter:description"]', "content", metadata.description);
+    setMeta('meta[name="twitter:image"]', "content", metadata.image);
+
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.rel = "canonical";
+      document.head.appendChild(canonical);
+    }
+    canonical.href = canonicalUrl;
+
+    let schema = document.querySelector('script[data-route-seo="project"]');
+    if (!schema) {
+      schema = document.createElement("script");
+      schema.type = "application/ld+json";
+      schema.dataset.routeSeo = "project";
+      document.head.appendChild(schema);
+    }
+    schema.textContent = JSON.stringify(metadata.schema);
+  }, [item]);
+
+  useEffect(() => {
+    if (!notFound) return;
+    document.title = lang === "fr"
+      ? "Projet introuvable — Impact Digital 9 Agency"
+      : "Project not found — Impact Digital 9 Agency";
+    let robots = document.querySelector('meta[name="robots"]');
+    if (!robots) {
+      robots = document.createElement("meta");
+      robots.name = "robots";
+      document.head.appendChild(robots);
+    }
+    robots.content = "noindex, follow";
+    document.querySelector('link[rel="canonical"]')?.remove();
+    document.querySelector('script[data-route-seo="project"]')?.remove();
+  }, [notFound, lang]);
+
+  // Do not render a previous project's content during the render before the
+  // next effect runs (route changes and language switches both create a new key).
+  if (loadedRequestKey !== requestKey)
+    return <main className="min-h-screen pt-40 text-center text-white/50">Loading…</main>;
 
   if (notFound)
     return (
