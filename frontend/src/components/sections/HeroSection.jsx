@@ -12,7 +12,7 @@ const Hero3D = lazy(() => import("@/components/site/Hero3D"));
 
 export default function HeroSection() {
   const ref = useRef(null);
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], [0, -120]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
@@ -86,8 +86,9 @@ export default function HeroSection() {
               transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
               className="inline-block text-gradient-gold italic"
             >
-              {t("hero.h1.line1b")}
+              {lang === "fr" ? "les idées" : "Ideas"}
             </motion.span>
+            <span>&nbsp;{lang === "fr" ? "en" : "into"}</span>
           </span>
           <RevealText as="span" text={t("hero.h1.line2")} className="block" delay={0.2} />
           <motion.span
