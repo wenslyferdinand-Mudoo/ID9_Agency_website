@@ -2,13 +2,13 @@ name: Repository Quality Gates
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, security/backend-hardening-staging]
     paths:
       - "backend/**"
       - "frontend/**"
       - ".github/workflows/**"
   push:
-    branches: [main]
+    branches: [main, security/backend-hardening-staging]
     paths:
       - "backend/**"
       - "frontend/**"
