@@ -8,6 +8,8 @@ const DEFAULT_SHARE_IMAGE = `${SITE_URL}/wensly-founder.jpg`;
 const projectId = process.env.REACT_APP_SANITY_PROJECT_ID || "mqrbsugj";
 const dataset = process.env.REACT_APP_SANITY_DATASET || "production";
 const apiVersion = process.env.REACT_APP_SANITY_API_VERSION || "2024-01-01";
+// Render Staging may cold-start during a Preview build; allow the API to become ready.
+const BACKEND_FETCH_TIMEOUT_MS = 60000;
 
 const query = `*[_type == "portfolioProject" && defined(slug.current) && !(_id in path("drafts.**"))] | order(_createdAt desc) {
   "slug": slug.current,
@@ -177,7 +179,7 @@ export async function fetchPublishedBlogPosts() {
   }
   const apiBase = base.endsWith("/api") ? base : `${base}/api`;
   try {
-    const response = await fetch(`${apiBase}/blog`, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(12000) });
+    const response = await fetch(`${apiBase}/blog`, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(BACKEND_FETCH_TIMEOUT_MS) });
     if (!response.ok) {
       console.warn(`[SEO] Blog article prerender skipped: API returned HTTP ${response.status}. Published articles will remain available through the live blog API.`);
       return [];
@@ -215,7 +217,7 @@ export async function fetchLegacyPortfolioProjects() {
   try {
     const response = await fetch(`${parsedBase.origin}/api/portfolio`, {
       headers: { Accept: "application/json" },
-      signal: AbortSignal.timeout(12000),
+      signal: AbortSignal.timeout(BACKEND_FETCH_TIMEOUT_MS),
     });
     if (!response.ok) {
       console.warn(`[SEO] Legacy portfolio prerender skipped: API returned HTTP ${response.status}.`);
