@@ -3,6 +3,27 @@ import { createRoot } from "react-dom/client";
 import { MemoryRouter } from "react-router-dom";
 import Navigation from "./Navigation";
 
+jest.mock("react-router-dom", () => {
+  const React = require("react");
+  const Link = ({ to, children, ...props }) =>
+    React.createElement("a", { href: to, ...props }, children);
+  const NavLink = ({ to, children, ...props }) =>
+    React.createElement(
+      "a",
+      { href: to, ...props },
+      typeof children === "function"
+        ? children({ isActive: window.location.pathname === to })
+        : children
+    );
+
+  return {
+    Link,
+    NavLink,
+    MemoryRouter: ({ children }) => React.createElement(React.Fragment, null, children),
+    useLocation: () => ({ pathname: window.location.pathname || "/" }),
+  };
+});
+
 jest.mock("framer-motion", () => {
   const React = require("react");
   const MotionElement = ({
