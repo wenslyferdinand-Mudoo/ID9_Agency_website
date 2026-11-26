@@ -113,11 +113,28 @@ export default function AboutPage() {
           <RevealText as="h2" text={content.timelineTitle} className="font-display text-3xl sm:text-4xl md:text-6xl font-black tracking-tighter leading-[1.02] text-balance max-w-4xl" />
           <ol className="mt-12 sm:mt-16 space-y-0 max-w-5xl">
             {content.timeline.map(([year, title, description], index) => (
-              <motion.li key={year} initial={{ opacity: 0, x: 24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.05, duration: 0.5 }} className="grid grid-cols-[4.25rem_minmax(0,1fr)] sm:grid-cols-12 gap-4 sm:gap-6 border-t border-white/10 py-7 sm:py-9">
-                <p className="font-display font-black text-2xl md:text-3xl tabular-nums text-orange_impact sm:col-span-2">{year}</p>
-                <div className="min-w-0 sm:col-span-10">
-                  <h3 className="font-display text-xl sm:text-2xl md:text-3xl font-bold tracking-tight break-words">{title}</h3>
-                  <p className="text-white/65 mt-3 font-inter leading-relaxed max-w-3xl">{description}</p>
+              <motion.li
+                key={year}
+                initial={{ opacity: 0, x: 24 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.05, duration: 0.5 }}
+                className={`grid grid-cols-[4rem_minmax(0,1fr)] sm:grid-cols-12 gap-4 sm:gap-6 border-t border-white/10 py-7 sm:py-9 ${year === "2026" ? "items-start" : ""}`}
+              >
+                <p className="font-display font-black text-2xl md:text-3xl tabular-nums text-orange_impact sm:col-span-2 pt-1">{year}</p>
+                <div className={`min-w-0 sm:col-span-10 ${year === "2026" ? "rounded-2xl border border-orange_impact/20 bg-white/[0.025] p-5 sm:p-7 md:p-8" : ""}`}>
+                  <h3 className={`font-display text-xl sm:text-2xl md:text-3xl font-bold tracking-tight break-words text-balance ${year === "2026" ? "max-w-3xl" : ""}`}>{title}</h3>
+                  {Array.isArray(description) ? (
+                    <div className="mt-5 sm:mt-6 max-w-4xl space-y-4 sm:space-y-5">
+                      {description.map((paragraph, paragraphIndex) => (
+                        <p key={paragraphIndex} className="font-inter text-sm sm:text-base text-white/70 leading-7 sm:leading-8 [overflow-wrap:anywhere]">
+                          {paragraph}
+                        </p>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-white/65 mt-3 font-inter leading-relaxed max-w-3xl">{description}</p>
+                  )}
                 </div>
               </motion.li>
             ))}
