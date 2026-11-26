@@ -260,3 +260,39 @@ def test_malformed_and_expired_access_tokens_are_rejected(api):
         "exp": datetime.now(timezone.utc) - timedelta(minutes=1),
     }, server._jwt_secret(), algorithm=server.JWT_ALGORITHM)
     assert client.get("/api/auth/me", headers=bearer(expired)).status_code == 401
+
+
+def test_cors_preflight_allows_configured_frontend_with_credentials(api):
+    client, _, _ = api
+    origin = "https://id9-agency-website.vercel.app"
+    response = client.options(
+        "/api/contact",
+        headers={
+            "Origin": origin,
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "content-type,authorization",
+        },
+    )
+
+    assert response.status_code == 200, response.text
+    assert response.headers.get("access-control-allow-origin") == origin
+    assert response.headers.get("access-control-allow-credentials") == "true"
+    assert "POST" in response.headers.get("access-control-allow-methods", "")
+    allowed_headers = response.headers.get("access-control-allow-headers", "").lower()
+    assert "content-type" in allowed_headers
+    assert "authorization" in allowed_headers
+
+
+def test_cors_preflight_rejects_untrusted_frontend_origin(api):
+    client, _, _ = api
+    response = client.options(
+        "/api/contact",
+        headers={
+            "Origin": "https://attacker.example",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "content-type,authorization",
+        },
+    )
+
+    assert response.status_code == 400
+    assert response.headers.get("access-control-allow-origin") is None
