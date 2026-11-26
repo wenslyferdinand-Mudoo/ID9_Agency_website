@@ -12,7 +12,7 @@ jest.mock("react-router-dom", () => {
       "a",
       { href: to, ...props },
       typeof children === "function"
-        ? children({ isActive: window.location.pathname === to })
+        ? children({ isActive: globalThis.window.location.pathname === to })
         : children
     );
 
@@ -20,7 +20,7 @@ jest.mock("react-router-dom", () => {
     Link,
     NavLink,
     MemoryRouter: ({ children }) => React.createElement(React.Fragment, null, children),
-    useLocation: () => ({ pathname: window.location.pathname || "/" }),
+    useLocation: () => ({ pathname: globalThis.window.location.pathname || "/" }),
   };
 });
 
