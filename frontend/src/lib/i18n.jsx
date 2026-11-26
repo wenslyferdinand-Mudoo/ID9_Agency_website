@@ -15,8 +15,8 @@ const DICT = {
 
   // Hero
   "hero.badge": { en: "Impact Digital 9 Agency · Haiti", fr: "Impact Digital 9 Agency · Haïti" },
-  "hero.h1.line1a": { en: "We Transform Ideas", fr: "Nous transformons" },
-  "hero.h1.line1b": { en: "into", fr: "les idées en" },
+  "hero.h1.line1a": { en: "We Transform", fr: "Nous transformons" },
+  "hero.h1.line1b": { en: "Ideas into", fr: "les idées en" },
   "hero.h1.line2": { en: "High-Impact", fr: "expériences" },
   "hero.h1.line3": { en: "Visual and Digital", fr: "visuelles et digitales" },
   "hero.h1.line4": { en: "Experiences.", fr: "à fort impact." },
