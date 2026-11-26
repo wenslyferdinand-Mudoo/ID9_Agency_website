@@ -12,7 +12,7 @@ const Hero3D = lazy(() => import("@/components/site/Hero3D"));
 
 export default function HeroSection() {
   const ref = useRef(null);
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], [0, -120]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
@@ -59,7 +59,7 @@ export default function HeroSection() {
 
       <motion.div
         style={{ y, opacity }}
-        className="relative z-20 max-w-5xl mx-auto flex flex-col items-center text-center"
+        className="relative z-20 mx-auto flex max-w-6xl flex-col items-center text-center"
       >
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -74,7 +74,7 @@ export default function HeroSection() {
         </motion.div>
 
         <h1
-          className="font-display font-black tracking-[-0.04em] leading-[1] text-[clamp(2.4rem,7.5vw,7rem)] text-balance mx-auto"
+          className="mx-auto max-w-6xl font-display font-black tracking-[-0.045em] leading-[0.98] text-[clamp(1.95rem,6.5vw,6.25rem)] text-balance"
           style={{ textShadow: "0 2px 40px rgba(0,0,0,0.4)" }}
         >
           <span className="block">
@@ -86,8 +86,9 @@ export default function HeroSection() {
               transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
               className="inline-block text-gradient-gold italic"
             >
-              {t("hero.h1.line1b")}
+              {lang === "fr" ? "les idées" : "Ideas"}
             </motion.span>
+            <span>&nbsp;{lang === "fr" ? "en" : "into"}</span>
           </span>
           <RevealText as="span" text={t("hero.h1.line2")} className="block" delay={0.2} />
           <motion.span
@@ -104,10 +105,28 @@ export default function HeroSection() {
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.75, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="mt-7 sm:mt-10 font-inter text-base md:text-lg text-white/70 max-w-3xl leading-relaxed font-light text-balance"
+          transition={{ delay: 0.68, duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-8 sm:mt-10 w-full max-w-2xl border-y border-white/10 px-3 py-3 font-ui text-[0.62rem] leading-relaxed sm:text-xs md:text-sm uppercase tracking-[0.12em] sm:tracking-[0.18em] text-orange_impact/90 text-center text-balance"
+        >
+          {t("hero.capabilities")}
+        </motion.p>
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.78, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-5 sm:mt-7 max-w-2xl px-2 font-inter text-[0.95rem] sm:text-base md:text-lg text-white/70 leading-[1.8] font-light text-balance"
         >
           {t("hero.sub")}
+        </motion.p>
+
+        <motion.p
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.88, duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-6 sm:mt-7 max-w-2xl px-2 font-display text-lg sm:text-xl md:text-2xl font-semibold tracking-tight text-white/90 leading-snug text-balance"
+        >
+          {t("hero.tagline")}
         </motion.p>
 
         <motion.div

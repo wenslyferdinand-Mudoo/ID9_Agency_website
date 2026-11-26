@@ -15,14 +15,22 @@ const DICT = {
 
   // Hero
   "hero.badge": { en: "Impact Digital 9 Agency · Haiti", fr: "Impact Digital 9 Agency · Haïti" },
-  "hero.h1.line1a": { en: "Impact", fr: "Impact" },
-  "hero.h1.line1b": { en: "Digital 9.", fr: "Digital 9." },
-  "hero.h1.line2": { en: "Creative &", fr: "Agence créative" },
-  "hero.h1.line3": { en: "Digital Agency", fr: "et digitale" },
-  "hero.h1.line4": { en: "Strategy · Design · Digital experiences.", fr: "Stratégie · Design · Expériences digitales." },
+  "hero.h1.line1a": { en: "We Transform", fr: "Nous transformons" },
+  "hero.h1.line1b": { en: "Ideas into", fr: "les idées en" },
+  "hero.h1.line2": { en: "High-Impact", fr: "expériences" },
+  "hero.h1.line3": { en: "Visual and Digital", fr: "visuelles et digitales" },
+  "hero.h1.line4": { en: "Experiences.", fr: "à fort impact." },
+  "hero.capabilities": {
+    en: "Strategy · Design · Technology · Digital Experiences",
+    fr: "Stratégie · Design · Technologie · Expériences digitales",
+  },
   "hero.sub": {
-    en: "Impact Digital 9 Agency is an independent creative and digital agency based in Haiti. We connect brand strategy, visual identity, design, digital experiences and media production to help organizations communicate with clarity and build a consistent presence.",
-    fr: "Impact Digital 9 Agency est une agence créative et digitale indépendante basée en Haïti. Nous relions stratégie de marque, identité visuelle, design, expériences numériques et production média pour aider les organisations à communiquer avec clarté et à construire une présence cohérente.",
+    en: "Impact Digital 9 is an independent creative and digital agency based in Haiti, helping brands and organizations build distinctive identities, strengthen their digital presence, communicate more effectively, and drive business growth.",
+    fr: "Impact Digital 9 est une agence créative et digitale indépendante basée en Haïti. Nous aidons les marques et les organisations à construire des identités distinctives, à renforcer leur présence digitale, à mieux communiquer et à soutenir leur croissance.",
+  },
+  "hero.tagline": {
+    en: "Be Impactful. Build Unforgettable Digital Brands.",
+    fr: "Soyez impactant. Bâtissez des marques digitales inoubliables.",
   },
   "hero.cta.quote": { en: "Free Quote", fr: "Devis gratuit" },
   "hero.cta.whatsapp": { en: "Message Us on WhatsApp", fr: "Nous écrire sur WhatsApp" },
