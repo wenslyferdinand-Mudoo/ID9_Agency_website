@@ -68,7 +68,20 @@ export default function RouteSeo() {
   const { lang } = useI18n();
 
   useEffect(() => {
-    if (pathname.startsWith("/admin")) return undefined;
+    const ROBOTS_SELECTOR = 'meta[name="robots"][data-route-seo="admin"]';
+    if (pathname.startsWith("/admin")) {
+      // Private area: keep it out of search results (robots.txt alone does not guarantee this).
+      let robots = document.querySelector(ROBOTS_SELECTOR);
+      if (!robots) {
+        robots = document.createElement("meta");
+        robots.setAttribute("name", "robots");
+        robots.setAttribute("data-route-seo", "admin");
+        document.head.appendChild(robots);
+      }
+      robots.setAttribute("content", "noindex, nofollow");
+      return undefined;
+    }
+    document.querySelector(ROBOTS_SELECTOR)?.remove();
 
     let cancelled = false;
     const canonicalUrl = SITE_URL + pathname;
