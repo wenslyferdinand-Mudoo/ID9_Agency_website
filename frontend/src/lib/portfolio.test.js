@@ -5,7 +5,8 @@ jest.mock("@sanity/client", () => ({
 jest.mock("./sanity", () => ({
   SANITY_CONFIG: { projectId: "test", dataset: "test", apiVersion: "2025-01-01" },
   sanityClient: { fetch: jest.fn() },
-  imageUrl: jest.fn((source, width) => `https://cdn.example/image-${width}`),
+  // Plain function on purpose: CRA enables Jest `resetMocks`, which would wipe a jest.fn() implementation before each test.
+  imageUrl: (source, width) => `https://cdn.example/image-${width}`,
 }));
 
 jest.mock("./founder-projects", () => ({
