@@ -10,6 +10,7 @@ import asyncio
 import uuid
 import logging
 import hashlib
+from urllib.parse import urlsplit
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional
 
@@ -140,6 +141,19 @@ async def _revoke_session(session_id: str) -> None:
         {"id": session_id, "revoked": False},
         {"$set": {"revoked": True, "revoked_at": datetime.now(timezone.utc)}},
     )
+
+def require_trusted_origin(request: Request) -> None:
+    """Reject cross-site requests to endpoints that create or use auth cookies."""
+    origin = request.headers.get("origin", "").strip().rstrip("/")
+    if not origin:
+        referer = request.headers.get("referer", "").strip()
+        if referer:
+            parsed = urlsplit(referer)
+            if parsed.scheme and parsed.netloc:
+                origin = f"{parsed.scheme}://{parsed.netloc}"
+    if not origin or origin not in get_allowed_origins():
+        raise HTTPException(status_code=403, detail="Untrusted request origin")
+
 
 # ---------- Helpers ----------
 def slugify(text: str) -> str:
@@ -281,6 +295,7 @@ async def root():
 
 @api_router.post("/auth/login", response_model=LoginResponse)
 async def login(data: LoginRequest, request: Request, response: Response):
+    require_trusted_origin(request)
     await enforce_rate_limit(request, "login", limit=10, window_seconds=300)
     email = data.email.lower().strip()
     user = await db.users.find_one({"email": email})
@@ -307,6 +322,7 @@ async def login(data: LoginRequest, request: Request, response: Response):
 
 @api_router.post("/auth/refresh", response_model=LoginResponse)
 async def refresh_session(request: Request, response: Response):
+    require_trusted_origin(request)
     refresh_token = request.cookies.get(AUTH_COOKIE_NAME)
     if not refresh_token:
         raise HTTPException(status_code=401, detail="Refresh session missing")
@@ -357,6 +373,7 @@ async def refresh_session(request: Request, response: Response):
 
 @api_router.post("/auth/logout")
 async def logout(request: Request, response: Response):
+    require_trusted_origin(request)
     token = request.cookies.get(AUTH_COOKIE_NAME)
     if not token:
         authorization = request.headers.get("authorization", "")
