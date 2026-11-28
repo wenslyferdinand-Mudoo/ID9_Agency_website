@@ -214,6 +214,8 @@ export function normalizePortfolio(doc, lang = 'en') {
     ...doc,
     id: doc._id,
     cover_image: isMudoo ? MUDOO_PORTFOLIO_MEDIA.cover : (doc.coverImage ? imageUrl(doc.coverImage, 1600) : ''),
+    // Smaller uncropped derivative for portfolio cards; retain full cover for case-study heroes.
+    cover_thumbnail: isMudoo ? MUDOO_PORTFOLIO_MEDIA.cover : (doc.coverImage ? imageUrl(doc.coverImage, 960) : ''),
     gallery: gallery.length > 0
       ? gallery.map((g) => ({
           _key: g?._key,
