@@ -63,6 +63,7 @@ export default function ContactPage() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
+  const [deliveryWarning, setDeliveryWarning] = useState(false);
 
   const onChange = (k) => (e) =>
     setForm((f) => ({ ...f, [k]: e?.target ? e.target.value : e }));
@@ -78,7 +79,8 @@ export default function ContactPage() {
       const payload = Object.fromEntries(
         Object.entries(form).map(([key, value]) => [key, typeof value === "string" ? value.trim() : value])
       );
-      await api.post("/contact", payload);
+      const response = await api.post("/contact", payload);
+      setDeliveryWarning(response?.data?.email_status === "failed");
       setSent(true);
       toast.success(t("co.received"));
     } catch (e) {
@@ -193,6 +195,13 @@ export default function ContactPage() {
                     {t("co.success.h2")}
                   </h2>
                   <p className="text-white/70 font-inter max-w-md mx-auto">{t("co.success.body")}</p>
+                  {deliveryWarning && (
+                    <p className="text-amber-300/90 font-inter text-sm max-w-lg mx-auto mt-4" role="status">
+                      {lang === "fr"
+                        ? "Votre brief a bien été enregistré. La notification par e-mail n’a pas abouti, mais notre équipe conserve votre demande. Pour un suivi immédiat, contactez-nous sur WhatsApp."
+                        : "Your brief was saved successfully. The email notification could not be delivered, but our team still has your request. Contact us on WhatsApp for immediate follow-up."}
+                    </p>
+                  )}
                   <a
                     href={whatsappLink(waText)}
                     target="_blank"

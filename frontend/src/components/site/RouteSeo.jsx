@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { fetchPortfolioBySlug } from "@/lib/portfolio";
+import { markPageNoindex } from "@/lib/seo";
 
 // Production canonical host until id9agency.com is purchased and attached to Vercel.
 const SITE_URL = "https://id9-agency-website.vercel.app";
@@ -68,7 +69,10 @@ export default function RouteSeo() {
   const { lang } = useI18n();
 
   useEffect(() => {
-    if (pathname.startsWith("/admin")) return undefined;
+    if (pathname.startsWith("/admin")) {
+      markPageNoindex("Administration — Impact Digital 9 Agency");
+      return undefined;
+    }
 
     let cancelled = false;
     const canonicalUrl = SITE_URL + pathname;
